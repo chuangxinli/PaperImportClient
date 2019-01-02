@@ -138,10 +138,6 @@ Vue.prototype.clearLocal = ()=>{
 	return localStorage.clear();
 }
 
-router.beforeEach((to, from, next) => {
-  store.commit('change_route', {route_name: to.path})
-  next()
-})
 
 /* eslint-disable no-new */
 new Vue({

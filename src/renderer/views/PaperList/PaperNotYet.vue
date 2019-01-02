@@ -22,9 +22,7 @@
 						:value="item.value">
 					</el-option>
 				</el-select>
-				
-				<div class="btn-medium-self-blue mr-20">新增试卷</div>
-				
+				<importPaper class="inline_block"></importPaper>
 				<div class="btn-medium-self-blue fRight ml-20">搜索</div>
 				<el-input class="w_200 input-search-self fRight"
 					placeholder="请输入内容"
@@ -67,9 +65,10 @@
 </template>
 
 <script>
+  import importPaper from '@/components/import.vue'
 	export default {
 		components: {
-			
+      importPaper
 		},
 		data() {
 			return {

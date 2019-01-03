@@ -12,6 +12,7 @@ let loadOptions = {
   background: 'rgba(0, 0, 0, 0.5)'
 }
 axios.defaults.baseURL = global.api_url
+axios.defaults.withCredentials = true
 axios.interceptors.request.use(config => {
   if (obj_options instanceof Object && obj_options.loading) {
     loadingInstance = Loading.service(loadOptions)
@@ -22,6 +23,7 @@ axios.interceptors.request.use(config => {
 })
 
 axios.interceptors.response.use(response => {
+    //console.log(document.cookie)
     if (obj_options instanceof Object && obj_options.loading) {
       loadingInstance.close()
     }
@@ -50,30 +52,31 @@ function checkStatus(response) {
 }
 
 function checkCode(res) {
-  return res.data;
-  /*if (res.data.recode == 404) {
+  if (res.data.recode == 404) {
     Message({
       message: '出现了未知的错误!',
       type: 'warning',
       showClose: true
     })
     return ''
-  } else if (res.data.recode == 1) {
-    Message.error(res.data.errmsg)
-    return ''
-  } else if (res.data.recode == 99) {
+  } else if (res.data.recode == 1006) {
     Message({
-      message: '会话已过期,请重新登录!',
+      message: '用户为登录或会话已经失效!',
       type: 'warning',
       showClose: true
     })
     setTimeout(function () {
-      //location.href = global.return_url
+      router.push({
+        path: '/Signin'
+      })
     }, 2000)
     return ''
-  } else if (res.data) {
+  } else if (res.data.recode == 0) {
     return res.data
-  }*/
+  } else {
+    Message.error(res.data.errmsg)
+    return ''
+  }
 }
 export default {
   post(url, data, obj) {
@@ -86,7 +89,7 @@ export default {
         url,
         baseURL: obj_options.baseUrl,
         data: qs.stringify(data),
-        timeout: 3000,
+        timeout: 30000,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         }
@@ -95,8 +98,8 @@ export default {
       return axios({
         method: 'post',
         url,
-        data: qs.stringify(data),
-        timeout: 3000,
+        data: data,
+        timeout: 30000,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         }
@@ -107,7 +110,7 @@ export default {
     if (obj instanceof Object) {
       obj_options = obj
     }
-		if (obj_options instanceof Object && obj_options.baseUrl) {
+    if (obj_options instanceof Object && obj_options.baseUrl) {
       return axios({
         method: 'get',
         url,
@@ -129,6 +132,5 @@ export default {
         }
       }).then(checkStatus).then(checkCode)
     }
-
   }
 }

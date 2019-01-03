@@ -1,5 +1,7 @@
+
 export default {
-  api_url: 'http://120.27.195.10:8090/das/',
+  //api_url: 'http://cs.emingren.com:8085',
+  api_url: 'http://192.168.1.107/YouPuPaperUpload',
   token: ''
 }
 

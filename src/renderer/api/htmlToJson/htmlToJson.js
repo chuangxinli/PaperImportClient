@@ -1,6 +1,7 @@
 const mammoth = require('mammoth');
 const jsdom = require('jsdom');
 const {JSDOM} = jsdom;
+const path = require('path');
 
 
 
@@ -173,7 +174,7 @@ function htmlToJson(res, docxArr, myEmitter) {
       styleMap: [
         "u => u",
         "p [style-name='Section Title'] => h1",
-        "p [style-name='Subsection Title'] => h2",
+        //"p [style-name='Subsection Title'] => h2",
         "p [style-name='Heading 3'] => h3",
         "p [style-name='Heading 4'] => h4",
         "p [style-name='Heading 2'] => h2"
@@ -446,7 +447,8 @@ function htmlToJson(res, docxArr, myEmitter) {
       }
       dealSubQuestion(jsonObj)
       jsonObj.localId = new Date().getTime()
-      myEmitter.emit('success', {i, jsonObj, temp, path: docxArr[i]})
+      jsonObj.fileName = path.basename(docxArr[i], '.docx')
+      //myEmitter.emit('success', {i, jsonObj, temp, path: docxArr[i]})
       jsonArr.push(jsonObj)
       if((jsonArr.length + errArr.length) === docxArr.length){
         res.send({
@@ -457,7 +459,7 @@ function htmlToJson(res, docxArr, myEmitter) {
     })
       .catch(err => {
         console.log(err)
-        errArr.push({index: i, path: docxArr[i]})
+        errArr.push({index: i, path: docxArr[i], fileName: path.basename(docxArr[i], '.docx')})
         if((jsonArr.length + errArr.length) === docxArr.length){
           res.send({
             jsonArr,

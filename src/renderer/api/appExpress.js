@@ -9,8 +9,8 @@ const writeFile = require('write');
 const EventEmitter = require('events');
 class MyEmitter extends EventEmitter{}
 const myEmitter = new MyEmitter()
-myEmitter.on('success', function (obj) {
-  let fileBaseName = path.basename(obj.path, '.docx')
+//myEmitter.on('success', function (obj) {
+  /*let fileBaseName = path.basename(obj.path, '.docx')
   let time = new Date().getTime()
   writeFile(path.join(__dirname, `./fileOfJsonAndHtml/${time}__${obj.i + 1}__${fileBaseName}/${fileBaseName}.json`), JSON.stringify(obj.jsonObj), (err) => {
     if (err) {
@@ -25,8 +25,8 @@ myEmitter.on('success', function (obj) {
       return
     }
     console.log('html_success！')
-  })
-})
+  })*/
+//})
 
 
 
@@ -42,11 +42,16 @@ appExpress.use(bodyParser.urlencoded({extended: false}))
 
 
 appExpress.post('/word-to-json',function (req, res) {
-  htmlToJson(res, req.body.docxList, myEmitter)
+  htmlToJson(res, req.body.docxList)
 })
 
 appExpress.get('/hello', function (req, res) {
+  res.cookie('name', 'tobi', { expires: new Date(Date.now() + 900000)});
    res.send('hello！')
+})
+appExpress.get('/hi', function (req, res) {
+  console.log(req.cookies.name)
+  res.send('hi！')
 })
 
 appExpress.listen(3003)

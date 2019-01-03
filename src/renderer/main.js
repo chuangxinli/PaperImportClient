@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import axios from 'axios'
-import qs from 'qs'
 import api from './api.js'
 import {Message} from 'element-ui'
 import ElementUI from 'element-ui';
@@ -83,7 +82,7 @@ Vue.prototype.getCookie = function (name){
 }
 // 设置单个 cookie 值
 Vue.prototype.setCookie = (name, value) => {
-  let Days = 30;
+  let Days = 15;
   let exp = new Date();
   let date = Math.round(exp.getTime() / 1000) + Days * 24 * 60 * 60;
   const cookie = {
@@ -139,6 +138,9 @@ Vue.prototype.clearLocal = ()=>{
 }
 
 
+router.push({
+  path: '/SignIn'
+})
 /* eslint-disable no-new */
 new Vue({
 	components: {

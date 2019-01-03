@@ -50,21 +50,31 @@
 						</div>
 					</div>
 				</div>
-				
 				<div class="bottomContainer">
 					<p class="top">铭仁（北京）教育科技有限公司@Copyr</p>
 					<p class="bottom">服务电话：400-0052-365</p>
 				</div>
-				
 			</div>
-		  
     </div>
   </div>
 </template>
 
 <script>
+	import axios from 'axios'
 	const {BrowserWindow} = require('electron')
+	import { Message } from 'element-ui'
 	export default {
+	  computed: {
+	    version() {
+	      return this.$store.state.Version.version
+			},
+      subjectAboutInfo() {
+	      return this.$store.state.Version.subjectAboutInfo
+			},
+      unitAndSubUnit() {
+	      return this.$store.state.Version.unitAndSubUnit
+			}
+		},
 		props: {
 			height: {
 				type: String,
@@ -76,16 +86,27 @@
       	isFullScreen: false,
       	labelPosition: 'center',
       	formLabelAlign: {
-      		account: '',
-      		userPwd: '',
+      		account: '441731229@qq.com',
+      		userPwd: '123456',
       		isSetCookie: false
-      	}
-      	
+      	},
+				isGetSubjectAboutInfo: false,
+				isGetUnitAndSubUnit: false,
+				newVersion: ''
       };
     },
     mounted() {
-    	// this.ActivateMember();
-    	// this.bringTokenBack();
+	    console.log(this.unitAndSubUnit)
+			console.log(this.subjectAboutInfo)
+	    if(this.getLocal('isSetCookie') == 'true'){
+        this.formLabelAlign.isSetCookie = true
+        this.formLabelAlign.account = this.getCookie('account')
+        this.formLabelAlign.userPwd = this.getCookie('userPwd')
+			}else{
+        this.formLabelAlign.isSetCookie = false
+        this.formLabelAlign.account = ''
+        this.formLabelAlign.userPwd = ''
+			}
 		},
     methods: {
     	close() {
@@ -123,11 +144,72 @@
 	        this.$message.error(data.errmsg);
 	      }
 			},
-			signIn() {
+      getSubjectAboutInfo() {
+        let url = '/paper/baseData/getSubjectAboutInfo'
+    	  return axios.get(this.global.api_url + url)
+			},
+      getUnitAndSubUnit() {
+        let url = '/paper/baseData/getUnitAndSubUnit'
+    	  return axios.get(this.global.api_url + url)
+			},
+			async signIn() {
+    	  if(!this.formLabelAlign.account){
+          this.$message({
+            message: '账号不能为空！',
+            type: 'warning'
+          });
+          return
+				}
+        if(!this.formLabelAlign.userPwd){
+          this.$message({
+            message: '密码不能为空！',
+            type: 'warning'
+          });
+          return
+        }
+    	  let url = '/paper/system/login'
+				let params = {
+    	    username: this.formLabelAlign.account,
+					password: this.formLabelAlign.userPwd,
+          isLogin: 1 //测试用
+				}
+				let data = await this.api.get(url, params)
+				if(data){
+    	    if(!this.formLabelAlign.isSetCookie){
+						this.clearCookie()
+						this.setLocal('isSetCookie', false)
+					}else{
+            this.setLocal('isSetCookie', true)
+    	      this.saveUserAndPassword(this.formLabelAlign.account, this.formLabelAlign.userPwd)
+					}
+          this.$router.push({
+            path: '/Main'
+          })
+					if(data.data.version != this.version){
+    	      this.newVersion = data.data.version
+    	      axios.all([this.getSubjectAboutInfo(), this.getUnitAndSubUnit()]).then(axios.spread( (SubjectAboutInfo, UnitAndSubUnit) => {
+    	        if(SubjectAboutInfo.data.recode == 0 && UnitAndSubUnit.data.recode == 0){
+                this.$store.dispatch('CHANGE_VERSION', {version: this.newVersion})
+                this.$store.dispatch('UNIT_AND_SUBUINT', {unitAndSubUnit: UnitAndSubUnit.data.data})
+                this.$store.dispatch('SUBJECT_ABOUT_INFO', {subjectAboutInfo: SubjectAboutInfo.data.data})
+							}else{
+                Message({
+                  showClose: true,
+                  message: '数据获取失败！',
+                  type: 'error'
+                });
+							}
+            })).catch((err) => {
+              Message({
+                showClose: true,
+                message: '数据请求异常！',
+                type: 'error'
+              });
+							console.log(err)
+            })
+					}
+				}
 				// 登陆成功后向父级组件传值
-				this.$router.push({
-					path: '/Main'
-				})
 			}
     }
 	}

@@ -12,4 +12,3 @@ function getParamFromUrl(name){
   if (r != null) return decodeURI(r[2]); return null;
 }
 
-// 公共方法 => 日期格式化 或者 其他公共方法

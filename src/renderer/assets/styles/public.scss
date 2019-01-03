@@ -323,7 +323,7 @@ p{
   color: white !important;
 }
 .blueFont{
-  color: dodgerblue !important;
+  color: #41C0BC !important;
 }
 .greenFont{
   color: darkgreen !important;
@@ -805,4 +805,44 @@ ul.itemNumList li:hover, ul.itemNumList li.active{
 /*当焦点不在当前区域滑块的状态（具体为什么要加这句有点忘了，记得是跟刷新时有关）*/
 ::-webkit-scrollbar-thumb:window-inactive {
     background: rgba(65,192,188,0.2);
+}
+
+/* 弹窗样式修改 */
+.el-message-box{
+  border-color: #41C0BC;
+}
+.el-message-box .el-message-box__header{
+  background: #41C0BC;
+}
+.el-message-box .el-message-box__header .el-message-box__title{
+  color: white;
+}
+.el-message-box .el-message-box__header .el-message-box__headerbtn i{
+  color: white;
+}
+.el-message-box .el-message-box__header .el-message-box__headerbtn i:hover{
+  color: #e6a23c;
+  opacity: 0.8;
+}
+.el-message-box .el-message-box__content{
+  padding: 20px 20px;
+  box-sizing: border-box;
+}
+.el-message-box .el-message-box__btns{
+  text-align: center;
+}
+.el-message-box .el-message-box__btns .el-button--primary{
+  background: #41C0BC;
+}
+
+/* 暂无数据 单元格处理 */
+.el-table__empty-block{
+  height: 40px;
+  line-height: 40px;
+  min-height: 40px;
+}
+.el-table__empty-text{
+  color: #41C0BC;
+  letter-spacing: 2px;
+  word-spacing: 2px;
 }

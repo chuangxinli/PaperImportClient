@@ -105,7 +105,7 @@
 					
 					</div>
 					<!-- 核心标签 -->
-					<div class="boderRadiusBox coreMarkBox fRight">
+					<div class="boderRadiusBox coreMarkBox fRight mBottom10">
 						<div class="headerSpread">
 							核心标签
 						</div>
@@ -162,9 +162,100 @@
 					</div>
 					<!-- 右侧苹果pad 显示区域 -->
 					<img src="../../assets/images/ipad.png"/>
-
-				
 				</div>
+				
+				<!--试题信息-->
+				<div class="itemInfoBox boderRadiusBox">
+					<div class="headerSpread">
+						试题信息
+					</div>
+					<div class="itemSelect">
+						<div class="inline_block w_50 blueFont">试题信息</div>
+						<el-input class="w_100 input-search-self"
+							placeholder="试题信息"
+							prefix-icon="el-icon-edit"
+							v-model="seperation">
+						</el-input>
+						<div class="inline_block notice"></div>
+					</div>
+					
+					<div class="itemSelect">
+						<div class="inline_block w_50 blueFont">试题题干</div>
+						<el-input class="w_100 input-search-self"
+							placeholder="试题题干"
+							prefix-icon="el-icon-edit"
+							v-model="seperation">
+						</el-input>
+						<div class="inline_block notice"></div>
+					</div>
+					
+					<div class="itemSelect">
+						<div class="inline_block w_50 blueFont">试题选项</div>
+						<el-input class="w_100 input-search-self"
+							placeholder="试题选项"
+							prefix-icon="el-icon-edit"
+							v-model="seperation">
+						</el-input>
+						<div class="inline_block notice"></div>
+					</div>
+					
+					<div class="itemSelect">
+						<div class="inline_block w_50 blueFont">小题数目</div>
+						<el-input class="w_100 input-search-self"
+							placeholder="小题数目"
+							prefix-icon="el-icon-edit"
+							v-model="seperation">
+						</el-input>
+						<div class="inline_block notice"></div>
+					</div>
+					
+					<div class="itemSelect">
+						<div class="inline_block w_50 blueFont">显示题号</div>
+						<el-input class="w_100 input-search-self"
+							placeholder="显示题号"
+							prefix-icon="el-icon-edit"
+							v-model="seperation">
+						</el-input>
+						<div class="inline_block notice"></div>
+					</div>
+				</div>
+				
+				<!--试题详解-->
+				<div class="itemInfoBox boderRadiusBox">
+					<div class="headerSpread">
+						试题详解
+					</div>
+					<div class="itemSelect">
+						<div class="inline_block w_50 blueFont">分析</div>
+						<el-input class="w_100 input-search-self"
+							placeholder="分析"
+							prefix-icon="el-icon-edit"
+							v-model="seperation">
+						</el-input>
+						<div class="inline_block notice"></div>
+					</div>
+					
+					<div class="itemSelect">
+						<div class="inline_block w_50 blueFont">解答</div>
+						<el-input class="w_100 input-search-self"
+							placeholder="解答"
+							prefix-icon="el-icon-edit"
+							v-model="seperation">
+						</el-input>
+						<div class="inline_block notice"></div>
+					</div>
+					
+					<div class="itemSelect">
+						<div class="inline_block w_50 blueFont">注释</div>
+						<el-input class="w_100 input-search-self"
+							placeholder="注释"
+							prefix-icon="el-icon-edit"
+							v-model="seperation">
+						</el-input>
+						<div class="inline_block notice"></div>
+					</div>
+				</div>
+				
 				
 			</div>
 		</div>
@@ -240,12 +331,12 @@
 						/* 基本标签 */
 						div.commonMarkBox{
 							width: 100%;
-							height: 210px;
+							height: 310px;
 						}
 						/* 其他标签 */
 						div.othersMarkBox{
 							width: 100%;
-							height: 132px;
+							height: 178px;
 							margin-top: 12px;
 							.itemSelect{
 								color: #555555;
@@ -325,6 +416,26 @@
 					}
 				}
 				
+				/* 试题信息 */
+				.itemInfoBox{
+					width: 100%;
+					height: 300px;
+					.itemSelect{
+						color: #555555;
+						font-size: 12px;
+						padding: 5px 10px;
+						height: 20px;
+						line-height: 20px;
+						.input-search-self .el-input__inner{
+							font-size: 12px;
+							height: 20px;
+							line-height: 20px;
+						}
+					}
+					
+					
+					
+				}
 				
 				
 				

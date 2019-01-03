@@ -32,16 +32,15 @@
 				
 				<el-table :data="tableData" stripe class="mTop20 table_self_blue">
           <el-table-column type="index" label="序号" width="50" ></el-table-column>
-          <el-table-column prop="paperName" label="试卷名称" width=""></el-table-column>
-          <el-table-column prop="gradeSubject" label="学段学科" width="100"></el-table-column>
-          <el-table-column prop="bookVersion" label="教材版本" width="100"></el-table-column>
-          <el-table-column prop="totalScore" label="试卷总分" width="100"></el-table-column>
-          <el-table-column prop="itemTotal" label="试题数量" width="100"></el-table-column>
-          <el-table-column prop="resource" label="试卷来源" width="100"></el-table-column>
-          <el-table-column prop="uploadTime" label="上传时间" width="150"></el-table-column>
+          <el-table-column prop="Title" label="试卷名称" width=""></el-table-column>
+          <el-table-column prop="Term" label="学段学科" width="100"></el-table-column>
+          <el-table-column prop="Subject" label="教材版本" width="100"></el-table-column>
+          <el-table-column prop="TotalPoints" label="总分" width="50"></el-table-column>
+          <el-table-column prop="question.length" label="试题总数" width="100"></el-table-column>
+          <el-table-column prop="Papersource" label="试卷来源" width="100"></el-table-column>
+          <el-table-column prop="localId" label="上传时间" width="150" :formatter="formatDatetime"></el-table-column>
           <el-table-column prop="useStatus" label="可用性" width="80"></el-table-column>
-          
-          <el-table-column prop="address" label="操作" width="80">
+          <el-table-column prop="address" label="操作" width="50">
             <template slot-scope="scope">
               <el-popover placement="left" title="" trigger="click">
                 <ul class="popover-list">
@@ -50,7 +49,8 @@
                   <li @click="testClick(scope.row)">考察范围</li>
                   <li @click="testClick(scope.row)">上传至后台</li>
                   <li @click="testClick(scope.row)">预览</li>
-                  <li @click="testClick(scope.row)">删除</li>
+                  <li @click="clearVuexData(scope.row)">删除</li>
+                  <li @click="changePaperName(scope.row)">改变试卷名称</li>
                 </ul>
                 <span slot="reference" class="el-icon-setting pointer handle-icon"></span>
               </el-popover>
@@ -58,6 +58,8 @@
           </el-table-column>
           
         </el-table>
+        
+        <div>{{tableData_store}}</div>
 				
 			</div>
 		</div>
@@ -69,6 +71,11 @@
 	export default {
 		components: {
       importPaper
+		},
+		computed:{
+			tableData_store(){
+				this.tableData = JSON.parse(JSON.stringify(this.$store.state.Paper.jsonArr));
+			}
 		},
 		data() {
 			return {
@@ -93,19 +100,11 @@
 				model_test1: '0',
 				model_test2: '0',
 				model_test3: '',
-				tableData:[
-					{ paperName: '2016-2017学年云南省玉溪市峨山县 ', gradeSubject:'高中数学', bookVersion:'人教版', totalScore:'100', itemTotal:'21', resource:'数学组', uploadTime:'2018-12-09 21:23', useStatus:'1/4' },
-					{ paperName: '2016-2017学年云南省玉溪市峨山县 ', gradeSubject:'高中数学', bookVersion:'人教版', totalScore:'100', itemTotal:'21', resource:'数学组', uploadTime:'2018-12-09 21:23', useStatus:'1/4' },
-					{ paperName: '2016-2017学年云南省玉溪市峨山县 ', gradeSubject:'高中数学', bookVersion:'人教版', totalScore:'100', itemTotal:'21', resource:'数学组', uploadTime:'2018-12-09 21:23', useStatus:'1/4' },
-					{ paperName: '2016-2017学年云南省玉溪市峨山县 ', gradeSubject:'高中数学', bookVersion:'人教版', totalScore:'100', itemTotal:'21', resource:'数学组', uploadTime:'2018-12-09 21:23', useStatus:'1/4' },
-					{ paperName: '2016-2017学年云南省玉溪市峨山县 ', gradeSubject:'高中数学', bookVersion:'人教版', totalScore:'100', itemTotal:'21', resource:'数学组', uploadTime:'2018-12-09 21:23', useStatus:'1/4' },
-					{ paperName: '2016-2017学年云南省玉溪市峨山县 ', gradeSubject:'高中数学', bookVersion:'人教版', totalScore:'100', itemTotal:'21', resource:'数学组', uploadTime:'2018-12-09 21:23', useStatus:'1/4' },
-					{ paperName: '2016-2017学年云南省玉溪市峨山县 ', gradeSubject:'高中数学', bookVersion:'人教版', totalScore:'100', itemTotal:'21', resource:'数学组', uploadTime:'2018-12-09 21:23', useStatus:'1/4' },
-				]
+				tableData: []
 			}
 		},
 		mounted() {
-
+			
 		},
 		methods: {
 			testClick(row){
@@ -113,6 +112,7 @@
 			},
 			// 试卷属性编辑
 			PaperAttributeEdit(row){
+				this.setLocal('paperData',JSON.stringify(row));
 				this.$router.push({
 					name: 'PaperAttributeEdit'
 				})
@@ -122,8 +122,45 @@
 				this.$router.push({
 					name: 'ItemEditMain'
 				})
-			}
-		}
+			},
+			// 改变试卷名称
+			changePaperName(row){
+				console.log(row);
+				this.rowData = row;
+				this.rowData.Title = "测试"
+				this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.rowData});
+			},
+			clearVuexData(row){
+				this.$confirm('此操作将退出 "试卷导入客户端",是否继续?', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					this.$store.dispatch('DELETE_ONE_PAPER',{
+          	localId: row.localId
+        	})
+				}).catch(() => {
+
+				})
+			},
+			// 时间戳处理成 年月日时分秒 格式
+			formatDatetime(row, column) {
+        let time = new Date(Number(row.localId));
+		    let year = time.getFullYear();
+		    let month = time.getMonth()+1;
+		    let date = time.getDate();
+		    let hours = time.getHours();
+		    let minutes = time.getMinutes();
+		    let seconds = time.getSeconds();
+		    return 	year + '-' 
+		    				+ (month<10 ? '0'+month : month) + '-' 
+		    				+ (date<10 ? '0' + date : date)+ ' ' 
+		    				+ (hours<10 ? '0' + hours : hours)+ ':' 
+		    				+ (minutes<10 ? '0' + minutes : minutes)+ ':' 
+		    				+ (seconds<10 ? '0' + seconds : seconds);
+      }
+		},
+		
 	}
 </script>
 

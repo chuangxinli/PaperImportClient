@@ -1,6 +1,6 @@
 {
   "name": "PaperImportClient",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "heshaoxu <18410407088@163.com>",
   "description": "An electron-vue project with element-ui",
   "license": null,

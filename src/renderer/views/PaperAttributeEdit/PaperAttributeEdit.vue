@@ -14,8 +14,10 @@
 				<el-input class="w_500 input-search-self"
 					placeholder="请输入试卷名称"
 				  prefix-icon="el-icon-edit"
-				  v-model="paperName">
+				  @blur="changPaperTitle"
+				  v-model="paperData.Title">
 				</el-input>
+				
 				<div class="btn-medium-self-blue fRight ml-20" @click="goBack()">返回</div>
 				
 				<div class="boderRadiusBox mTop20 mBottom20">
@@ -193,30 +195,22 @@
 						<img src="../../assets/images/arrow_down.png" v-show="isMainSelect" class="left_6em" alt="" />
 						<img src="../../assets/images/arrow_up.png" v-show="!isMainSelect" class="left_6em" alt="" />
 					</div>
-					<el-table :data="tableData" stripe class="table_self_white" v-show="!isMainSelect">
+					<el-table :data="themeList" stripe class="table_self_white" v-show="!isMainSelect">
 	          <el-table-column type="index" label="序号" width="100" ></el-table-column>
-	          <el-table-column prop="paperName" label="题型" width="150"></el-table-column>
-	          <el-table-column prop="gradeSubject" label="答题指导语" width=""></el-table-column>
-	          <el-table-column prop="bookVersion" label="包含试题序号" width="150"></el-table-column>
-	          <el-table-column
-	            prop="address"
-	            label="操作"
-	            width="300">
+	          <el-table-column prop="Name" label="题型" width="150"></el-table-column>
+	          <el-table-column prop="BigTitle.instruction" label="答题指导语" width=""></el-table-column>
+	          <el-table-column prop="NumberRange" label="包含试题序号" width="150"></el-table-column>
+	          <el-table-column prop="address" label="操作" width="300">
 	            <template slot-scope="scope">
 	            	<span class="el-icon-edit" @click='editInfo(scope.row)'></span>
-	            	<span class="el-icon-sort-up" @click='upTowards(scope.row)'></span>
-	            	<span class="el-icon-sort-down" @click='downTowards(scope.row)'></span>
 	            	<span class="el-icon-delete" @click='deleteItem(scope.row)'></span>
 	      			</template>
 	          </el-table-column>
-	          
 	        </el-table>
 					<div class="subBottom text_center" v-show="!isMainSelect">
 						<div class="btn-medium-self-blue" @click="addItem()">新增</div>
 					</div>
 				</div>
-				
-				
 				
 			</div>
 		</div>
@@ -250,34 +244,137 @@
 				],
 				model_test1: '0',
 				model_test2: '0',
-				paperName: '2016-2017学年天津市南开区高二期',
+				Title: '',
 				difficulty: '0.25',
 				isMainSelect: true,
-				tableData:[
-					{ paperName: '选择题', gradeSubject:'高中化学', bookVersion:'1-10', useStatus:'1/4' },
-					{ paperName: '填空题', gradeSubject:'高中化学', bookVersion:'11-15', useStatus:'1/4' },
-					{ paperName: '简答题', gradeSubject:'高中化学', bookVersion:'15-30', useStatus:'1/4' }
-				]
+				paperData:{ Title:'' },				// 试卷名称修改
+				themeList:[],									// 单多填简		大题统计数组列表
+				
 			}
 		},
 		mounted() {
-
+			this.paperData = JSON.parse(this.getLocal('paperData'));
+			console.log(this.paperData);
+			
+			// 初始化数据 => 1: 原始数据(没有动态数据统计) => 2: 非原始数据(已经有单多填简统计数据)
+			if(this.paperData.SingleObj || this.paperData.MultiObj || this.paperData.GapObj || this.paperData.ResolveObj){
+				// 有原始数据
+				console.log("有原始数据");
+				if(this.paperData.SingleObj.QuesArr.length > 0){
+					this.themeList.push(this.paperData.SingleObj); 
+				}
+				if(this.paperData.MultiObj.QuesArr.length > 0){
+					this.themeList.push(this.paperData.MultiObj); 
+				}
+				if(this.paperData.GapObj.QuesArr.length > 0){
+					this.themeList.push(this.paperData.GapObj); 
+				}
+				if(this.paperData.ResolveObj.QuesArr.length > 0){
+					this.themeList.push(this.paperData.ResolveObj);
+				}
+			}else{
+				// 无原始数据
+				console.log("无原始数据");
+				
+				// paperData 中定义数组=> SingleObj MultiObj GapObj ResolveObj
+				//			    且每个数组包含=> BigTitle:{ statics:"", dynamic:"" } 		NumberRange: 1-10 	Name:"单选题" 		QuesArr:[] 四个字段
+				// paperData根数据同步   => SingleTitle, MultiTitle, GapTitle, ResolveTitle: 字段中 statics和dynamic 字符串拼接
+				// this.themeList同步   => SingleObj MultiObj GapObj ResolveObj
+				let questionArr = this.paperData.question;
+				let _this = this; 
+				let singNum = 0; let multiNum = 0; let gapNum = 0; let resolveNum = 0;
+				let singScore = 0; let multiScore = 0; let gapScore = 0; let resolveScore = 0;
+				this.paperData.SingleObj  = { BigTitle:{}, NumberRange: '', Name: '单选题', QuesArr: [] };
+				this.paperData.MultiObj   = { BigTitle:{}, NumberRange: '', Name: '多选题', QuesArr: [] };
+				this.paperData.GapObj  	  = { BigTitle:{}, NumberRange: '', Name: '填空题', QuesArr: [] };
+				this.paperData.ResolveObj = { BigTitle:{}, NumberRange: '', Name: '简答题', QuesArr: [] };
+				
+				for (let i=0; i<questionArr.length; i++){
+					if(questionArr[i].Type == 1){
+						singNum ++
+						singScore += Number(questionArr[i].Score)
+						_this.paperData.SingleObj.QuesArr.push(questionArr[i]);
+					}else if(questionArr[i].Type == 2){
+						multiNum ++
+						multiScore += Number(questionArr[i].Score)
+						_this.paperData.MultiObj.QuesArr.push(questionArr[i]);
+					}else if(questionArr[i].Type == 3){
+						gapNum ++
+						gapScore += Number(questionArr[i].Score)
+						_this.paperData.GapObj.QuesArr.push(questionArr[i]);
+					}else if(questionArr[i].Type == 4){
+						resolveNum ++
+						resolveScore += Number(questionArr[i].Score)
+						_this.paperData.ResolveObj.QuesArr.push(questionArr[i]);
+					}else{
+						
+					}
+				}
+				
+				if(singNum != 0){
+					this.paperData.SingleObj.Name = "单选题";
+					this.paperData.SingleObj.NumberRange = (singNum == 1) ? '1' : (1 + '-' + singNum);
+					this.paperData.SingleObj.BigTitle.statics = '本题共' + singNum + '小题，共' + singScore + '分。';
+					this.paperData.SingleObj.BigTitle.dynamic = '';
+					this.paperData.SingleObj.BigTitle.instruction = this.paperData.SingleObj.BigTitle.statics + this.paperData.SingleObj.BigTitle.dynamic;
+					this.paperData.SingleTitle = this.paperData.SingleObj.BigTitle.instruction; 
+					this.themeList.push(this.paperData.SingleObj); 
+				}
+				
+				if(multiNum != 0){
+					this.paperData.MultiObj.Name = "多选题";
+					this.paperData.MultiObj.NumberRange = (multiNum == 1) ? String(singNum + 1) : (singNum + 1 + '-' + (singNum + multiNum));
+					this.paperData.MultiObj.BigTitle.statics = '本题共' + multiNum + '小题，共' + multiScore + '分。';
+					this.paperData.MultiObj.BigTitle.dynamic = '';
+					this.paperData.MultiObj.BigTitle.instruction = this.paperData.MultiObj.BigTitle.statics + this.paperData.MultiObj.BigTitle.dynamic;
+					this.paperData.MultiTitle = this.paperData.MultiObj.BigTitle.instruction; 
+					this.themeList.push(this.paperData.MultiObj); 
+				}
+				
+				if(gapNum != 0){
+					this.paperData.GapObj.Name = "填空题";
+					this.paperData.GapObj.NumberRange = (gapNum == 1) ? String(singNum + multiNum + 1) : (singNum + multiNum + 1 + '-' + (singNum + multiNum + gapNum));
+					this.paperData.GapObj.BigTitle.statics = '本题共' + gapNum + '小题，共' + gapScore + '分。';
+					this.paperData.GapObj.BigTitle.dynamic = '';
+					this.paperData.GapObj.BigTitle.instruction = this.paperData.GapObj.BigTitle.statics + this.paperData.GapObj.BigTitle.dynamic;
+					this.paperData.GapTitle = this.paperData.GapObj.BigTitle.instruction; 
+					this.themeList.push(this.paperData.GapObj); 
+				}
+				
+				if(resolveNum != 0){
+					this.paperData.ResolveObj.Name = "简答题";
+					this.paperData.ResolveObj.NumberRange = (resolveNum == 1) ? String(singNum + multiNum + gapNum + 1) : (singNum + multiNum + gapNum + 1 + '-' + (singNum + multiNum + gapNum + resolveNum));
+					this.paperData.ResolveObj.BigTitle.statics = '本题共' + resolveNum + '小题，共' + resolveScore + '分。';
+					this.paperData.ResolveObj.BigTitle.dynamic = '';
+					this.paperData.ResolveObj.BigTitle.instruction = this.paperData.ResolveObj.BigTitle.statics + this.paperData.ResolveObj.BigTitle.dynamic;
+					this.paperData.GapTitle = this.paperData.ResolveObj.BigTitle.instruction;
+					this.themeList.push(this.paperData.ResolveObj);
+				}
+				
+				// 将其写入 vuex 原始数据
+				this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
+			}
+			
+			
+			
+			
+			
+			
+			
+			
 		},
 		methods: {
 			alterMainOrSub(){
 				this.isMainSelect = !this.isMainSelect;
 			},
 			goBack(){
-				alert('返回上一级！');
+				this.changeRouterByName('PaperNotYet');
+			},
+			changPaperTitle(){
+				this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 			},
 			editInfo(row){
-				alert('稍后请编辑！');	
-			},
-			upTowards(row){
-				alert('上移一行！');
-			},
-			downTowards(row){
-				alert('下移一行！');
+				
 			},
 			deleteItem(row){
 				alert('删除这一行！');

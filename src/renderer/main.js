@@ -12,12 +12,9 @@ import store from './store'
 import global from './global.js'
 import filters from './filters'
 
-Object.keys(filters).forEach(key => {
-	Vue.filter(key, filters[key])
-});
-
 Vue.http = Vue.prototype.$http = axios
 Vue.prototype.global = global
+Vue.prototype.filters = filters
 Vue.prototype.api = api
 Vue.use(require('vue-electron'))
 Vue.config.productionTip = false
@@ -26,6 +23,13 @@ Vue.prototype.session = require('electron').remote.session;
 const winURL = process.env.NODE_ENV === 'development' ?
   `http://localhost:9080` :
   `file://${__dirname}/index.html`
+
+
+// 添加默认地址
+router.push({
+  path: '/SignIn'
+})
+
 
 // 定义全局点击函数
 Vue.prototype.globalClick = function(callback) {

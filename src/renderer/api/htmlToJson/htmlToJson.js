@@ -143,7 +143,7 @@ function htmlToJson(res, docxArr, myEmitter) {
   let jsonArr = [], errArr = []  //成功解析和失败解析的列表
   for (let i = 0, len = docxArr.length; i < len; i++) {
     let jsonObj = {
-      Tatle: '',
+      Title: '',
       Attribute: '',
       Material: '',
       Subject: '',
@@ -206,7 +206,7 @@ function htmlToJson(res, docxArr, myEmitter) {
           if (/^\s*#\s*#/.test(primaryStr)) {
             curItemType = 'title'
             if (dealSpace('试卷名称').test(primaryStr)) {
-              jsonObj.Tatle = getTitleInfo('试卷名称', primaryStr)
+              jsonObj.Title = getTitleInfo('试卷名称', primaryStr)
               continue
             }
             if (dealSpace('试卷属性').test(primaryStr)) {

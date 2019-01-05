@@ -784,7 +784,7 @@ ul.itemNumList li:hover, ul.itemNumList li.active{
   background: #41C0BC;
 }
 
-
+/* 滚动条美化效果 */
 ::-webkit-scrollbar {
     width: 5px;/*竖向滚动条的宽度*/
     height: 5px;/*横向滚动条的高度*/
@@ -835,6 +835,56 @@ ul.itemNumList li:hover, ul.itemNumList li.active{
   background: #41C0BC;
 }
 
+.el-dialog{
+  border: 1px solid #41C0BC;
+  border-radius: 4px;
+}
+.el-dialog .el-dialog__header{
+  background: #41C0BC;
+  padding: 15px;
+  padding-bottom: 10px;
+}
+.el-dialog .el-dialog__header .el-dialog__title{
+  color: white;
+  line-height: 1;
+}
+.el-dialog .el-dialog__header .el-dialog__headerbtn{
+  top: 15px;
+  right: 15px;
+}
+.el-dialog .el-dialog__header .el-dialog__headerbtn i{
+  color: white;
+}
+.el-dialog .el-dialog__header .el-dialog__headerbtn i:hover{
+  color: #e6a23c;
+  opacity: 0.8;
+}
+.el-dialog .el-dialog__body{
+  padding: 20px 20px;
+  box-sizing: border-box;
+}
+.el-dialog .el-form-item{
+  margin-bottom: 0;
+}
+.el-dialog__footer {
+  padding: 5px 15px 10px;
+}
+.el-dialog__footer .dialog-footer .el-button{
+  padding: 9px 15px;
+  font-size: 12px;
+}
+/* textarea 控制尺寸*/
+.el-dialog .el-dialog__body .el-textarea__inner{
+  height: 100px;
+  resize: none;
+}
+.el-dialog .el-dialog__footer{
+  text-align: center;
+}
+.el-dialog .el-button--primary{
+  background: #41C0BC;
+}
+
 /* 暂无数据 单元格处理 */
 .el-table__empty-block{
   height: 40px;
@@ -846,3 +896,4 @@ ul.itemNumList li:hover, ul.itemNumList li.active{
   letter-spacing: 2px;
   word-spacing: 2px;
 }
+

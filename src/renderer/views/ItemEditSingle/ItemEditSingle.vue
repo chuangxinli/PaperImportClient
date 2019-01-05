@@ -291,7 +291,7 @@
 				this.isMainSelect = !this.isMainSelect;
 			},
 			goBack(){
-				alert('返回上一级！');
+				this.changeRouterByName('ItemEditMain');
 			},
 			editItem(row){
 				alert('稍后请编辑！');	

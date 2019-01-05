@@ -111,8 +111,8 @@
     methods: {
     	close() {
 				this.$confirm('此操作将退出 "试卷导入客户端",是否继续?', '提示', {
-					confirmButtonText: '确定',
-					cancelButtonText: '取消',
+					confirmButtonText: '确 定',
+					cancelButtonText: '取 消',
 					type: 'warning'
 				}).then(() => {
 					this.$electron.ipcRenderer.send('close')

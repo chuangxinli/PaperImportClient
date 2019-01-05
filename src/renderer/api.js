@@ -54,7 +54,7 @@ function checkStatus(response) {
 function checkCode(res) {
   if (res.data.recode == 404) {
     Message({
-      message: '出现了未知的错误!',
+      message: '数据请求失败!',
       type: 'warning',
       showClose: true
     })

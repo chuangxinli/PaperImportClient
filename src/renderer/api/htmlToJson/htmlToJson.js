@@ -2,6 +2,8 @@ const mammoth = require('mammoth');
 const jsdom = require('jsdom');
 const {JSDOM} = jsdom;
 const path = require('path');
+const subjectAboutInfo = require('../../../../json/subjectAboutInfo.json').subjectAboutInfo
+
 
 
 
@@ -41,7 +43,7 @@ function dealBracket(str) {
 }
 
 //获取试题的一些相关的属性
-function getItemProperty(str, primaryStr) {
+function getItemProperty(str, primaryStr, jsonObj) {
   if (str !== '考点') {
     return primaryStr.replace(dealBracket(str), '').trim()
   } else {
@@ -50,7 +52,34 @@ function getItemProperty(str, primaryStr) {
     for (let i = 0, len = tempArr.length; i < len; i++) {
       ExaminationPoints.push(tempArr[i].split('：')[1])
     }
-    return ExaminationPoints
+    let knowledgePointList = []
+    //高中数学（文/理）特殊处理
+    if(jsonObj.Subject.includes('高中数学')){
+      for(let i = 0, len = subjectAboutInfo.length; i < len; i++){
+        if(subjectAboutInfo[i].subjectName.includes('高中数学')){
+          knowledgePointList = knowledgePointList.concat(subjectAboutInfo[i].knowledgePointList)
+        }
+      }
+    }else{
+      for(let i = 0, len = subjectAboutInfo.length; i < len; i++){
+        if(jsonObj.Subject == subjectAboutInfo[i].subjectName){
+          knowledgePointList = subjectAboutInfo[i].knowledgePointList
+          break
+        }
+      }
+    }
+    let arr = []
+    if(ExaminationPoints.length > 0){
+      for(let i = 0, len = ExaminationPoints.length; i < len; i++){
+        for(let j = 0, len2 = knowledgePointList.length; j < len2; j++){
+          if(ExaminationPoints[i] == knowledgePointList[j].pointName){
+            arr.push(knowledgePointList[j].pointFid)
+            break
+          }
+        }
+      }
+    }
+    return arr
   }
 }
 
@@ -288,7 +317,7 @@ function htmlToJson(res, docxArr, myEmitter) {
             }
             if (dealBracket('考点').test(primaryStr)) {
               curItemProperty = 'Examination_points'
-              jsonObj.question[jsonObj.question.length - 1].Examination_points = getItemProperty('考点', primaryStr)
+              jsonObj.question[jsonObj.question.length - 1].Examination_points = getItemProperty('考点', primaryStr, jsonObj)
             } else if (dealBracket('专题').test(primaryStr)) {
               curItemProperty = 'Special_topics'
               jsonObj.question[jsonObj.question.length - 1].Special_topics = getItemProperty('专题', primaryStr)
@@ -336,10 +365,12 @@ function htmlToJson(res, docxArr, myEmitter) {
           if (!hasSubItem) {
             //非题组题
             if (/^\d+(\.|。|．)/.test(primaryStr)) {
+              //如果上一个题是题组题则需要处理,给小题添加属性
               dealSubQuestion(jsonObj)
               let itemObj = {
                 Question_Id: '',
                 Num: getItemNum(primaryStr),
+                Index: jsonObj.question.length + 1,
                 Fid: '',
                 Score: getScore(primaryStr),
                 Type: itemTypeNum,
@@ -365,6 +396,7 @@ function htmlToJson(res, docxArr, myEmitter) {
                 Examination_points: '',
                 From: jsonObj.Papersource,
                 HasSubQuestion: false,
+                isCombination: 0,
                 SubQuestionList: []
               }
               jsonObj.question.push(itemObj)
@@ -376,6 +408,7 @@ function htmlToJson(res, docxArr, myEmitter) {
             let subItemObj = {
               Question_Id: '',
               Num: '',
+              Index: jsonObj.question[jsonObj.question.length - 1].SubQuestionList.length + 1,
               Fid: '',
               Score: '',
               Type: itemTypeNum,
@@ -411,6 +444,7 @@ function htmlToJson(res, docxArr, myEmitter) {
             let itemObj = {
               Question_Id: '',
               Num: getItemNum(primaryStr),
+              Index: jsonObj.question.length + 1,
               Fid: '',
               Score: getScore(primaryStr),
               Type: itemTypeNum,
@@ -437,6 +471,7 @@ function htmlToJson(res, docxArr, myEmitter) {
               From: jsonObj.Papersource,
               //为题组题所添加的属性
               HasSubQuestion: true,
+              isCombination: 1, //是否是题组题 1是 0否
               SubQuestionList: []
             }
             jsonObj.question.push(itemObj)

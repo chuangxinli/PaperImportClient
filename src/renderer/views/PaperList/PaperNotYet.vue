@@ -23,6 +23,8 @@
 					</el-option>
 				</el-select>
 				<importPaper class="inline_block"></importPaper>
+				<importPaper2 class="inline_block"></importPaper2>
+				<div class="btn-medium-self-blue mr-20" @click="removeAll()">全部删除</div>
 				<div class="btn-medium-self-blue fRight ml-20">搜索</div>
 				<el-input class="w_200 input-search-self fRight"
 					placeholder="请输入内容"
@@ -68,13 +70,16 @@
 
 <script>
   import importPaper from '@/components/import.vue'
+  import importPaper2 from '@/components/import2.vue'
 	export default {
 		components: {
-      importPaper
+      importPaper,
+      importPaper2
 		},
 		computed:{
 			tableData_store(){
-				this.tableData = JSON.parse(JSON.stringify(this.$store.state.Paper.jsonArr));
+				//this.tableData = JSON.parse(JSON.stringify(this.$store.state.Paper.jsonArr));
+				this.tableData = JSON.parse(JSON.stringify(this.$store.getters.dealNull));
 			}
 		},
 		data() {
@@ -104,9 +109,14 @@
 			}
 		},
 		mounted() {
-			
+			console.log(this.tableData)
 		},
 		methods: {
+      removeAll(){
+        this.$store.dispatch('DELETE_ONE_PAPER',{
+          localId: -1
+        })
+      },
 			testClick(row){
 				console.log(row);
 			},

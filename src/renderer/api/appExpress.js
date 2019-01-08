@@ -9,7 +9,7 @@ const writeFile = require('write');
 const EventEmitter = require('events');
 class MyEmitter extends EventEmitter{}
 const myEmitter = new MyEmitter()
-//myEmitter.on('success', function (obj) {
+myEmitter.on('success', function (obj) {
   /*let fileBaseName = path.basename(obj.path, '.docx')
   let time = new Date().getTime()
   writeFile(path.join(__dirname, `./fileOfJsonAndHtml/${time}__${obj.i + 1}__${fileBaseName}/${fileBaseName}.json`), JSON.stringify(obj.jsonObj), (err) => {
@@ -26,7 +26,7 @@ const myEmitter = new MyEmitter()
     }
     console.log('html_success！')
   })*/
-//})
+})
 
 
 
@@ -42,7 +42,7 @@ appExpress.use(bodyParser.urlencoded({extended: false}))
 
 
 appExpress.post('/word-to-json',function (req, res) {
-  htmlToJson(res, req.body.docxList)
+  htmlToJson(res, req.body.docxList, myEmitter)
 })
 
 appExpress.get('/hello', function (req, res) {

@@ -43,7 +43,7 @@ function dealBracket(str) {
 }
 
 //获取试题的一些相关的属性
-function getItemProperty(str, primaryStr, jsonObj) {
+function getItemProperty(str, primaryStr, jsonObj, index) {
   if (str !== '考点') {
     return primaryStr.replace(dealBracket(str), '').trim()
   } else {
@@ -53,6 +53,7 @@ function getItemProperty(str, primaryStr, jsonObj) {
       ExaminationPoints.push(tempArr[i].split('：')[1])
     }
     let knowledgePointList = []
+    let ExaminationPointsName = []
     //高中数学（文/理）特殊处理
     if(jsonObj.Subject.includes('高中数学')){
       for(let i = 0, len = subjectAboutInfo.length; i < len; i++){
@@ -74,11 +75,13 @@ function getItemProperty(str, primaryStr, jsonObj) {
         for(let j = 0, len2 = knowledgePointList.length; j < len2; j++){
           if(ExaminationPoints[i] == knowledgePointList[j].pointName){
             arr.push(knowledgePointList[j].pointFid)
+            ExaminationPointsName.push(knowledgePointList[j].pointName)
             break
           }
         }
       }
     }
+    jsonObj.question[index].ExaminationPointsName = ExaminationPointsName
     return arr
   }
 }
@@ -126,7 +129,6 @@ function judgeIsOption(primaryStr) {
 
 //处理选择题
 function dealChoice(primaryStr) {
-  primaryStr = primaryStr.replace(/\s*/g, '')
   let reg = /^\s*#?\s*[A-Z]\s*(\.|。|．)/
   let obj = {}
   if (primaryStr.match(reg)) {
@@ -316,8 +318,9 @@ function htmlToJson(res, docxArr, myEmitter) {
               }
             }
             if (dealBracket('考点').test(primaryStr)) {
+              let index = jsonObj.question.length - 1
               curItemProperty = 'Examination_points'
-              jsonObj.question[jsonObj.question.length - 1].Examination_points = getItemProperty('考点', primaryStr, jsonObj)
+              jsonObj.question[jsonObj.question.length - 1].Examination_points = getItemProperty('考点', primaryStr, jsonObj, index)
             } else if (dealBracket('专题').test(primaryStr)) {
               curItemProperty = 'Special_topics'
               jsonObj.question[jsonObj.question.length - 1].Special_topics = getItemProperty('专题', primaryStr)
@@ -483,7 +486,7 @@ function htmlToJson(res, docxArr, myEmitter) {
       dealSubQuestion(jsonObj)
       jsonObj.localId = new Date().getTime()
       jsonObj.fileName = path.basename(docxArr[i], '.docx')
-      //myEmitter.emit('success', {i, jsonObj, temp, path: docxArr[i]})
+      myEmitter.emit('success', {i, jsonObj, temp, path: docxArr[i]})
       jsonArr.push(jsonObj)
       if((jsonArr.length + errArr.length) === docxArr.length){
         res.send({

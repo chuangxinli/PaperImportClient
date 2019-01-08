@@ -37,7 +37,7 @@ function createWindow () {
   });
 
   mainWindow.loadURL(winURL)
-  //require('../renderer/api/appExpress.js')
+  require('../renderer/api/appExpress.js')
 
   mainWindow.on('closed', () => {
     mainWindow = null

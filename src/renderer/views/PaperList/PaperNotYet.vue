@@ -71,7 +71,209 @@
 				    <el-button type="primary" @click="confirmSetScope()">确 定</el-button>
 				  </span>
 				</el-dialog>
-        
+
+				<!--试卷预览弹框-->
+				<el-dialog
+					title="试卷预览"
+					:visible.sync="previewDialog"
+					width="70%"
+					center>
+					<div>
+						<div class="titleInfo">
+							<p>
+								<span>试卷属性：</span>
+								<span>{{items.Title}}</span>
+							</p>
+							<p>
+								<span>试卷名称：</span>
+								<span>{{items.Attribute}}</span>
+							</p>
+							<p>
+								<span>教材版本：</span>
+								<span>{{items.Material}}</span>
+							</p>
+							<p>
+								<span>学段学科：</span>
+								<span>{{items.Subject}}</span>
+							</p>
+							<p>
+								<span>适用学期（册）：</span>
+								<span>{{items.Term}}</span>
+							</p>
+							<p>
+								<span>试卷总分值：</span>
+								<span>{{items.TotalPoints}}</span>
+							</p>
+							<p>
+								<span>建议答题时长：</span>
+								<span>{{items.Time}}</span>
+							</p>
+							<p>
+								<span>试卷类型：</span>
+								<span>{{items.Papertype}}</span>
+							</p>
+							<p>
+								<span>试卷来源：</span>
+								<span>{{items.Papersource}}</span>
+							</p>
+							<p>
+								<span>核心题库：</span>
+								<span>{{items.Core}}</span>
+							</p>
+							<p>
+								<span>同步试题：</span>
+								<span>{{items.Synchronization}}</span>
+							</p>
+							<p>
+								<span>双三试题：</span>
+								<span>{{items.Douthree}}</span>
+							</p>
+							<p>
+								<span>是否隐藏：</span>
+								<span>{{items.IsHide}}</span>
+							</p>
+							<p>
+								<span>是否正确：</span>
+								<span>{{items.IsTrue}}</span>
+							</p>
+							<p>
+								<span>区分度：</span>
+								<span>{{items.Division}}</span>
+							</p>
+							<p>
+								<span>答题时间：</span>
+								<span>{{items.Spenttime}}</span>
+							</p>
+							<p>
+								<span>难度方案：</span>
+								<span>{{items.DiffcultyType}}</span>
+							</p>
+							<p>
+								<span>难度：</span>
+								<span>{{items.Difficulty}}</span>
+							</p>
+						</div>
+						<div v-show="single.length > 0">
+							<div>一、单项选择题 </div>
+							<div v-for="item in single">
+								<div class="title">
+									<span>{{item.Num}}、</span>
+									<span>({{item.Score}}分)</span>
+									<span v-html="item.Text"></span>
+								</div>
+								<div class="detail">
+									<div v-for="subItem in item.Options" v-html="subItem.holeAnwser"></div>
+									<div>
+										<span class="bold">考点：</span>
+										<span v-html="item.ExaminationPointsName.join(';')"></span>
+									</div>
+									<div>
+										<span class="bold">分析：</span>
+										<span v-html="item.Analysis"></span>
+									</div>
+									<div>
+										<span class="bold">点评：</span>
+										<span v-html="item.Comments"></span>
+									</div>
+									<div>
+										<span class="bold">解答：</span>
+										<span v-html="item.Analysis"></span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div v-show="multiple.length > 0">
+							<div>一、多项选择题 </div>
+							<div v-for="item in multiple">
+								<div class="title">
+									<span>{{item.Num}}、</span>
+									<span>({{item.Score}}分)</span>
+									<span v-html="item.Text"></span>
+								</div>
+								<div class="detail">
+									<div v-for="subItem in item.Options" v-html="subItem.holeAnwser"></div>
+									<div>
+										<span class="bold">考点：</span>
+										<span v-html="item.ExaminationPointsName.join(';')"></span>
+									</div>
+									<div>
+										<span class="bold">分析：</span>
+										<span v-html="item.Analysis"></span>
+									</div>
+									<div>
+										<span class="bold">点评：</span>
+										<span v-html="item.Comments"></span>
+									</div>
+									<div>
+										<span class="bold">解答：</span>
+										<span v-html="item.Analysis"></span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div v-show="blank.length > 0">
+							<div>一、填空题 </div>
+							<div v-for="item in blank">
+								<div class="title">
+									<span>{{item.Num}}、</span>
+									<span>({{item.Score}}分)</span>
+									<span v-html="item.Text"></span>
+								</div>
+								<div class="detail">
+									<div v-for="subItem in item.Options" v-html="subItem.holeAnwser"></div>
+									<div>
+										<span class="bold">考点：</span>
+										<span v-html="item.ExaminationPointsName.join(';')"></span>
+									</div>
+									<div>
+										<span class="bold">分析：</span>
+										<span v-html="item.Analysis"></span>
+									</div>
+									<div>
+										<span class="bold">点评：</span>
+										<span v-html="item.Comments"></span>
+									</div>
+									<div>
+										<span class="bold">解答：</span>
+										<span v-html="item.Analysis"></span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div v-show="resolve.length > 0">
+							<div>一、解答题 </div>
+							<div v-for="item in resolve">
+								<div class="title">
+									<span>{{item.Num}}、</span>
+									<span>({{item.Score}}分)</span>
+									<span v-html="item.Text"></span>
+								</div>
+								<div v-show="item.SubQuestionList.length > 0">
+									<div v-for="subItem in item.SubQuestionList" v-html="subItem.Text"></div>
+								</div>
+								<div class="detail">
+									<div v-for="subItem in item.Options" v-html="subItem.holeAnwser"></div>
+									<div>
+										<span class="bold">考点：</span>
+										<span v-html="item.ExaminationPointsName.join(';')"></span>
+									</div>
+									<div>
+										<span class="bold">分析：</span>
+										<span v-html="item.Analysis"></span>
+									</div>
+									<div>
+										<span class="bold">点评：</span>
+										<span v-html="item.Comments"></span>
+									</div>
+									<div>
+										<span class="bold">解答：</span>
+										<span v-html="item.Analysis"></span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</el-dialog>
         
         
 			</div>
@@ -104,9 +306,14 @@
 				// 虚拟树状结构
 				scopeTree: [],			// 章节知识点范围
         defaultProps: { children: 'subUnitList', label: 'unitName' },
-        InitScopeIdArr: []
-				
-				
+        InitScopeIdArr: [],
+				//预览
+				previewDialog: false,
+				items: {},
+				single: [],
+				multiple: [],
+				blank: [],
+				resolve: []
 			}
 		},
 		mounted() {
@@ -125,7 +332,81 @@
         })
       },
 			TestClick(row){
-				console.log(row);
+			  console.log(row)
+			  this.single = []
+				this.multiple = []
+				this.blank = []
+				this.resolve = []
+			  this.previewDialog = true
+				this.items = row
+				for(let i = 0, len = this.items.question.length; i < len; i++){
+			    this.items.question[i].Text = this.global.formatPToSpan2(this.global.formatPToSpan(this.items.question[i].Text))
+					this.items.question[i].Explain = this.global.formatPToSpan(this.items.question[i].Explain)
+          this.items.question[i].Analysis = this.global.formatPToSpan(this.items.question[i].Analysis)
+          this.items.question[i].Comments = this.global.formatPToSpan(this.items.question[i].Comments)
+          if (this.items.question[i].Options && this.items.question[i].Options.length > 0) {
+            for (let j = 0; j < this.items.question[i].Options.length; j++) {
+              if (this.items.question[i].Type == 1 || this.items.question[i].Type == 2) {
+                if (this.items.question[i].Options[j].Index == 1) {
+                  this.items.question[i].Options[j].choice = 'A';
+                  if (this.items.question[i].Options[j].IsRight) {
+                    this.items.question[i].rightanswer = 'A；';
+                  }
+                } else if (this.items.question[i].Options[j].Index == 2) {
+                  this.items.question[i].Options[j].choice = 'B';
+                  if (this.items.question[i].Options[j].IsRight) {
+                    this.items.question[i].rightanswer = 'B；';
+                  }
+                } else if (this.items.question[i].Options[j].Index == 3) {
+                  this.items.question[i].Options[j].choice = 'C';
+                  if (this.items.question[i].Options[j].IsRight) {
+                    this.items.question[i].rightanswer = 'C；';
+                  }
+                } else if (this.items.question[i].Options[j].Index == 4) {
+                  this.items.question[i].Options[j].choice = 'D';
+                  if (this.items.question[i].Options[j].IsRight) {
+                    this.items.question[i].rightanswer = 'D；';
+                  }
+                } else if (this.items.question[i].Options[j].Index == 5) {
+                  this.items.question[i].Options[j].choice = 'E';
+                  if (this.items.question[i].Options[j].IsRight) {
+                    this.items.question[i].rightanswer = 'E；';
+                  }
+                } else if (this.items.question[i].Options[j].Index == 6) {
+                  this.items.question[i].Options[j].choice = 'F';
+                  if (this.items.question[i].Options[j].IsRight) {
+                    this.items.question[i].rightanswer = 'F；';
+                  }
+                } else if (this.items.question[i].Options[j].Index == 7) {
+                  this.items.question[i].Options[j].choice = 'G';
+                  if (this.items.question[i].Options[j].IsRight) {
+                    this.items.question[i].rightanswer = 'G；';
+                  }
+                } else if (this.items.question[i].Options[j].Index == 8) {
+                  this.items.question[i].Options[j].choice = 'H';
+                  if (this.items.question[i].Options[j].IsRight) {
+                    this.items.question[i].rightanswer = 'H；';
+                  }
+                }
+                this.items.question[i].Options[j].holeAnwser = this.items.question[i].Options[j].choice + "、" + this.global.formatPToSpan(this.items.question[i].Options[j].Text);
+                this.items.question[i].Options[j].holeAnwser = this.global.formatPToSpan(this.items.question[i].Options[j].holeAnwser);
+              }
+            }
+          }
+			    if(this.items.question[i].Type == 1){
+			      this.single.push(this.items.question[i])
+					}else if(this.items.question[i].Type == 2){
+			      this.multiple.push(this.items.question[i])
+					}else if(this.items.question[i].Type == 3){
+					  this.blank.push(this.items.question[i])
+					}else if(this.items.question[i].Type == 4){
+					  this.resolve.push(this.items.question[i])
+					}
+				}
+				console.log(this.single)
+				console.log(this.multiple)
+				console.log(this.blank)
+				console.log(this.resolve)
 			},
 			// 试卷属性编辑
 			PaperAttributeEdit(row){
@@ -291,5 +572,14 @@
 	.papernotyet-view {
 		flex: 1;
 		overflow: hidden;
+	}
+	.el-dialog__wrapper{
+		overflow: auto !important;
+	}
+	.detail{
+		padding-left: 20px;
+	}
+	.bold{
+		font-weight: 800;
 	}
 </style>

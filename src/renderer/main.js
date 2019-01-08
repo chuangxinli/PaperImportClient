@@ -4,6 +4,7 @@ import api from './api.js'
 import {Message} from 'element-ui'
 import ElementUI from 'element-ui';
 import './assets/styles/theme.scss';
+import '@/components/app.components'
 Vue.use(ElementUI);
 import App from './App'
 import router from './router'

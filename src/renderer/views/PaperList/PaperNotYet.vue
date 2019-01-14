@@ -62,7 +62,6 @@
 					  node-key="unitId"
 					  ref="rangeTree"
 					  highlight-current
-					  :default-checked-keys="InitScopeIdArr"
 					  :props="defaultProps">
 					</el-tree>
 				  
@@ -72,8 +71,7 @@
 				  </span>
 				</el-dialog>
         
-        
-        
+        <p>{{showVuexData}}</p>
 			</div>
 		</div>
 	</el-scrollbar>
@@ -82,6 +80,7 @@
 <script>
   import importPaper from '@/components/import.vue'
   import importPaper2 from '@/components/import2.vue'
+
 	export default {
 		components: {
       importPaper,
@@ -100,23 +99,26 @@
 				scopeDataStr: '',		// 最终形成的 paperData.scopeDataStr 为 章_节@章_节@章_节 拼接的字符串
 				setScopeDialog: false,
 				tableData: [],
+				paperData: {},			//单条试卷数据
 				
 				// 虚拟树状结构
 				scopeTree: [],			// 章节知识点范围
-        defaultProps: { children: 'subUnitList', label: 'unitName' },
-        InitScopeIdArr: []
-				
-				
+        defaultProps: { children: 'subUnitList', label: 'unitName' }
+			}
+		},
+		computed:{
+			showVuexData(){
+				// 接收 Vuex 中未上传试卷列表数据
+				this.tableData = JSON.parse(JSON.stringify(this.$store.state.Paper.jsonArr));
+				// 接收 Vuex 学段学科教材版本数据					=> 只做 学段学科 教材版本 学科能力 思想方法 级联
+				let subjectAboutInfo = JSON.parse(JSON.stringify(this.$store.state.Version.subjectAboutInfo));
+				this.SubjectArr = this.SubjectArr.concat(subjectAboutInfo);		// 学段学科 加上全部 ''
+				// 接收 Vuex 学段学科教材版本章节知识点树		=> 只做 学段学科 教材版本 章节知识点 树形结构
+				this.scopeArr = JSON.parse(JSON.stringify(this.$store.state.Version.unitAndSubUnit));
 			}
 		},
 		mounted() {
-			// 接收 Vuex 中未上传试卷列表数据
-			this.tableData = JSON.parse(JSON.stringify(this.$store.state.Paper.jsonArr));
-			// 接收 Vuex 学段学科教材版本数据					=> 只做 学段学科 教材版本 学科能力 思想方法 级联
-			let subjectAboutInfo = JSON.parse(JSON.stringify(this.$store.state.Version.subjectAboutInfo));
-			this.SubjectArr = this.SubjectArr.concat(subjectAboutInfo);		// 学段学科 加上全部 ''
-			// 接收 Vuex 学段学科教材版本章节知识点树		=> 只做 学段学科 教材版本 章节知识点 树形结构
-			this.scopeArr = JSON.parse(JSON.stringify(this.$store.state.Version.unitAndSubUnit));
+			
 		},
 		methods: {
 			removeAll(){
@@ -125,7 +127,7 @@
         })
       },
 			TestClick(row){
-				console.log(row);
+				
 			},
 			// 试卷属性编辑
 			PaperAttributeEdit(row){
@@ -218,9 +220,7 @@
 				let subjectName = row.Subject;
 				let materialName = row.Material;
 				let scopeArr = this.scopeArr;
-				
-				console.log(this.scopeArr);
-				
+				this.paperData = row;
 				// scopeArr => scopeTree => InitScopeIdArr => scopeDataStr
 				if(scopeArr && scopeArr.length>0){
 					for(let i=0; i<scopeArr.length; i++){
@@ -237,13 +237,16 @@
 											}
 										}
 									}
-//									if(row.scopeDataStr && row.scopeDataStr.length>0){
-//										// paperData.scopeDataStr 中有原始数据
-//					
-//									}else{
-//										// paperData.scopeDataStr 中无原始数据
-//									}
 									this.setScopeDialog = true;
+									setTimeout(()=>{
+										if(row.InitScopeIdArr && row.InitScopeIdArr.length>0){
+											// paperData.scopeDataStr 中有原始数据
+											this.$refs.rangeTree.setCheckedKeys(row.InitScopeIdArr);
+										}else{
+											// paperData.scopeDataStr 中无原始数据
+											this.$refs.rangeTree.setCheckedKeys([]);
+										}
+									},0)
 								}
 							}
 						}
@@ -253,16 +256,24 @@
 			// 确定设置 "试卷考察范围"
 			confirmSetScope(){
 				let temp = this.$refs.rangeTree.getCheckedNodes();
-				console.log(temp);
 				if(temp && temp.length>0){
+					this.paperData.InitScopeIdArr = [];
+					this.paperData.scopeDataStr = '';
 					for(let i =0; i<temp.length; i++){
-						
+						if(temp[i].level == 2){
+							this.paperData.InitScopeIdArr.push(temp[i].unitId);
+							this.paperData.scopeDataStr += temp[i].unitId_parent + '_' + temp[i].unitId + '@';
+						}
 					}
+					this.paperData.scopeDataStr = this.paperData.scopeDataStr.slice(0,this.paperData.scopeDataStr.length-1);
+					// 将其写入 vuex 原始数据
+					this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
+					this.$refs.rangeTree.store.defaultExpandAll = false;
+					this.setScopeDialog = false;
 				}else{
-					
+					this.$refs.rangeTree.store.defaultExpandAll = false;
+					this.setScopeDialog = false;
 				}
-				
-				
 			},
 			
 			
@@ -282,7 +293,7 @@
 				
 				/* 设置 '设置考查范围弹窗' 高度 */
 				#setScopeDialog .el-dialog__body{
-					height: 500px;
+					height: 450px;
 					overflow-y: auto;
 				}
 			}

@@ -6,7 +6,7 @@ export default {
   getParamFromUrl,
   formatPToSpan,
   formatFirstPToSpan,
-  formatPToSpan2
+  formatPToSpan2,
   numToChinese
 }
 // 1: 截取地址栏中字符串方法

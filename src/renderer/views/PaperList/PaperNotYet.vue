@@ -56,7 +56,6 @@
 
         <!-- 设置 "考察范围" 弹窗 -->
         <el-dialog title="设置试卷考察范围" :visible.sync="setScopeDialog" width="40%" id="setScopeDialog">
-
           <!-- 树状结构 -->
           <el-tree
             :data="scopeTree"
@@ -245,6 +244,11 @@
       </div>
     </div>
   </el-scrollbar>
+        
+        <p>{{showVuexData}}</p>
+			</div>
+		</div>
+	</el-scrollbar>
 </template>
 
 <script>
@@ -255,6 +259,17 @@
       importPaper,
       importPaper2
     },
+    computed:{
+			showVuexData(){
+				// 接收 Vuex 中未上传试卷列表数据
+				this.tableData = JSON.parse(JSON.stringify(this.$store.state.Paper.jsonArr));
+				// 接收 Vuex 学段学科教材版本数据					=> 只做 学段学科 教材版本 学科能力 思想方法 级联
+				let subjectAboutInfo = JSON.parse(JSON.stringify(this.$store.state.Version.subjectAboutInfo));
+				this.SubjectArr = this.SubjectArr.concat(subjectAboutInfo);		// 学段学科 加上全部 ''
+				// 接收 Vuex 学段学科教材版本章节知识点树		=> 只做 学段学科 教材版本 章节知识点 树形结构
+				this.scopeArr = JSON.parse(JSON.stringify(this.$store.state.Version.unitAndSubUnit));
+			}
+		},
     data() {
       return {
         SubjectArr: [{subjectId: '999', subjectName: '全部'}],
@@ -378,102 +393,114 @@
           + (seconds < 10 ? '0' + seconds : seconds);
       },
       // 学段学科 <=> 教材版本
-      SubjectChange(){
-        if (this.subjectId == '999') {
-          this.subjectName = '';
-          this.MaterialArr = [{materialId: '999', materialName: '全部'}];
-        } else {
-          let SubjectArr = this.SubjectArr;
-          for (let i = 0; i < SubjectArr.length; i++) {
-            if (SubjectArr[i].materialList && SubjectArr[i].materialList.length > 0) {
-              if (this.subjectId == SubjectArr[i].subjectId) {
-                this.subjectName = SubjectArr[i].subjectName;
-                this.MaterialArr = [{materialId: '999', materialName: '全部'}].concat(SubjectArr[i].materialList);
-              }
-            } else {
-              this.subjectName = '';
-              this.MaterialArr = [{materialId: '999', materialName: '全部'}];
-            }
-          }
-        }
-        this.materialId = '999';
-        this.materialName = '';
-      },
+			SubjectChange(){
+				if(this.subjectId == '999'){
+					this.subjectName = '';
+					this.MaterialArr = [ { materialId: '999', materialName: '全部'} ];
+				}else{
+					let SubjectArr = this.SubjectArr;
+					for(let i=0; i<SubjectArr.length; i++){
+						if(SubjectArr[i].materialList && SubjectArr[i].materialList.length>0){
+							if(this.subjectId == SubjectArr[i].subjectId){
+								this.subjectName = SubjectArr[i].subjectName;
+								this.MaterialArr = [ { materialId: '999', materialName: '全部'} ].concat(SubjectArr[i].materialList);
+							}
+						}else{
+							this.subjectName = '';
+							this.MaterialArr = [ { materialId: '999', materialName: '全部'} ];
+						}
+					}
+				}
+				this.materialId = '999';
+				this.materialName = '';
+			},
+      
       // 教材版本改变 <=> 获取教材版本名称
-      MaterialChange(){
-        if (this.materialId == '999') {
-          this.materialName = ''
-        } else {
-          let MaterialArr = this.MaterialArr;
-          for (let i = 0; i < MaterialArr.length; i++) {
-            if (this.materialId == MaterialArr[i].materialId) {
-              this.materialName = MaterialArr[i].materialName;
-            }
-          }
-        }
-      },
+			MaterialChange(){
+				if(this.materialId == '999'){
+					this.materialName = ''
+				}else{
+					let MaterialArr = this.MaterialArr;
+					for(let i=0; i<MaterialArr.length; i++){
+						if(this.materialId == MaterialArr[i].materialId){
+							this.materialName = MaterialArr[i].materialName;
+						}
+					}
+				}
+			},
+      
       // 学段学科 教材版本 手动输入 全条件检索
-      FilterPaper(){
-        let tableData = JSON.parse(JSON.stringify(this.$store.state.Paper.jsonArr));
-        let filterPapers = [];
-        for (let i = 0; i < tableData.length; i++) {
-          if (tableData[i].Subject.includes(this.subjectName) && tableData[i].Material.includes(this.materialName) && tableData[i].Title.includes(this.PaperName)) {
-            filterPapers.push(tableData[i])
-          }
-        }
-        this.tableData = filterPapers;
-      },
+			FilterPaper(){
+				let tableData    = JSON.parse(JSON.stringify(this.$store.state.Paper.jsonArr));
+				let filterPapers = [];
+				for(let i=0; i<tableData.length; i++){
+					if( tableData[i].Subject.includes(this.subjectName) && tableData[i].Material.includes(this.materialName) && tableData[i].Title.includes(this.PaperName) ){
+						filterPapers.push(tableData[i])
+					}
+				}
+				this.tableData = filterPapers; 
+			},
+      
       // 设置试卷考察范围
-      SetScopeData(row){
-        let subjectName = row.Subject;
-        let materialName = row.Material;
-        let scopeArr = this.scopeArr;
-
-        console.log(this.scopeArr);
-
-        // scopeArr => scopeTree => InitScopeIdArr => scopeDataStr
-        if (scopeArr && scopeArr.length > 0) {
-          for (let i = 0; i < scopeArr.length; i++) {
-            if (subjectName == scopeArr[i].subjectName) {
-              let materialList = scopeArr[i].materialList;
-              for (let j = 0; j < materialList.length; j++) {
-                if (materialName == materialList[j].materialName) {
-                  this.scopeTree = materialList[j].unitList;
-                  for (let k = 0; k < this.scopeTree.length; k++) {
-                    let unitId_parent = this.scopeTree[k].unitId;
-                    if (this.scopeTree[k].subUnitList && this.scopeTree[k].subUnitList.length > 0) {
-                      for (let m = 0; m < this.scopeTree[k].subUnitList.length; m++) {
-                        this.scopeTree[k].subUnitList[m].unitId_parent = unitId_parent;
-                      }
-                    }
-                  }
-//									if(row.scopeDataStr && row.scopeDataStr.length>0){
-//										// paperData.scopeDataStr 中有原始数据
-//					
-//									}else{
-//										// paperData.scopeDataStr 中无原始数据
-//									}
-                  this.setScopeDialog = true;
-                }
-              }
-            }
-          }
-        }
-      },
-      // 确定设置 "试卷考察范围"
-      confirmSetScope(){
-        let temp = this.$refs.rangeTree.getCheckedNodes();
-        console.log(temp);
-        if (temp && temp.length > 0) {
-          for (let i = 0; i < temp.length; i++) {
-
-          }
-        } else {
-
-        }
-
-
-      },
+			SetScopeData(row){
+				let subjectName = row.Subject;
+				let materialName = row.Material;
+				let scopeArr = this.scopeArr;// 设置试卷考察范围
+				this.paperData = row;
+				// scopeArr => scopeTree => InitScopeIdArr => scopeDataStr
+				if(scopeArr && scopeArr.length>0){
+					for(let i=0; i<scopeArr.length; i++){
+						if(subjectName == scopeArr[i].subjectName){
+							let materialList = scopeArr[i].materialList;
+							for(let j=0; j<materialList.length; j++){
+								if(materialName == materialList[j].materialName){
+									this.scopeTree = materialList[j].unitList;
+									for(let k=0; k<this.scopeTree.length; k++){
+										let unitId_parent = this.scopeTree[k].unitId;
+										if(this.scopeTree[k].subUnitList && this.scopeTree[k].subUnitList.length>0){
+											for(let m=0; m<this.scopeTree[k].subUnitList.length; m++){
+												this.scopeTree[k].subUnitList[m].unitId_parent = unitId_parent;
+											}
+										}
+									}
+									this.setScopeDialog = true;
+									setTimeout(()=>{
+										if(row.InitScopeIdArr && row.InitScopeIdArr.length>0){
+											// paperData.scopeDataStr 中有原始数据
+											this.$refs.rangeTree.setCheckedKeys(row.InitScopeIdArr);
+										}else{
+											// paperData.scopeDataStr 中无原始数据
+											this.$refs.rangeTree.setCheckedKeys([]);
+										}
+									},0)
+								}
+							}
+						}
+					}
+				}
+			},
+			// 确定设置 "试卷考察范围"
+			confirmSetScope(){
+				let temp = this.$refs.rangeTree.getCheckedNodes();
+				if(temp && temp.length>0){
+					this.paperData.InitScopeIdArr = [];
+					this.paperData.scopeDataStr = '';
+					for(let i =0; i<temp.length; i++){
+						if(temp[i].level == 2){
+							this.paperData.InitScopeIdArr.push(temp[i].unitId);
+							this.paperData.scopeDataStr += temp[i].unitId_parent + '_' + temp[i].unitId + '@';
+						}
+					}
+					this.paperData.scopeDataStr = this.paperData.scopeDataStr.slice(0,this.paperData.scopeDataStr.length-1);
+					// 将其写入 vuex 原始数据
+					this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
+					this.$refs.rangeTree.store.defaultExpandAll = false;
+					this.setScopeDialog = false;
+				}else{
+					this.$refs.rangeTree.store.defaultExpandAll = false;
+					this.setScopeDialog = false;
+				}
+			},
 
 
     }

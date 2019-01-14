@@ -142,7 +142,6 @@ Vue.prototype.clearLocal = ()=>{
 	return localStorage.clear();
 }
 
-
 router.push({
   path: '/SignIn'
 })

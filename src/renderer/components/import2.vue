@@ -7,21 +7,56 @@
       title="新增试卷"
       :visible.sync="addPaperDialog"
       width="400px">
-      <div style="min-height: 100px">                            
+      <div style="min-height: 100px">
         <p v-show="docxList.length < 1">暂无导入</p>
         <div v-for="item in docxList" style="min-height: 26px;">
-          <p style="float: left;width: 300px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap" :title="item.name">{{item.name}}</p>
-          <p style="float: right; color: red; cursor: pointer" @click="removeOneDocx(item)"><i class="el-icon-delete"></i></p>
+          <p style="float: left;width: 300px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap"
+             :title="item.name">{{item.name}}</p>
+          <p style="float: right; color: red; cursor: pointer" @click="removeOneDocx(item)"><i
+            class="el-icon-delete"></i></p>
         </div>
       </div>
 
       <span slot="footer" class="dialog-footer">
     <el-button @click="selectFile()">
       <span>选择文件</span>
-      <input type="file" class="file" multiple="multiple" accept=".docx" style="display: none" @change="tirggerFile($event)">
+      <input type="file" class="file" multiple="multiple" accept=".docx" style="display: none"
+             @change="tirggerFile($event)">
     </el-button>
     <el-button type="primary" @click="confirmImport">点击上传</el-button>
   </span>
+    </el-dialog>
+
+
+    <!--试卷导入提示弹框-->
+    <el-dialog
+      title="提示"
+      :visible.sync="paperTipDialog"
+      width="40%"
+      center>
+      <div class="paperTip">
+        <p v-show="errArr.length > 0">解析失败的试卷为：</p>
+        <div v-for="errItem,index in errArr" class="rowHeight mLeft">
+          <span>({{index + 1}})&nbsp;&nbsp;</span>
+          <span>{{errItem.fileName}}</span>
+          <span>.docx，请仔细检查规则是否正确！</span>
+        </div>
+        <p v-show="lackArr.length > 0">解析成功但是不和要求的试卷为：</p>
+        <div v-for="lackItem,index in lackArr" class="mLeft rowHeight">
+          <div>
+            <span>({{index + 1}})&nbsp;&nbsp;</span>
+            <span>{{lackItem.fileName}}</span>
+            <span>.docx</span>
+          </div>
+          <div v-for="titleItem in lackItem.titleArr" class="mLeft rowHeight">{{titleItem}}</div>
+          <div v-for="examPointItem in lackItem.examPointsArr" class="mLeft rowHeight">{{examPointItem}}</div>
+        </div>
+        <p v-show="successArr.length > 0">解析成功的试卷为：</p>
+        <div v-for="item,index in successArr" class="rowHeight mLeft">
+          <span>({{index + 1}})&nbsp;&nbsp;</span>
+          <span>{{item.fileName}}.docx</span>
+        </div>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -29,7 +64,7 @@
 <script>
   import $ from 'jquery'
   import axios from 'axios'
-  import { Loading } from 'element-ui'
+  import {Loading} from 'element-ui'
   export default {
     name: 'export-paper-2',
     computed: {
@@ -45,7 +80,11 @@
       return {
         arr: [],
         addPaperDialog: false,
-        docxList: []
+        paperTipDialog: false,
+        docxList: [],
+        errArr: [],
+        lackArr: [],
+        successArr: []
       }
     },
     methods: {
@@ -55,7 +94,7 @@
           docxList: filePaths
         }
         let data = await this.api.post(url, params)
-        if(data){
+        if (data) {
           console.log(data)
         }
       },
@@ -63,12 +102,12 @@
         let url = '/hello'
         let params = {}
         let data = await this.api.get(url, params)
-        if(data){
+        if (data) {
           console.log(data)
         }
       },
       confirmImport(){
-        if(this.docxList.length < 1){
+        if (this.docxList.length < 1) {
           this.$message({
             showClose: true,
             message: '请至少选择一个.docx结尾的word试卷！',
@@ -77,7 +116,7 @@
         }
         let uploadUrl = 'http://localhost:3004/word-to-json-2'
         let fd = new FormData()
-        for(let i = 0, len = this.docxList.length; i < len; i++){
+        for (let i = 0, len = this.docxList.length; i < len; i++) {
           fd.append('file', this.docxList[i])
         }
         let config = {
@@ -100,20 +139,28 @@
           loadingInstance.close()
           this.addPaperDialog = false
           this.docxList = []
-          if(response.data.errArr.length == 0){
+          this.errArr = response.data.errArr
+          this.lackArr = response.data.lackArr
+          this.successArr = response.data.jsonArr
+
+          if (response.data.errArr.length == 0 && response.data.lackArr.length == 0) {
             this.$message({
               showClose: true,
               message: '试卷导入成功！',
               type: 'success'
             });
           } else {
-            let arr = []
-            for(let i = 0, len = response.data.errArr.length; i < len; i++){
-              arr.push(response.data.errArr[i].fileName)
-            }
-            this.$alert(`<p>解析失败的试卷为：</p><p>${arr.join('，')}</p><p>请仔细检查试卷的结构是否正确！</p>`, '试卷导入提示', {
+            this.paperTipDialog = true
+            /*let arr = []
+             for(let i = 0, len = response.data.errArr.length; i < len; i++){
+             arr.push(response.data.errArr[i].fileName)
+             }
+             this.$alert(`<p>解析失败的试卷为：</p><p>${arr.join('，')}</p><p>请仔细检查试卷的结构是否正确！</p>`, '试卷导入提示', {
+             dangerouslyUseHTMLString: true
+             });*/
+            /*this.$alert('<p>解析失败的试卷为：</p><div v-for="errItem in errArr">{{errItem.fileName}} + ".docx，请仔细检查规则是否正确！"</div><p>解析成功但是不和要求的试卷为：</p><div v-for="lackItem in lackArr"><div>{{lackItem.fileName}}</div><div v-for="titleItem in lackItem.titleArr">{{titleItem}}</div><div v-for="examPointItem in lackItem.examPointsArr"></div></div>', '试卷导入提示', {
               dangerouslyUseHTMLString: true
-            });
+            });*/
           }
           this.$store.dispatch('CHANGE_jSON_ARR',
             {
@@ -132,16 +179,16 @@
         this.addPaperDialog = true
       },
       removeOneDocx(item){
-        for(let i = 0, len = this.docxList.length; i < len; i++){
-          if(item == this.docxList[i]){
+        for (let i = 0, len = this.docxList.length; i < len; i++) {
+          if (item == this.docxList[i]) {
             this.docxList.splice(i, 1)
           }
         }
       },
       tirggerFile(event){
         this.docxList = []
-        for(let i = 0, len = event.target.files.length; i < len; i++){
-          if(/\.docx$/i.test(event.target.files[i].name)){
+        for (let i = 0, len = event.target.files.length; i < len; i++) {
+          if (/\.docx$/i.test(event.target.files[i].name)) {
             this.docxList.push(event.target.files[i])
           }
         }
@@ -151,5 +198,19 @@
 </script>
 
 <style scoped>
-
+  .paperTip > p{
+    min-height: 20px;
+    line-height: 30px;
+  }
+  .rowHeight{
+    min-height: 20px;
+    line-height: 30px;
+  }
+  .mLeft{
+    margin-left: 20px;
+  }
+  .paperTip{
+    max-height: 600px;
+    overflow-y: scroll;
+  }
 </style>

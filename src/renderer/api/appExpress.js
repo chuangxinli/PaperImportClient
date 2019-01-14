@@ -10,7 +10,7 @@ const EventEmitter = require('events');
 class MyEmitter extends EventEmitter{}
 const myEmitter = new MyEmitter()
 myEmitter.on('success', function (obj) {
-  /*let fileBaseName = path.basename(obj.path, '.docx')
+  let fileBaseName = path.basename(obj.path, '.docx')
   let time = new Date().getTime()
   writeFile(path.join(__dirname, `./fileOfJsonAndHtml/${time}__${obj.i + 1}__${fileBaseName}/${fileBaseName}.json`), JSON.stringify(obj.jsonObj), (err) => {
     if (err) {
@@ -25,7 +25,7 @@ myEmitter.on('success', function (obj) {
       return
     }
     console.log('html_success！')
-  })*/
+  })
 })
 
 

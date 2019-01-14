@@ -5,6 +5,7 @@ export default {
   token: '',
   getParamFromUrl,
   formatPToSpan,
+  formatFirstPToSpan,
   formatPToSpan2
 }
 
@@ -44,6 +45,23 @@ function formatPToSpan2(txt) {
 
   txt = txt.replace(reg, 'src="http://img.51youpu.com/Public/pic/');
 
+  return txt;
+}
+function formatFirstPToSpan(txt) {
+  //如果传过来的是[2,3]这种形式的字符串会被解析成数组，需要特殊处理
+  if (txt && typeof txt === 'object' && Array == txt.constructor) {
+    txt = '[' + txt.toString() + ']';
+  } else {
+    txt = txt.trim();
+  }
+  if(txt.match(/^<p>(.*?)<\/p>/) != null){
+    let str = txt.match(/^<p>(.*?)<\/p>/)[1]
+    let str2 = txt.replace(/^<p>(.*?)<\/p>/, '')
+    txt = '<span>' + str + '</span>' + str2
+  }
+  // 替换图片地址
+  let reg = new RegExp('src="/Public/pic/', "g");
+  txt = txt.replace(reg, 'src="http://img.51youpu.com/Public/pic/');
   return txt;
 }
 

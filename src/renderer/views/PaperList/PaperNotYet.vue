@@ -313,6 +313,7 @@
       showVuexData(){
         // 接收 Vuex 中未上传试卷列表数据
         this.tableData = JSON.parse(JSON.stringify(this.$store.state.Paper.jsonArr));
+        console.log(this.tableData);
         // 接收 Vuex 学段学科教材版本数据					=> 只做 学段学科 教材版本 学科能力 思想方法 级联
         let subjectAboutInfo = JSON.parse(JSON.stringify(this.$store.state.Version.subjectAboutInfo));
         this.SubjectArr = this.SubjectArr.concat(subjectAboutInfo);		// 学段学科 加上全部 ''

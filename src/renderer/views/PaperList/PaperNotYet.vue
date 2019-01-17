@@ -9,15 +9,14 @@
         </p>
 
         <el-select class="w_120 mr-20" v-model="subjectId" @change="SubjectChange">
-          <el-option v-for="item in SubjectArr" :key="item.subjectId" :label="item.subjectName"
+          <el-option v-for="item in SubjectArr" :label="item.subjectName"
                      :value="item.subjectId"></el-option>
         </el-select>
         <el-select class="w_120 mr-20" v-model="materialId" @change="MaterialChange">
-          <el-option v-for="item in MaterialArr" :key="item.subjectId" :label="item.materialName"
+          <el-option v-for="item in MaterialArr" :label="item.materialName"
                      :value="item.materialId"></el-option>
         </el-select>
         <importPaper class="inline_block"></importPaper>
-        <importPaper2 class="inline_block"></importPaper2>
         <div class="btn-medium-self-blue mr-20" @click="removeAll()">全部删除</div>
         <div class="btn-medium-self-blue fRight ml-20" @click="FilterPaper">搜索</div>
         <el-input class="w_200 input-search-self fRight"
@@ -26,9 +25,20 @@
                   v-model="PaperName">
         </el-input>
 
-        <el-table :data="tableData" stripe class="mTop20 table_self_blue">
+        <el-table :data="tableData.filter( (item) => {
+          if(materialId == '999' && subjectId == '999'){
+            return true
+          }else if(subjectId != '999' && item.SubjectId == subjectId && materialId == '999'){
+            return true
+          }else if(subjectId != '999' && materialId != '999' && item.SubjectId == subjectId && item.MaterialId == materialId){
+            return true
+          }else{
+            return false
+          }
+        })" stripe class="mTop20 table_self_blue">
           <el-table-column type="index" label="序号" width="50"></el-table-column>
-          <el-table-column prop="Title" label="试卷名称" width="" class="text_left"></el-table-column>
+          <el-table-column prop="Title" label="试卷名称" width="" class="text_left">
+          </el-table-column>
           <el-table-column prop="Subject" label="学段学科" width="100"></el-table-column>
           <el-table-column prop="Material" label="教材版本" width="100"></el-table-column>
           <el-table-column prop="TotalPoints" label="总分" width="50"></el-table-column>
@@ -84,11 +94,11 @@
           <div class="previewPaper">
             <div class="titleInfo">
               <p>
-                <span>试卷属性：</span>
+                <span>试卷名称：</span>
                 <span>{{items.Title}}</span>
               </p>
               <p>
-                <span>试卷名称：</span>
+                <span>试卷属性：</span>
                 <span>{{items.Attribute}}</span>
               </p>
               <p>
@@ -159,20 +169,25 @@
             <div v-for="part in items.AllQuestionArr">
               <div v-if="part.children.length == 0" class="part">
                 <div v-html="global.formatFirstPToSpan(part.text)" class="partText"></div>
-                <div v-for="question in part.question">
-                  <div v-html="question.Num + '.' + (question.Score ? '（' + question.Score + '分）' : '') + global.formatFirstPToSpan(question.Text)" class="text"></div>
+                <div v-for="question,qIndex in part.question">
+                  <div
+                    v-html="(question.Serial_num ? question.Serial_num : qIndex + 1) + '.' + (question.Score ? '（' + question.Score + '分）' : '') + global.formatFirstPToSpan(question.Text)"
+                    class="text"></div>
                   <div v-if="question.Type == 1 || question.Type == 2" class="question">
                     <div class="options" v-for="option in question.Options">
-                      <div v-html="getOption(option.Index) + '.' + global.formatFirstPToSpan(option.Text)" class="option" :class="{'trueOption': option.IsRight === true}"></div>
+                      <div v-html="getOption(option.Index) + '.' + global.formatFirstPToSpan(option.Text)"
+                           class="option" :class="{'trueOption': option.IsRight === true}"></div>
                     </div>
                   </div>
                   <div v-show="question.SubQuestionList.length > 0" class="sub">
-                    <div v-for="subQuestion in question.SubQuestionList">
-                      <div class="subText" v-html="subQuestion.Num + ' ' + (subQuestion.Score ? '（' + subQuestion.Score + '分）' : '') + global.formatFirstPToSpan(subQuestion.Text)">
+                    <div v-for="subQuestion,subIndex in question.SubQuestionList">
+                      <div class="subText" v-html="(subQuestion.Serial_num
+ ? subQuestion.Serial_num : subIndex + 1)  + ' ' + (subQuestion.Score ? '（' + subQuestion.Score + '分）' : '') + global.formatFirstPToSpan(subQuestion.Text)">
                       </div>
                       <div v-if="subQuestion.Type == 1 || subQuestion.Type == 2" class="subQuestion">
                         <div class="options" v-for="option in subQuestion.Options">
-                          <div v-html="getOption(option.Index) + '. ' + global.formatFirstPToSpan(option.Text)" class="option" :class="{'trueOption': option.IsRight === true}"></div>
+                          <div v-html="getOption(option.Index) + '. ' + global.formatFirstPToSpan(option.Text)"
+                               class="option" :class="{'trueOption': option.IsRight === true}"></div>
                         </div>
                       </div>
                     </div>
@@ -201,20 +216,25 @@
                 <div v-html="global.formatFirstPToSpan(part.text)" class="partText"></div>
                 <div v-for="brief in part.children" class="brief">
                   <div v-html="global.formatFirstPToSpan(brief.text)" class="briefText"></div>
-                  <div v-for="question in brief.question">
-                    <div v-html="question.Num + '.' + (question.Score ? '（' + question.Score + '分）' : '') + global.formatFirstPToSpan(question.Text)" class="text"></div>
+                  <div v-for="question,qIndex in brief.question">
+                    <div
+                      v-html="(question.Serial_num ? question.Serial_num : qIndex + 1) + '.' + (question.Score ? '（' + question.Score + '分）' : '') + global.formatFirstPToSpan(question.Text)"
+                      class="text"></div>
                     <div v-if="question.Type == 1 || question.Type == 2" class="question">
                       <div class="options" v-for="option in question.Options">
-                        <div v-html="getOption(option.Index) + '.' + global.formatFirstPToSpan(option.Text)" class="option" :class="{'trueOption': option.IsRight === true}"></div>
+                        <div v-html="getOption(option.Index) + '.' + global.formatFirstPToSpan(option.Text)"
+                             class="option" :class="{'trueOption': option.IsRight === true}"></div>
                       </div>
                     </div>
                     <div v-show="question.SubQuestionList.length > 0" class="sub">
-                      <div v-for="subQuestion in question.SubQuestionList">
-                        <div class="subText" v-html="subQuestion.Num + ' ' + (subQuestion.Score ? '（' + subQuestion.Score + '分）' : '') + global.formatFirstPToSpan(subQuestion.Text)">
+                      <div v-for="subQuestion,subIndex in question.SubQuestionList">
+                        <div class="subText"
+                             v-html="(subQuestion.Serial_num ? subQuestion.Serial_num : subIndex + 1) + ' ' + (subQuestion.Score ? '（' + subQuestion.Score + '分）' : '') + global.formatFirstPToSpan(subQuestion.Text)">
                         </div>
                         <div v-if="subQuestion.Type == 1 || subQuestion.Type == 2" class="subQuestion">
                           <div class="options" v-for="option in subQuestion.Options">
-                            <div v-html="getOption(option.Index) + '. ' + global.formatFirstPToSpan(option.Text)" class="option" :class="{'trueOption': option.IsRight === true}"></div>
+                            <div v-html="getOption(option.Index) + '. ' + global.formatFirstPToSpan(option.Text)"
+                                 class="option" :class="{'trueOption': option.IsRight === true}"></div>
                           </div>
                         </div>
                       </div>
@@ -250,12 +270,10 @@
 
 <script>
   import importPaper from '@/components/import.vue'
-  import importPaper2 from '@/components/import2.vue'
 
   export default {
     components: {
-      importPaper,
-      importPaper2
+      importPaper
     },
     data() {
       return {
@@ -325,8 +343,16 @@
     },
     methods: {
       removeAll(){
-        this.$store.dispatch('DELETE_ONE_PAPER', {
-          localId: -1
+        this.$confirm('此操作将删除所有已经导入的试卷请三思，是否继续？', '提示', {
+          confirmButtonText: '确 定',
+          cancelButtonText: '取 消',
+          type: 'warning'
+        }).then(() => {
+          this.$store.dispatch('DELETE_ONE_PAPER', {
+            localId: -1
+          })
+        }).catch(() => {
+
         })
       },
       TestClick(row){
@@ -340,7 +366,7 @@
       },
       //获取考点
       getExamPoints(arr){
-        if(!arr){
+        if (!arr) {
           arr = []
         }
         return arr.join('；')
@@ -425,7 +451,7 @@
         let tableData = JSON.parse(JSON.stringify(this.$store.state.Paper.jsonArr));
         let filterPapers = [];
         for (let i = 0; i < tableData.length; i++) {
-          if (tableData[i].Subject.includes(this.subjectName) && tableData[i].Material.includes(this.materialName) && tableData[i].Title.includes(this.PaperName)) {
+          if (tableData[i].Title.includes(this.PaperName)) {
             filterPapers.push(tableData[i])
           }
         }
@@ -534,35 +560,58 @@
   .bold {
     color: #409eff;
   }
-  .partText{
+
+  .partText {
     font-size: 18px;
     min-height: 28px;
     line-height: 28px;
   }
-  .text{
+
+  .text {
     min-height: 24px;
     line-height: 24px;
   }
-  .options{
+
+  .options {
     padding-left: 20px;
   }
-  .option{
+
+  .option {
     min-height: 24px;
     line-height: 24px;
   }
-  .briefText{
+
+  .briefText {
     font-size: 16px;
     min-height: 24px;
     line-height: 24px;
   }
-  .property{
+
+  .property {
     padding-left: 10px;
   }
-  .trueOption{
+
+  .trueOption {
     color: red;
   }
-  .property div{
+
+  .property div {
     min-height: 24px;
     line-height: 24px;
+  }
+
+  .defaultTableStyle {
+    border-collapse: collapse;
+    text-align: center;
+    margin: 2px;
+  }
+
+  .defaultTableStyle th, table.defaultTableStyle td {
+    line-height: 30px;
+    padding: 5px;
+    white-space: normal;
+    word-break: break-all;
+    border: 1px solid #000;
+    vertical-align: middle;
   }
 </style>

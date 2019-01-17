@@ -1,7 +1,7 @@
 
 export default {
   api_url: 'http://cs.emingren.com:8085',
-  //api_url: 'http://192.168.1.107/YouPuPaperUpload',
+  api_url: 'http://192.168.1.107/YouPuPaperUpload',
   token: '',
   getParamFromUrl,
   formatPToSpan,
@@ -47,6 +47,7 @@ function formatPToSpan2(txt) {
 
   return txt;
 }
+//将第一个P标签替换为span标签并且去掉空的p标签
 function formatFirstPToSpan(txt) {
   //如果传过来的是[2,3]这种形式的字符串会被解析成数组，需要特殊处理
   if (txt && typeof txt === 'object' && Array == txt.constructor) {
@@ -56,7 +57,7 @@ function formatFirstPToSpan(txt) {
   }
   if(txt.match(/^<p>(.*?)<\/p>/) != null){
     let str = txt.match(/^<p>(.*?)<\/p>/)[1]
-    let str2 = txt.replace(/^<p>(.*?)<\/p>/, '')
+    let str2 = txt.replace(/^<p>(.*?)<\/p>/, '').replace(/<p>\s*<\/p>/g, '')
     txt = '<span>' + str + '</span>' + str2
   }
   // 替换图片地址

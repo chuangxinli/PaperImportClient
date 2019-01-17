@@ -1,4 +1,5 @@
 const writeFile = require('write')
+const path = require('path')
 
 const state = {
   version: '0.0.0',
@@ -13,17 +14,15 @@ const mutations = {
   },
   //更新subjectAboutInfo
   SUBJECT_ABOUT_INFO(state, payload) {
-    console.log(11111)
     state.subjectAboutInfo = payload.subjectAboutInfo
-    writeFile('json/subjectAboutInfo.json', JSON.stringify(payload), (err) => {
+    writeFile(path.join(__dirname, '../../api/json/subjectAboutInfo.json'), JSON.stringify(payload), (err) => {
       console.log(err)
     })
   },
   //更新unitAndSubUnit
   UNIT_AND_SUBUINT(state, payload) {
-    console.log(22222)
     state.unitAndSubUnit = payload.unitAndSubUnit
-    writeFile('json/unitAndSubUnit.json', JSON.stringify(payload), (err) => {
+    writeFile(path.join(__dirname, '../../api/json/unitAndSubUnit.json'), JSON.stringify(payload), (err) => {
       console.log(err)
     })
   }

@@ -236,128 +236,13 @@
 			}
 		},
 		mounted() {
-			this.paperData = JSON.parse(this.getLocal('paperData'));
-			if(this.paperData.AllQuestionArr && this.paperData.AllQuestionArr.length>0){
-				for(let i=0; i<this.paperData.AllQuestionArr.length; i++){
-					this.paperData.AllQuestionArr[i].isOpen = false;
+			let paperData = JSON.parse(this.getLocal('paperData'));
+			if(paperData.AllQuestionArr && paperData.AllQuestionArr.length>0){
+				for(let i=0; i<paperData.AllQuestionArr.length; i++){
+					paperData.AllQuestionArr[i].isOpen = false;
 				}
 			}
-//			this.paperData.AllQuestionArr = [
-//				{
-//					text: '一.完形填空',
-//					rangeMin: '1',
-//					rangeMax: '1',
-//					hasChild: '1',
-//					isOpen: false,
-//					children:[{
-//						text: '1.1 作文小标题',
-//						hasChild: '0',
-//						children: [],
-//						rangeMin: '1',
-//						rangeMax: '1',
-//						question:[
-//							this.paperData.question[0]
-//						]
-//					}],
-//					question:[]
-//				},
-//				{
-//					text: '二.作文',
-//					rangeMin: '2',
-//					rangeMax: '4',
-//					hasChild: '1',
-//					isOpen: false,
-//					children:[{
-//							text: '2.1 作文小标题1',
-//							hasChild: '0',
-//							children: [],
-//							rangeMin: '2',
-//							rangeMax: '3',
-//							question:[
-//								this.paperData.question[1],
-//								this.paperData.question[2]
-//							]
-//						},
-//						{
-//							text: '2.2 作文小标题2',
-//							hasChild: '0',
-//							children: [],
-//							rangeMin: '4',
-//							rangeMax: '4',
-//							question:[
-//								this.paperData.question[3]
-//							]
-//						}],
-//					question:[]
-//				},
-//				{
-//					text: '三.看图写话',
-//					rangeMin: '5',
-//					rangeMax: '7',
-//					hasChild: '0',
-//					children:[],
-//					question:[
-//						this.paperData.question[4],
-//						this.paperData.question[5],
-//						this.paperData.question[6]
-//					]
-//				},
-//				{
-//					text: '四.阅读理解',
-//					rangeMin: '8',
-//					rangeMax: '24',
-//					question:[],
-//					hasChild: '1',
-//					isOpen: false,
-//					children:[
-//						{
-//							text: '2.1 请仔细阅读下面的文章并从所给的选项中选出正确选项',
-//							hasChild: '0',
-//							children: [],
-//							rangeMin: '8',
-//							rangeMax: '10',
-//							question:[
-//								this.paperData.question[7],
-//								this.paperData.question[8],
-//								this.paperData.question[9]
-//							]
-//						},
-//						{
-//							text: '2.2 请仔细阅读',
-//							hasChild: '0',
-//							children: [],
-//							rangeMin: '11',
-//							rangeMax: '15',
-//							question:[
-//								this.paperData.question[10],
-//								this.paperData.question[11],
-//								this.paperData.question[12],
-//								this.paperData.question[13],
-//								this.paperData.question[14]
-//							]
-//						},
-//						{
-//							text: '2.3 修改下面句子的病句',
-//							hasChild: '0',
-//							children: [],
-//							rangeMin: '16',
-//							rangeMax: '24',
-//							question:[
-//								this.paperData.question[15],
-//								this.paperData.question[16],
-//								this.paperData.question[17],
-//								this.paperData.question[18],
-//								this.paperData.question[19],
-//								this.paperData.question[20],
-//								this.paperData.question[21],
-//								this.paperData.question[22],
-//								this.paperData.question[23]
-//							]
-//						}
-//					]
-//				}
-//			]
-//			this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
+			this.paperData = paperData
 		},
 		methods: {
 			alterMainOrSub(){
@@ -679,6 +564,7 @@
 			// 展开收起方法
 			openOrNotChild(itemMain){
 				itemMain.isOpen = !Boolean(itemMain.isOpen);
+				console.log(itemMain)
 			}
 		}
 	}

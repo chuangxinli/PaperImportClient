@@ -187,6 +187,7 @@
           })
 					if(data.data.version != this.version){
     	      this.newVersion = data.data.version
+						this.setSession('isSchoolUser', data.data.isSchoolUser)
     	      axios.all([this.getSubjectAboutInfo(), this.getUnitAndSubUnit()]).then(axios.spread( (SubjectAboutInfo, UnitAndSubUnit) => {
     	        if(SubjectAboutInfo.data.recode == 0 && UnitAndSubUnit.data.recode == 0){
                 this.$store.dispatch('CHANGE_VERSION', {version: this.newVersion})

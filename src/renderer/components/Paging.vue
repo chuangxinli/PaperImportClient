@@ -1,18 +1,22 @@
 <template>
   <div>
-    <div class="page" @click="changePage({type: 'num', page: currentPage - 1})">上一页</div>
-    <div v-for="item in page" class="page" :class="{'curPage': item.page == currentPage && item.type == 'num' }" @click="changePage(item)">
-      {{item.page}}
-    </div>
-    <div class="page" @click="changePage({type: 'num', page: Number(currentPage) + 1})">下一页</div>
-    <div class="fLeft mLeft40">
-      <span>到第</span>
-      <input type="text" v-model="childCurrentPage" class="input" @keyup="inputPageChange()">
-      <span>页&nbsp;&nbsp;</span>
-      <span @click="skip()" class="skip">跳转</span>
-    </div>
-    <div class="fLeft mLeft40">
-      <div class="fLeft">每页的条数 <input type="text" class="input" v-model="inputPageSize" @keyup="inputSize()"></div><div class="fLeft skip" @click="confirmPageSize()">确定</div>
+    <div class="paging">
+      <div class="inline">
+        <div class="page prePage" @click="changePage({type: 'num', page: currentPage - 1})">上一页</div>
+        <div v-for="item in page" class="page pageHover" :class="{'curPage': item.page == currentPage && item.type == 'num' }" @click="changePage(item)">
+          {{item.page}}
+        </div>
+        <div class="page nextPage" @click="changePage({type: 'num', page: Number(currentPage) + 1})">下一页</div>
+      </div>
+      <div class="inline mLeft40 skipPart">
+        <span>到第</span>
+        <input type="text" v-model="childCurrentPage" class="input" @keyup="inputPageChange()">
+        <span>页&nbsp;&nbsp;</span>
+        <span @click="skip()" class="skip">跳转</span>
+      </div>
+      <div class="inline mLeft40">
+        <div class="fLeft">每页的条数 <input type="text" class="input" v-model="inputPageSize" @keyup="inputSize()"></div><div class="fLeft skip" @click="confirmPageSize()">确定</div>
+      </div>
     </div>
   </div>
 </template>
@@ -41,7 +45,7 @@
             })
           }
           return arr
-        }else if(this.currentPage > 2 && this.totalPage - this.currentPage < 2){
+        }else if(this.currentPage > 2 && this.totalPage - this.currentPage < 3){
           return [
             {type: 'num', page: 1},
             {type: 'pre5', page: '···'},
@@ -50,7 +54,7 @@
             {type: 'num', page: this.totalPage - 1},
             {type: 'num', page: this.totalPage},
           ]
-        }else if(this.currentPage < 3 && this.totalPage - this.currentPage > 1){
+        }else if(this.currentPage < 4 && this.totalPage - this.currentPage > 1){
           return [
             {type: 'num', page: 1},
             {type: 'num', page: 2},
@@ -118,23 +122,55 @@
   *{
     font-size: 14px;
   }
+  .inline{
+    display: inline-block;
+  }
+  .paging{
+    margin: 20px auto;
+    overflow: hidden;
+    text-align: center;
+  }
+  .skipPart *{
+    float: left;
+  }
   .page {
     float: left;
-    border: 1px solid #4fc08d;
+    border: 1px solid #41C0BC;
     padding: 2px 8px;
     margin: 0 10px;
     cursor: pointer;
     border-radius: 14px;
+    color: #000000;
+  }
+  .pageHover:hover{
+    background-color: #cdcdcd;
   }
   .skip{
-    background-color: #4fc08d;
-    padding: 2px 8px;
+    background-color: #41C0BC;
+    width: 60px;
+    height: 24px;
+    text-align: center;
+    line-height: 24px;
     border-radius: 14px;
     cursor: pointer;
     color: #ffffff;
   }
+  .skip:hover,.prePage:hover,.nextPage:hover{
+    color: #41C0BC;
+    background: rgba(187,232,231,1);
+    cursor: pointer;
+    animation: color-change-delay-blue 0.2s 1 backwards;
+  }
+  .prePage, .nextPage{
+    color: #ffffff;
+    background-color: #41C0BC;
+  }
   .curPage {
-    background-color: #4fc08d;
+    background-color: #41C0BC;
+    color: #ffffff;
+  }
+  .right{
+    float: right;
   }
   .fLeft{
     float: left;
@@ -144,11 +180,12 @@
     margin-left: 40px;
   }
   .input {
+    box-sizing: border-box;
     width: 50px;
-    height: 22px;
+    height: 24px;
     text-align: center;
     outline: none;
-    border: 1px solid #4fc08d;
+    border: 1px solid #41C0BC;
     border-radius: 14px;
     margin: 0 8px;
   }

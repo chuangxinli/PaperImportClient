@@ -1,25 +1,30 @@
-const filters = {
-	formatYesOrNo(zeroOrOne) {						// 将 '0' 或 '1' 转化成    是或否
-		if(zeroOrOne == '0') {
-			return "否";
-		} else {
-			return "是";
-		}
-	},
-	formatDatetime(timing){								// 时间戳 转化成 YY-MM-DD HH:MM:SS
-		let time = new Date(Number(timing));
-    let year = time.getFullYear();
-    let month = time.getMonth()+1;
-    let date = time.getDate();
-    let hours = time.getHours();
-    let minutes = time.getMinutes();
-    let seconds = time.getSeconds();
-    return 	year + '-' 
-    				+ (month<10 ? '0'+month : month) + '-' 
-    				+ (date<10 ? '0' + date : date)+ ' ' 
-    				+ (hours<10 ? '0' + hours : hours)+ ':' 
-    				+ (minutes<10 ? '0' + minutes : minutes)+ ':' 
-    				+ (seconds<10 ? '0' + seconds : seconds);
-	}
-};
-export default filters
+import Vue from 'vue'
+/*过滤器*/
+Vue.filter("formatTime", function (value, type) {   //全局方法 Vue.filter() 注册一个自定义过滤器,必须放在Vue实例化前面
+  function addZero(val) {
+    if (val < 10) {
+      return '0' + val
+    } else {
+      return val
+    }
+  }
+
+  let dateTime = ''
+  let date = new Date(value)
+  let year = date.getFullYear()
+  let month = addZero(date.getMonth() + 1)
+  let day = addZero(date.getDate())
+  let hour = addZero(date.getHours())
+  let minute = addZero(date.getMinutes())
+  let second = addZero(date.getSeconds())
+  if (type === 'YMD') {
+    dateTime = year + '-' + month + '-' + day
+  } else if (type === 'YMDHMS') {
+    dateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second
+  } else if (type === 'HMS') {
+    dateTime = hour + ':' + minute + ':' + second
+  } else if (type === 'YM') {
+    dateTime = year + '-' + month
+  }
+  return dateTime
+});

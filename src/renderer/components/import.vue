@@ -116,6 +116,7 @@
           });
           return
         }
+        this.addPaperDialog = false
         let uploadUrl = 'http://localhost:3004/word-to-json-2'
         let fd = new FormData()
         for (let i = 0, len = this.docxList.length; i < len; i++) {
@@ -139,7 +140,6 @@
         axios.post(uploadUrl, fd, config).then(response => {
           console.log(response)
           loadingInstance.close()
-          this.addPaperDialog = false
           this.docxList = []
           this.errArr = response.data.errArr
           this.lackArr = response.data.lackArr

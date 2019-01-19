@@ -1,7 +1,7 @@
 
 export default {
   api_url: 'http://cs.emingren.com:8085',
-  api_url: 'http://192.168.1.107/YouPuPaperUpload',
+  //api_url: 'http://192.168.1.107/YouPuPaperUpload',
   token: '',
   getParamFromUrl,
   formatPToSpan,

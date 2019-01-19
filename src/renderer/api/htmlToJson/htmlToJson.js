@@ -127,7 +127,7 @@ function getItemDes(primaryStr) {
 
 //获取分数 (大题)
 function getScore(primaryStr) {
-  let reg = /(\.|。|．)\s*(\(|（)\s*(\d|\d+(\.|。|．)\d+)\s*分\s*(\)|）)/gi
+  let reg = /(\.|。|．)\s*(\(|（)\s*(\d+|\d+(\.|。|．)\d+)\s*分\s*(\)|）)/gi
   let score = ''
   if (reg.test(primaryStr)) {
     let matchStr = primaryStr.match(reg)[0];
@@ -393,6 +393,9 @@ function dealJsonObj(jsonObj, jsonArr, lackArr) {
       }
     }
   }
+  if(!/^([\u4e00-\u9fa5]|[a-zA-Z0-9]|_|-|\(|\)|）|（——|)+$/.test(jsonObj.Title)){
+    lackJsonObj.titleArr.push(`试卷名称：${jsonObj.Term}不和要求，应在中文或者字母或者数字或者_，-，（，），(，)，——，的之内选择`)
+  }
   if(!jsonObj.Term){
     lackJsonObj.titleArr.push(`适用学期：${jsonObj.Term}不和要求，不能为空`)
   }
@@ -433,6 +436,7 @@ function htmlToJson(res, originArr, myEmitter) {
   for (let i = 0, len = originArr.length; i < len; i++) {
     docxArr.push(originArr[i].path)
   }
+  let itemNum = 0, allScore = 0
   let jsonArr = [], errArr = [], lackArr = []  //成功解析和失败解析以及成功解析但是缺少必要属性的列表
   for (let i = 0, len = docxArr.length; i < len; i++) {
     let jsonObj = {
@@ -706,13 +710,13 @@ function htmlToJson(res, originArr, myEmitter) {
                 Difficulty: jsonObj.Difficulty,
                 Spenttime: jsonObj.Spenttime,
                 Special_topics: '',
-                Ability: '',
-                Thoughtway: '',
+                Ability: [],
+                Thoughtway: [],
                 Examination_points: '',
                 From: jsonObj.Papersource,
                 IsCombination: 0,
                 SubQuestionList: [],
-                Knowledge_main_point: '',
+                Knowledge_main_points: '',
                 UseTag: ''
               }
               if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '0') {
@@ -720,6 +724,8 @@ function htmlToJson(res, originArr, myEmitter) {
               } else if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '1') {
                 jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].children[jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].children.length - 1].question.push(itemObj)
               }
+              itemNum++
+              allScore = Number(itemObj.Score) + allScore
             } else {
               if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '0') {
                 let qLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question.length
@@ -757,13 +763,13 @@ function htmlToJson(res, originArr, myEmitter) {
                 Difficulty: jsonObj.Difficulty,
                 Spenttime: jsonObj.Spenttime,
                 Special_topics: '',
-                Ability: '',
-                Thoughtway: '',
+                Ability: [],
+                Thoughtway: [],
                 Examination_points: '',
                 From: jsonObj.Papersource,
                 IsCombination: 0,
                 SubQuestionList: [],
-                Knowledge_main_point: '',
+                Knowledge_main_points: '',
                 UseTag: '',
                 Combination_index: ''
               }
@@ -818,14 +824,14 @@ function htmlToJson(res, originArr, myEmitter) {
               Difficulty: jsonObj.Difficulty,
               Spenttime: jsonObj.Spenttime,
               Special_topics: '',
-              Ability: '',
-              Thoughtway: '',
+              Ability: [],
+              Thoughtway: [],
               Examination_points: '',
               From: jsonObj.Papersource,
               //为题组题所添加的属性
               IsCombination: 1,
               SubQuestionList: [],
-              Knowledge_main_point: '',
+              Knowledge_main_points: '',
               UseTag: ''
             }
             if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '0') {
@@ -833,6 +839,8 @@ function htmlToJson(res, originArr, myEmitter) {
             } else if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '1') {
               jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].children[jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].children.length - 1].question.push(itemObj)
             }
+            itemNum++
+            allScore = Number(itemObj.Score) + allScore
           } else {
             if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '0') {
               let qLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question.length
@@ -846,6 +854,8 @@ function htmlToJson(res, originArr, myEmitter) {
         }
       }
       jsonObj.localId = new Date().getTime()
+      jsonObj.AllNum = itemNum
+      jsonObj.Score = allScore  //自己计算的试卷总分，可用可不用
       dealJsonObj(jsonObj, jsonArr, lackArr)
       myEmitter.emit('jsonObjSuccess', {jsonObj, temp})
       if ((jsonArr.length + errArr.length + lackArr.length) === docxArr.length) {

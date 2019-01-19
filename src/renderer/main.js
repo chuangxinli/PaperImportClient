@@ -10,11 +10,10 @@ import App from './App'
 import router from './router'
 import store from './store'
 import global from './global.js'
-import filters from './filters'
+import './filters'
 
-Vue.http = Vue.prototype.$http = axios
+
 Vue.prototype.global = global
-Vue.prototype.filters = filters
 Vue.prototype.api = api
 Vue.use(require('vue-electron'))
 Vue.config.productionTip = false

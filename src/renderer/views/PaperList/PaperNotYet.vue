@@ -42,7 +42,7 @@
           <el-table-column prop="Subject" label="学段学科" width="100"></el-table-column>
           <el-table-column prop="Material" label="教材版本" width="100"></el-table-column>
           <el-table-column prop="TotalPoints" label="总分" width="50"></el-table-column>
-          <el-table-column prop="question.length" label="试题总数" width="100"></el-table-column>
+          <el-table-column prop="AllNum" label="试题总数" width="100"></el-table-column>
           <el-table-column prop="Papersource" label="试卷来源" width="100"></el-table-column>
           <el-table-column prop="localId" label="上传时间" width="150" :formatter="FormatDatetime"></el-table-column>
           <el-table-column prop="useStatus" label="可用性" width="80"></el-table-column>
@@ -53,7 +53,7 @@
                   <li @click="PaperAttributeEdit(scope.row)">试卷属性编辑</li>
                   <li @click="ItemEditMain(scope.row)">试题编辑</li>
                   <li @click="SetScopeData(scope.row)">考察范围</li>
-                  <li @click="TestClick(scope.row)">上传至后台</li>
+                  <li @click="uploadPaper(scope.row)">上传至后台</li>
                   <li @click="TestClick(scope.row)">预览</li>
                   <li @click="ClearVuexData(scope.row)">删除</li>
                 </ul>
@@ -90,6 +90,7 @@
           title="试卷预览"
           :visible.sync="previewDialog"
           width="70%"
+          id="setDialog"
           center>
           <div class="previewPaper">
             <div class="titleInfo">
@@ -270,6 +271,8 @@
 
 <script>
   import importPaper from '@/components/import.vue'
+  import axios from 'axios'
+  import {Loading} from 'element-ui'
 
   export default {
     components: {
@@ -324,7 +327,215 @@
           24: 'X',
           25: 'Y',
           26: 'Z'
-        }
+        },
+        //难度方案
+        defaultSection: {
+          start: 0.2,
+          end: 0.6
+        },
+        difficultyList: [
+          {
+            type: 1,
+            single: {
+              start: 0.1,
+              end: 0.4
+            },
+            blank: {
+              start: 0.1,
+              end: 0.4
+            },
+            resolve: {
+              start: 0.3,
+              end: 0.8
+            }
+          },
+          {
+            type: 2,
+            single: {
+              start: 0.1,
+              end: 0.6
+            },
+            blank: {
+              start: 0.1,
+              end: 0.6
+            },
+            resolve: {
+              start: 0.2,
+              end: 0.8
+            }
+          },
+          {
+            type: 3,
+            single: {
+              start: 0.1,
+              end: 0.4
+            },
+            multiple: {
+              start: 0.3,
+              end: 0.4
+            },
+            blank: {
+              start: 0.1,
+              end: 0.4
+            },
+            resolve: {
+              start: 0.3,
+              end: 0.5
+            }
+          },
+          {
+            type: 4,
+            single: {
+              start: 0.25,
+              end: 0.45
+            },
+            multiple: {
+              start: 0.35,
+              end: 0.45
+            },
+            blank: {
+              start: 0.35,
+              end: 0.45
+            },
+            resolve: {
+              start: 0.4,
+              end: 0.5
+            }
+          },
+          {
+            type: 5,
+            single: {
+              start: 0.2,
+              end: 0.45
+            },
+            multiple: {
+              start: 0.25,
+              end: 0.45
+            },
+            blank: {
+              start: 0.25,
+              end: 0.45
+            },
+            resolve: {
+              start: 0.3,
+              end: 0.5
+            }
+          },
+          {
+            type: 6,
+            single: {
+              start: 0.2,
+              end: 0.6
+            },
+            multiple: {
+              start: 0.25,
+              end: 0.5
+            },
+            blank: {
+              start: 0.3,
+              end: 0.5
+            },
+            resolve: {
+              start: 0.4,
+              end: 0.65
+            }
+          },
+          {
+            type: 7,
+            single: {
+              start: 0.2,
+              end: 0.45
+            },
+            multiple: {
+              start: 0.25,
+              end: 0.5
+            },
+            blank: {
+              start: 0.3,
+              end: 0.5
+            },
+            resolve: {
+              start: 0.4,
+              end: 0.6
+            }
+          },
+          {
+            type: 8,
+            single: {
+              start: 0.1,
+              end: 0.5
+            },
+            multiple: {
+              start: 0.1,
+              end: 0.5
+            },
+            blank: {
+              start: 0.1,
+              end: 0.4
+            },
+            resolve: {
+              start: 0.3,
+              end: 0.6
+            }
+          },
+          {
+            type: 9,
+            single: {
+              start: 0.1,
+              end: 0.5
+            },
+            multiple: {
+              start: 0.1,
+              end: 0.5
+            },
+            blank: {
+              start: 0.1,
+              end: 0.4
+            },
+            resolve: {
+              start: 0.3,
+              end: 0.6
+            }
+          },
+          {
+            type: 10,
+            single: {
+              start: 0.1,
+              end: 0.3
+            },
+            blank: {
+              start: 0.1,
+              end: 0.3
+            },
+            judge: {
+              start: 0.1,
+              end: 0.3
+            },
+            resolve: {
+              start: 0.1,
+              end: 0.6
+            }
+          },
+          {
+            type: 11,
+            single: {
+              start: 0.1,
+              end: 0.3
+            },
+            multiple: {
+              start: 0.1,
+              end: 0.3
+            },
+            blank: {
+              start: 0.1,
+              end: 0.3
+            },
+            resolve: {
+              start: 0.3,
+              end: 0.6
+            }
+          },
+        ]
       }
     },
     computed: {
@@ -348,11 +559,18 @@
           cancelButtonText: '取 消',
           type: 'warning'
         }).then(() => {
-          this.$store.dispatch('DELETE_ONE_PAPER', {
-            localId: -1
-          })
-        }).catch(() => {
-
+          setTimeout( () => {
+            this.$store.dispatch('DELETE_ONE_PAPER', {
+              localId: -1
+            })
+            this.$message({
+              showCloes: true,
+              message: '全部删除成功！',
+              type: 'success'
+            })
+          }, 1000)
+        }).catch((err) => {
+          console.log(err)
         })
       },
       TestClick(row){
@@ -517,10 +735,237 @@
           this.setScopeDialog = false;
         }
       },
+      //试卷难度值的添加和Num的重置
+      addDifficulty(row){
+        let difficultyList = this.difficultyList
+        let defaultSection = this.defaultSection
+        function getDifficulty(itemType, currentNum, count) {
+          let curDiff = difficultyList[row.DiffcultyType]
+          let {start, end} = defaultSection
+          if(curDiff[itemType]){
+            start = curDiff[itemType].start
+            end = curDiff[itemType].end
+          }
+          return (start + (end - start) / (count - 1) * currentNum).toFixed(3)
+        }
+        let Num = 0, paperDiffSum = 0
+        let singleNum = 0, multipleNum = 0, blankNum = 0, resolveNum = 0, judgeNum = 0
+        let partLength = row.AllQuestionArr.length
+        for(let i = 0; i < partLength; i ++){
+          if(row.AllQuestionArr[i].children.length === 0){
+            let qLength = row.AllQuestionArr[i].question.length
+            for(let j = 0; j < qLength; j ++){
+              Num++
+              row.AllQuestionArr[i].question[j].Num = Num
+              if(row.AllQuestionArr[i].question[j].Type == 1){
+                singleNum++
+                row.AllQuestionArr[i].question[j].singleNum = singleNum
+              }else if(row.AllQuestionArr[i].question[j].Type == 2){
+                multipleNum++
+                row.AllQuestionArr[i].question[j].multipleNum = multipleNum
+              }else if(row.AllQuestionArr[i].question[j].Type == 3){
+                blankNum++
+                row.AllQuestionArr[i].question[j].blankNum = blankNum
+              }else if(row.AllQuestionArr[i].question[j].Type == 4){
+                resolveNum++
+                row.AllQuestionArr[i].question[j].resolveNum = resolveNum
+              }else if(row.AllQuestionArr[i].question[j].Type == 5){
+                judgeNum++
+                row.AllQuestionArr[i].question[j].judgeNum = judgeNum
+              }
+              if(row.AllQuestionArr[i].question[j].SubQuestionList.length > 0){
+                let subLength = row.AllQuestionArr[i].question[j].SubQuestionList.length
+                for(let m = 0; m < subLength; m ++){
+                  if(row.AllQuestionArr[i].question[j].SubQuestionList[m].Type == 1){
+                    singleNum++
+                    row.AllQuestionArr[i].question[j].SubQuestionList[m].singleNum = singleNum
+                  }else if(row.AllQuestionArr[i].question[j].SubQuestionList[m].Type == 2){
+                    multipleNum++
+                    row.AllQuestionArr[i].question[j].SubQuestionList[m].multipleNum = multipleNum
+                  }else if(row.AllQuestionArr[i].question[j].SubQuestionList[m].Type == 3){
+                    blankNum++
+                    row.AllQuestionArr[i].question[j].SubQuestionList[m].blankNum = blankNum
+                  }else if(row.AllQuestionArr[i].question[j].SubQuestionList[m].Type == 4){
+                    resolveNum++
+                    row.AllQuestionArr[i].question[j].SubQuestionList[m].resolveNum = resolveNum
+                  }else if(row.AllQuestionArr[i].question[j].SubQuestionList[m].Type == 5){
+                    judgeNum++
+                    row.AllQuestionArr[i].question[j].SubQuestionList[m].judgeNum = judgeNum
+                  }
+                }
+              }
+            }
+          }else{
+            let briefLength = row.AllQuestionArr[i].children.length
+            for(let j = 0; j < briefLength; j ++){
+              let qLength = row.AllQuestionArr[i].children[j].question.length
+              for(let m = 0; m < qLength; m++){
+                Num++
+                row.AllQuestionArr[i].children[j].question[m].Num = Num
+                if(row.AllQuestionArr[i].children[j].question[m].Type == 1){
+                  singleNum++
+                  row.AllQuestionArr[i].children[j].question[m].singleNum = singleNum
+                }else if(row.AllQuestionArr[i].children[j].question[m].Type == 2){
+                  multipleNum++
+                  row.AllQuestionArr[i].children[j].question[m].multipleNum = multipleNum
+                }else if(row.AllQuestionArr[i].children[j].question[m].Type == 3){
+                  blankNum++
+                  row.AllQuestionArr[i].children[j].question[m].blankNum = blankNum
+                }else if(row.AllQuestionArr[i].children[j].question[m].Type == 4){
+                  resolveNum++
+                  row.AllQuestionArr[i].children[j].question[m].resolveNum = resolveNum
+                }else if(row.AllQuestionArr[i].children[j].question[m].Type == 5){
+                  judgeNum++
+                  row.AllQuestionArr[i].children[j].question[m].judgeNum = judgeNum
+                }
+                if(row.AllQuestionArr[i].children[j].question[m].SubQuestionList.length > 0){
+                  let subLength = row.AllQuestionArr[i].children[j].question[m].SubQuestionList.length
+                  for(let n = 0; n < subLength; n ++){
+                    if(row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Type == 1){
+                      singleNum++
+                      row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].singleNum = singleNum
+                    }else if(row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Type == 2){
+                      multipleNum++
+                      row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].multipleNum = multipleNum
+                    }else if(row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Type == 3){
+                      blankNum++
+                      row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].blankNum = blankNum
+                    }else if(row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Type == 4){
+                      resolveNum++
+                      row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].resolveNum = resolveNum
+                    }else if(row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Type == 5){
+                      judgeNum++
+                      row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].judgeNum = judgeNum
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        for(let i = 0; i < partLength; i ++){
+          if(row.AllQuestionArr[i].children.length === 0){
+            let qLength = row.AllQuestionArr[i].question.length
+            for(let j = 0; j < qLength; j ++){
+              if(row.AllQuestionArr[i].question[j].Type == 1){
+                row.AllQuestionArr[i].question[j].Difficulty = getDifficulty('single', row.AllQuestionArr[i].question[j].singleNum, singleNum)
+              }else if(row.AllQuestionArr[i].question[j].Type == 2){
+                row.AllQuestionArr[i].question[j].Difficulty = getDifficulty('multiple', row.AllQuestionArr[i].question[j].multipleNum, multipleNum)
+              }else if(row.AllQuestionArr[i].question[j].Type == 3){
+                row.AllQuestionArr[i].question[j].Difficulty = getDifficulty('blank', row.AllQuestionArr[i].question[j].blankNum, blankNum)
+              }else if(row.AllQuestionArr[i].question[j].Type == 4){
+                row.AllQuestionArr[i].question[j].Difficulty = getDifficulty('resolve', row.AllQuestionArr[i].question[j].resolveNum, resolveNum)
+              }else if(row.AllQuestionArr[i].question[j].Type == 5){
+                row.AllQuestionArr[i].question[j].Difficulty = getDifficulty('judge', row.AllQuestionArr[i].question[j].judgeNum, judgeNum)
+              }
+              if(row.AllQuestionArr[i].question[j].SubQuestionList.length > 0){
+                let subLength = row.AllQuestionArr[i].question[j].SubQuestionList.length
+                let diffSum = 0
+                for(let m = 0; m < subLength; m ++){
+                  if(row.AllQuestionArr[i].question[j].SubQuestionList[m].Type == 1){
+                    row.AllQuestionArr[i].question[j].SubQuestionList[m].Difficulty = getDifficulty('single', row.AllQuestionArr[i].question[j].SubQuestionList[m].singleNum, singleNum)
+                  }else if(row.AllQuestionArr[i].question[j].SubQuestionList[m].Type == 2){
+                    row.AllQuestionArr[i].question[j].SubQuestionList[m].Difficulty = getDifficulty('multiple', row.AllQuestionArr[i].question[j].SubQuestionList[m].multipleNum, multipleNum)
+                  }else if(row.AllQuestionArr[i].question[j].SubQuestionList[m].Type == 3){
+                    row.AllQuestionArr[i].question[j].SubQuestionList[m].Difficulty = getDifficulty('blank', row.AllQuestionArr[i].question[j].SubQuestionList[m].blankNum, blankNum)
+                  }else if(row.AllQuestionArr[i].question[j].SubQuestionList[m].Type == 4){
+                    row.AllQuestionArr[i].question[j].SubQuestionList[m].Difficulty = getDifficulty('resolve', row.AllQuestionArr[i].question[j].SubQuestionList[m].resolveNum, resolveNum)
+                  }else if(row.AllQuestionArr[i].question[j].SubQuestionList[m].Type == 5){
+                    row.AllQuestionArr[i].question[j].SubQuestionList[m].Difficulty = getDifficulty('judge', row.AllQuestionArr[i].question[j].SubQuestionList[m].judgeNum, judgeNum)
+                  }
+                  diffSum = Number(row.AllQuestionArr[i].question[j].SubQuestionList[m].Difficulty) + diffSum
+                }
+                row.AllQuestionArr[i].question[j].Difficulty = (diffSum / subLength).toFixed(3)
+              }
+              paperDiffSum = Number(row.AllQuestionArr[i].question[j].Difficulty) + paperDiffSum
+            }
+          }else{
+            let briefLength = row.AllQuestionArr[i].children.length
+            for(let j = 0; j < briefLength; j ++){
+              let qLength = row.AllQuestionArr[i].children[j].question.length
+              for(let m = 0; m < qLength; m++){
+                if(row.AllQuestionArr[i].children[j].question[m].Type == 1){
+                  row.AllQuestionArr[i].children[j].question[m].Difficulty = getDifficulty('single', row.AllQuestionArr[i].children[j].question[m].singleNum, singleNum)
+                }else if(row.AllQuestionArr[i].children[j].question[m].Type == 2){
+                  row.AllQuestionArr[i].children[j].question[m].Difficulty = getDifficulty('multiple', row.AllQuestionArr[i].children[j].question[m].multipleNum, multipleNum)
+                }else if(row.AllQuestionArr[i].children[j].question[m].Type == 3){
+                  row.AllQuestionArr[i].children[j].question[m].Difficulty = getDifficulty('blank', row.AllQuestionArr[i].children[j].question[m].blankNum, blankNum)
+                }else if(row.AllQuestionArr[i].children[j].question[m].Type == 4){
+                  row.AllQuestionArr[i].children[j].question[m].Difficulty = getDifficulty('resolve', row.AllQuestionArr[i].children[j].question[m].resolveNum, resolveNum)
+                }else if(row.AllQuestionArr[i].children[j].question[m].Type == 5){
+                  row.AllQuestionArr[i].children[j].question[m].Difficulty = getDifficulty('judge', row.AllQuestionArr[i].children[j].question[m].judgeNum, judgeNum)
+                }
+                if(row.AllQuestionArr[i].children[j].question[m].SubQuestionList.length > 0){
+                  let subLength = row.AllQuestionArr[i].children[j].question[m].SubQuestionList.length
+                  let diffSum = 0
+                  for(let n = 0; n < subLength; n ++){
+                    if(row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Type == 1){
+                      row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Difficulty = getDifficulty('single', row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].singleNum, singleNum)
+                    }else if(row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Type == 2){
+                      row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Difficulty = getDifficulty('multiple', row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].multipleNum, multipleNum)
+                    }else if(row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Type == 3){
+                      row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Difficulty = getDifficulty('blank', row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].blankNum, blankNum)
+                    }else if(row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Type == 4){
+                      row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Difficulty = getDifficulty('resolve', row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].resolveNum, resolveNum)
+                    }else if(row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Type == 5){
+                      row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Difficulty = getDifficulty('judge', row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].judgeNum, judgeNum)
+                    }
+                    diffSum = Number(row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Difficulty) + diffSum
+                    console.log(diffSum)
+                  }
+                  row.AllQuestionArr[i].children[j].question[m].Difficulty = (diffSum / subLength).toFixed(3)
+                }
+                paperDiffSum = Number(row.AllQuestionArr[i].children[j].question[m].Difficulty) + paperDiffSum
+              }
+            }
+          }
+        }
+        row.Difficulty = (paperDiffSum / Num).toFixed(3)
+        row.IsSchoolUser = this.getSession('isSchoolUser')
+        return row
+      },
+      //上传
+      uploadPaper(row){
+        row = this.addDifficulty(row)
+        let loadingInstance
+        let loadOptions = {
+          lock: true,
+          text: 'Loading...',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.5)'
+        }
+        loadingInstance = Loading.service(loadOptions)
+        let uploadUrl = 'http://cs.emingren.com:8085/paper/info/uploadPaperInfo'
+        let config = {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+        axios.post(uploadUrl, row, config).then(response => {
+          console.log(response)
+          if(response.data.recode == 0){
+            this.$message({
+              showClose: true,
+              message: '试卷上传成功！',
+              type: 'success'
+            });
+            this.$store.dispatch('DELETE_ONE_PAPER', { localId: row.localId})
+          }else{
+            this.$message({
+              showClose: true,
+              message: response.data.errmsg,
+              type: 'error'
+            });
+          }
+          loadingInstance.close()
 
-
+        }).catch(err => {
+          console.log(err)
+          loadingInstance.close()
+        })
+        console.log(row)
+      }
     }
-
   }
 </script>
 

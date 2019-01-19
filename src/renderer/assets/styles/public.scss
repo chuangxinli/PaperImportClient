@@ -913,3 +913,10 @@ ul.itemNumList li:hover, ul.itemNumList li.active{
   cursor: crosshair;
 }
 
+
+/*弹筐内出现滚动条*/
+#setDialog .el-dialog__body{
+  height: 600px;
+  overflow-y: scroll;
+}
+

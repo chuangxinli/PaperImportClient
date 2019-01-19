@@ -7,7 +7,9 @@ export default {
   formatPToSpan,
   formatFirstPToSpan,
   formatPToSpan2,
-  numToChinese
+  numToChinese,
+  removePtag,
+  addPtag
 }
 // 1: 截取地址栏中字符串方法
 function getParamFromUrl(name){
@@ -180,4 +182,19 @@ function numToChinese(num){
 		case 100: return "一百"; break;
 		default: 						   break;
 	}
+}
+function removePtag(str){
+	if(str != ''){
+		if(str.indexOf('<p>') > -1){
+			let str_new = str.replace('<p>','').replace('</p>','');
+			return str_new;
+		}else{
+			return str;
+		}
+	}else{
+		return '';
+	}
+}
+function addPtag(str){
+	return '<p>' + str + '</p>';
 }

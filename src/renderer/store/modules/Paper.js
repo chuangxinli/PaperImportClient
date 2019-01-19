@@ -41,6 +41,11 @@ const mutations = {
         state.jsonArr.splice(i, 1, payload.paper)
       }
     }
+  },
+  //修改试卷题目
+  CHANGE_ONE_ITEM(state,payload){
+  	console.log(state);
+  	console.log(payload);
   }
 }
 
@@ -52,6 +57,9 @@ const actions = {
     commit('DELETE_ONE_PAPER', payload)
   },
   CHANGE_ONE_PAPER({commit}, payload) {
+    commit('CHANGE_ONE_PAPER', payload)
+  },
+  CHANGE_ONE_ITEM({commit}, payload) {
     commit('CHANGE_ONE_PAPER', payload)
   }
 }

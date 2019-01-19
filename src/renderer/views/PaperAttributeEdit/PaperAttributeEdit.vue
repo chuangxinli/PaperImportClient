@@ -126,12 +126,12 @@
 	        </ul>
 	        <ul class="ul_section_content ul_common" v-show="!isMainSelect && paperData.AllQuestionArr && paperData.AllQuestionArr.length>0">
 	        	<li v-for="(itemMain,key) in paperData.AllQuestionArr">
-	        		<span @click="openOrNotChild(itemMain,key)">
+	        		<span @click="openOrNotChild(itemMain)">
 	        			{{ key+1 }} 
 	        			<img src="../../assets/images/arrow_up_gray.png" class="" v-if="itemMain.children.length > 0 && itemMain.isOpen" class="left_6em" alt="" />
-	        			<img src="../../assets/images/arrow_down.png" v-if="itemMain.children.length > 0 && !itemMain.isOpen" class="left_6em" alt="" />
+	        			<img src="../../assets/images/arrow_down.png" v-else class="left_6em" alt="" />
 	        		</span>
-	        		<span :title="itemMain.text">{{ itemMain.text }}</span>
+	        		<span :title="itemMain.text" v-html="itemMain.text"></span>
 	        		<span v-if="itemMain.rangeMin == itemMain.rangeMax">{{ itemMain.rangeMin }}</span>
 	        		<span v-else>{{ itemMain.rangeMin + '-' + itemMain.rangeMax }}</span>
 	        		<span>
@@ -144,7 +144,7 @@
 	        		<ul class="ul_sub_section" v-show="itemMain.children.length > 0 && itemMain.isOpen">
 	        			<li v-for="(itemSub,index) in itemMain.children">
 	        				<span></span>
-			        		<span :title="itemSub.text">{{ itemSub.text }}</span>
+			        		<span :title="itemSub.text" v-html="itemSub.text"></span>
 			        		<span v-if="itemSub.rangeMin == itemSub.rangeMax">{{ itemSub.rangeMin }}</span>
 			        		<span v-else>{{ itemSub.rangeMin + '-' + itemSub.rangeMax }}</span>
 			        		<span>
@@ -232,7 +232,6 @@
 					AllQuestionArr: [],		// 试卷结构大数组
 				},
 				YesOrNoArr: [ { name: '是', valueCode: '1' },{ name: '否', valueCode: '0' } ],
-				
 			}
 		},
 		mounted() {
@@ -242,7 +241,7 @@
 					paperData.AllQuestionArr[i].isOpen = false;
 				}
 			}
-			this.paperData = paperData
+			this.paperData = paperData;
 		},
 		methods: {
 			alterMainOrSub(){
@@ -270,7 +269,7 @@
 				this.editBigTitleDialog = true;
 				this.first_flag = key;
 				this.second_flag = index;
-				this.sectionTitle = item.text;
+				this.sectionTitle = this.global.removePtag(item.text);
 			},
 			confirmEidt(){
 				// 提交 "答题指导语" => 一级标题索引 => 二级标题索引
@@ -293,9 +292,9 @@
 					case 'edit':
 						// 编辑 '答题指导语'
 						if(index == '9999'){
-							this.paperData.AllQuestionArr[Number(key)].text = this.sectionTitle;
+							this.paperData.AllQuestionArr[Number(key)].text = this.global.addPtag(this.sectionTitle);
 						}else{
-							this.paperData.AllQuestionArr[Number(key)].children[Number(index)].text = this.sectionTitle;
+							this.paperData.AllQuestionArr[Number(key)].children[Number(index)].text = this.global.addPtag(this.sectionTitle);
 						}
 						this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 						this.editBigTitleDialog = false;
@@ -563,8 +562,8 @@
 			},
 			// 展开收起方法
 			openOrNotChild(itemMain){
+				console.log(itemMain);
 				itemMain.isOpen = !Boolean(itemMain.isOpen);
-				console.log(itemMain)
 			}
 		}
 	}
@@ -635,7 +634,7 @@
 					height: 50px; line-height: 50px;
 					li{ float: left; text-align: center; color: #41C0BC; font-weight: bold; }
 					li:first-child{ width: 5%; }
-					li:nth-child(2){ width: 70%; }
+					li:nth-child(2){ width: 70%;}
 					li:nth-child(3){ width: 10%; }
 					li:last-child{ width: 15%; }
 				}
@@ -661,7 +660,9 @@
 							cursor: pointer; 
 							img{ height: 9px; float: right; margin-top: 12px; }
 						}
-						span:nth-of-type(4n+2){ width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+						span:nth-of-type(4n+2){ width: 70%; padding: 0 20px; box-sizing: border-box;
+							p{ width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+						}
 						span:nth-of-type(4n+3){ width: 10%; }
 						span:nth-of-type(4n+4){ 
 							width: 15%;

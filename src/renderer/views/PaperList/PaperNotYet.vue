@@ -18,7 +18,7 @@
         </el-select>
         <importPaper class="inline_block"></importPaper>
         <importPaper2 class="inline_block"></importPaper2>
-        <div class="btn-medium-self-blue mr-20" @click="removeAll()">全部删除</div>
+        <!--<div class="btn-medium-self-blue mr-20" @click="removeAll()">全部删除</div>-->
         <div class="btn-medium-self-blue fRight ml-20" @click="FilterPaper">搜索</div>
         <el-input class="w_200 input-search-self fRight"
                   placeholder="请输入内容"
@@ -29,10 +29,10 @@
         <el-table :data="tableData" stripe class="mTop20 table_self_blue">
           <el-table-column type="index" label="序号" width="50"></el-table-column>
           <el-table-column prop="Title" label="试卷名称" width="" class="text_left"></el-table-column>
-          <el-table-column prop="Subject" label="学段学科" width="100"></el-table-column>
+          <el-table-column prop="Subject" label="学段学科" width="120"></el-table-column>
           <el-table-column prop="Material" label="教材版本" width="100"></el-table-column>
           <el-table-column prop="TotalPoints" label="总分" width="50"></el-table-column>
-          <el-table-column prop="question.length" label="试题总数" width="100"></el-table-column>
+          <el-table-column prop="TotalItems" label="试题总数" width="100"></el-table-column>
           <el-table-column prop="Papersource" label="试卷来源" width="100"></el-table-column>
           <el-table-column prop="localId" label="上传时间" width="150" :formatter="FormatDatetime"></el-table-column>
           <el-table-column prop="useStatus" label="可用性" width="80"></el-table-column>
@@ -267,7 +267,7 @@
         materialName: '',		// 教材版本名称
         PaperName: '',			// 试卷名称  => 检索用
         scopeArr: [],				// 设置试卷考察范围 全数组 学段学科 => 教材版本 => 章节知识点 层级数组显示
-        scopeDataStr: '',		// 最终形成的 paperData.scopeDataStr 为 章_节@章_节@章_节 拼接的字符串
+        ScopeDataStr: '',		// 最终形成的 paperData.ScopeDataStr 为 章_节@章_节@章_节 拼接的字符串
         setScopeDialog: false,
         tableData: [],
         paperData: {},			//单条试卷数据
@@ -311,9 +311,16 @@
     },
     computed: {
       showVuexData(){
-        // 接收 Vuex 中未上传试卷列表数据
-        this.tableData = JSON.parse(JSON.stringify(this.$store.state.Paper.jsonArr));
-        console.log(this.tableData);
+        // 接收 Vuex 中未上传试卷列表数据 => 获取试卷试题的总分值
+        let tableData = JSON.parse(JSON.stringify(this.$store.state.Paper.jsonArr));
+        if(tableData && tableData.length>0){
+        	for(let i=0; i<tableData.length; i++){
+        		if(tableData[i].AllQuestionArr && tableData[i].AllQuestionArr.length > 0){
+        			tableData[i].TotalItems = tableData[i].AllQuestionArr[tableData[i].AllQuestionArr.length-1].rangeMax
+        		}
+        	}
+        }
+        this.tableData = tableData;
         // 接收 Vuex 学段学科教材版本数据					=> 只做 学段学科 教材版本 学科能力 思想方法 级联
         let subjectAboutInfo = JSON.parse(JSON.stringify(this.$store.state.Version.subjectAboutInfo));
         this.SubjectArr = this.SubjectArr.concat(subjectAboutInfo);		// 学段学科 加上全部 ''
@@ -321,9 +328,7 @@
         this.scopeArr = JSON.parse(JSON.stringify(this.$store.state.Version.unitAndSubUnit));
       }
     },
-    mounted() {
-
-    },
+    mounted() {},
     methods: {
       removeAll(){
         this.$store.dispatch('DELETE_ONE_PAPER', {
@@ -438,7 +443,7 @@
         let materialName = row.Material;
         let scopeArr = this.scopeArr;
         this.paperData = row;
-        // scopeArr => scopeTree => InitScopeIdArr => scopeDataStr
+        // scopeArr => scopeTree => InitScopeIdArr => ScopeDataStr
         if (scopeArr && scopeArr.length > 0) {
           for (let i = 0; i < scopeArr.length; i++) {
             if (subjectName == scopeArr[i].subjectName) {
@@ -457,15 +462,24 @@
                   this.setScopeDialog = true;
                   setTimeout(() => {
                     if (row.InitScopeIdArr && row.InitScopeIdArr.length > 0) {
-                      // paperData.scopeDataStr 中有原始数据
+                      // paperData.ScopeDataStr 中有原始数据
                       this.$refs.rangeTree.setCheckedKeys(row.InitScopeIdArr);
                     } else {
-                      // paperData.scopeDataStr 中无原始数据
+                      // paperData.ScopeDataStr 中无原始数据
                       this.$refs.rangeTree.setCheckedKeys([]);
                     }
                   }, 0)
                 }
               }
+            }else{
+            	// 语文和英语考察范围暂未入库
+            	this.$message({
+								showClose: true,
+								message: '语文和英语 考察范围暂未入库 ！',
+								type: 'warning',
+								duration: 3000
+							});
+            	this.setScopeDialog = true;
             }
           }
         }
@@ -475,14 +489,14 @@
         let temp = this.$refs.rangeTree.getCheckedNodes();
         if (temp && temp.length > 0) {
           this.paperData.InitScopeIdArr = [];
-          this.paperData.scopeDataStr = '';
+          this.paperData.ScopeDataStr = '';
           for (let i = 0; i < temp.length; i++) {
             if (temp[i].level == 2) {
               this.paperData.InitScopeIdArr.push(temp[i].unitId);
-              this.paperData.scopeDataStr += temp[i].unitId_parent + '_' + temp[i].unitId + '@';
+              this.paperData.ScopeDataStr += temp[i].unitId_parent + '_' + temp[i].unitId + '@';
             }
           }
-          this.paperData.scopeDataStr = this.paperData.scopeDataStr.slice(0, this.paperData.scopeDataStr.length - 1);
+          this.paperData.ScopeDataStr = this.paperData.ScopeDataStr.slice(0, this.paperData.ScopeDataStr.length - 1);
           // 将其写入 vuex 原始数据
           this.$store.dispatch('CHANGE_ONE_PAPER', {paper: this.paperData});
           this.$refs.rangeTree.store.defaultExpandAll = false;

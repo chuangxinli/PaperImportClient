@@ -24,7 +24,7 @@
           <el-table-column prop="UseTag" label="应用标签" width="100"></el-table-column>
           <el-table-column label="试题类型" width="80">
           	<template slot-scope="scope">
-			        <p class="ItemTitle" v-if="scope.row.Type == 1">单项题</p>
+			        <p class="ItemTitle" v-if="scope.row.Type == 1">单选题</p>
 			        <p class="ItemTitle" v-else-if="scope.row.Type == 2">多选题</p>
 			        <p class="ItemTitle" v-else-if="scope.row.Type == 3">填空题</p>
 			        <p class="ItemTitle" v-else-if="scope.row.Type == 4">简答题</p>
@@ -133,21 +133,10 @@
 									// 题目所在的 一级题组二级题组 中文
 									question[k].group_name = question[k].Num + '（' + this.global.numToChinese(i+1) + '、' + String(i+1) + '.' + String(j+1) +'）';
 									
-									if(question[k].UseTag == undefined){
-										question[k].UseTag = "";										// 试题 			应用题型标签
-									}
-									if(question[k].Knowledge_main_point == undefined){
-										question[k].Knowledge_main_point = "";			// 试题 			主知识点 id
-									}
 									// 题主题情况
 									if(question[k].SubQuestionList && question[k].SubQuestionList.length > 0){
 										for(let m=0; m<question[k].SubQuestionList.length; m++){
-											if(question[k].SubQuestionList[m].UseTag == undefined){
-												question[k].SubQuestionList[m].UseTag = "";										// 题主题小题			应用题型标签
-											}
-											if(question[k].SubQuestionList[m].Knowledge_main_point == undefined){
-												question[k].SubQuestionList[m].Knowledge_main_point = "";			// 题主题小题			主知识点 id
-											}
+											question[k].SubQuestionList[m].Combination_index = m+1;
 										}
 									}
 									this.itemList.push(question[k]);
@@ -172,7 +161,12 @@
 								question[k].secondIndex = 9999;								// 二级题组 	指向
 								// 题目所在的 一级题组二级题组 中文
 								question[k].group_name = question[k].Num + '（' + this.global.numToChinese(i+1) + '）';
-								
+								// 题主题情况																		// 小题顺序
+								if(question[k].SubQuestionList && question[k].SubQuestionList.length > 0){
+									for(let m=0; m<question[k].SubQuestionList.length; m++){
+										question[k].SubQuestionList[m].Combination_index = m+1;
+									}
+								}
 								this.itemList.push(question[k]);
 							}
 						}
@@ -420,10 +414,8 @@
 					}
 					td:nth-child(2) div{
 						text-align: left;
-						.ItemTitle p{
-							white-space: nowrap;
-							overflow: hidden;
-							text-overflow: ellipsis;
+						p.ItemTitle { height: 50px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+							*{ display: inline; line-height: 50px;}
 						}
 					}
 				}

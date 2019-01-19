@@ -114,7 +114,7 @@
             type: 'warning'
           });
         }
-        let uploadUrl = 'http://39.96.186.199:3004/word-to-json-2'
+        let uploadUrl = 'http://192.168.1.149:3004/word-to-json-2'
         let fd = new FormData()
         for (let i = 0, len = this.docxList.length; i < len; i++) {
           fd.append('file', this.docxList[i])

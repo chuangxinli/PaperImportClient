@@ -131,7 +131,7 @@
 	        			<img src="../../assets/images/arrow_up_gray.png" class="" v-if="itemMain.children.length > 0 && itemMain.isOpen" class="left_6em" alt="" />
 	        			<img src="../../assets/images/arrow_down.png" v-else class="left_6em" alt="" />
 	        		</span>
-	        		<span :title="itemMain.text">{{ itemMain.text }}</span>
+	        		<span :title="itemMain.text" v-html="itemMain.text"></span>
 	        		<span v-if="itemMain.rangeMin == itemMain.rangeMax">{{ itemMain.rangeMin }}</span>
 	        		<span v-else>{{ itemMain.rangeMin + '-' + itemMain.rangeMax }}</span>
 	        		<span>
@@ -144,7 +144,7 @@
 	        		<ul class="ul_sub_section" v-show="itemMain.children.length > 0 && itemMain.isOpen">
 	        			<li v-for="(itemSub,index) in itemMain.children">
 	        				<span></span>
-			        		<span :title="itemSub.text">{{ itemSub.text }}</span>
+			        		<span :title="itemSub.text" v-html="itemSub.text"></span>
 			        		<span v-if="itemSub.rangeMin == itemSub.rangeMax">{{ itemSub.rangeMin }}</span>
 			        		<span v-else>{{ itemSub.rangeMin + '-' + itemSub.rangeMax }}</span>
 			        		<span>
@@ -232,133 +232,16 @@
 					AllQuestionArr: [],		// 试卷结构大数组
 				},
 				YesOrNoArr: [ { name: '是', valueCode: '1' },{ name: '否', valueCode: '0' } ],
-				
 			}
 		},
 		mounted() {
-			this.paperData = JSON.parse(this.getLocal('paperData'));
-			console.log(this.paperData);
-			if(this.paperData.AllQuestionArr && this.paperData.AllQuestionArr.length>0){
-				for(let i=0; i<this.paperData.AllQuestionArr.length; i++){
-					this.paperData.AllQuestionArr[i].isOpen = false;
+			let paperData = JSON.parse(this.getLocal('paperData'));
+			if(paperData.AllQuestionArr && paperData.AllQuestionArr.length>0){
+				for(let i=0; i<paperData.AllQuestionArr.length; i++){
+					paperData.AllQuestionArr[i].isOpen = false;
 				}
 			}
-//			this.paperData.AllQuestionArr = [
-//				{
-//					text: '一.完形填空',
-//					rangeMin: '1',
-//					rangeMax: '1',
-//					hasChild: '1',
-//					isOpen: false,
-//					children:[{
-//						text: '1.1 作文小标题',
-//						hasChild: '0',
-//						children: [],
-//						rangeMin: '1',
-//						rangeMax: '1',
-//						question:[
-//							this.paperData.question[0]
-//						]
-//					}],
-//					question:[]
-//				},
-//				{
-//					text: '二.作文',
-//					rangeMin: '2',
-//					rangeMax: '4',
-//					hasChild: '1',
-//					isOpen: false,
-//					children:[{
-//							text: '2.1 作文小标题1',
-//							hasChild: '0',
-//							children: [],
-//							rangeMin: '2',
-//							rangeMax: '3',
-//							question:[
-//								this.paperData.question[1],
-//								this.paperData.question[2]
-//							]
-//						},
-//						{
-//							text: '2.2 作文小标题2',
-//							hasChild: '0',
-//							children: [],
-//							rangeMin: '4',
-//							rangeMax: '4',
-//							question:[
-//								this.paperData.question[3]
-//							]
-//						}],
-//					question:[]
-//				},
-//				{
-//					text: '三.看图写话',
-//					rangeMin: '5',
-//					rangeMax: '7',
-//					hasChild: '0',
-//					children:[],
-//					question:[
-//						this.paperData.question[4],
-//						this.paperData.question[5],
-//						this.paperData.question[6]
-//					]
-//				},
-//				{
-//					text: '四.阅读理解',
-//					rangeMin: '8',
-//					rangeMax: '24',
-//					question:[],
-//					hasChild: '1',
-//					isOpen: false,
-//					children:[
-//						{
-//							text: '2.1 请仔细阅读下面的文章并从所给的选项中选出正确选项',
-//							hasChild: '0',
-//							children: [],
-//							rangeMin: '8',
-//							rangeMax: '10',
-//							question:[
-//								this.paperData.question[7],
-//								this.paperData.question[8],
-//								this.paperData.question[9]
-//							]
-//						},
-//						{
-//							text: '2.2 请仔细阅读',
-//							hasChild: '0',
-//							children: [],
-//							rangeMin: '11',
-//							rangeMax: '15',
-//							question:[
-//								this.paperData.question[10],
-//								this.paperData.question[11],
-//								this.paperData.question[12],
-//								this.paperData.question[13],
-//								this.paperData.question[14]
-//							]
-//						},
-//						{
-//							text: '2.3 修改下面句子的病句',
-//							hasChild: '0',
-//							children: [],
-//							rangeMin: '16',
-//							rangeMax: '24',
-//							question:[
-//								this.paperData.question[15],
-//								this.paperData.question[16],
-//								this.paperData.question[17],
-//								this.paperData.question[18],
-//								this.paperData.question[19],
-//								this.paperData.question[20],
-//								this.paperData.question[21],
-//								this.paperData.question[22],
-//								this.paperData.question[23]
-//							]
-//						}
-//					]
-//				}
-//			]
-//			this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
+			this.paperData = paperData;
 		},
 		methods: {
 			alterMainOrSub(){
@@ -386,7 +269,7 @@
 				this.editBigTitleDialog = true;
 				this.first_flag = key;
 				this.second_flag = index;
-				this.sectionTitle = item.text;
+				this.sectionTitle = this.global.removePtag(item.text);
 			},
 			confirmEidt(){
 				// 提交 "答题指导语" => 一级标题索引 => 二级标题索引
@@ -409,9 +292,9 @@
 					case 'edit':
 						// 编辑 '答题指导语'
 						if(index == '9999'){
-							this.paperData.AllQuestionArr[Number(key)].text = this.sectionTitle;
+							this.paperData.AllQuestionArr[Number(key)].text = this.global.addPtag(this.sectionTitle);
 						}else{
-							this.paperData.AllQuestionArr[Number(key)].children[Number(index)].text = this.sectionTitle;
+							this.paperData.AllQuestionArr[Number(key)].children[Number(index)].text = this.global.addPtag(this.sectionTitle);
 						}
 						this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 						this.editBigTitleDialog = false;
@@ -751,7 +634,7 @@
 					height: 50px; line-height: 50px;
 					li{ float: left; text-align: center; color: #41C0BC; font-weight: bold; }
 					li:first-child{ width: 5%; }
-					li:nth-child(2){ width: 70%; }
+					li:nth-child(2){ width: 70%;}
 					li:nth-child(3){ width: 10%; }
 					li:last-child{ width: 15%; }
 				}
@@ -777,7 +660,9 @@
 							cursor: pointer; 
 							img{ height: 9px; float: right; margin-top: 12px; }
 						}
-						span:nth-of-type(4n+2){ width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+						span:nth-of-type(4n+2){ width: 70%; padding: 0 20px; box-sizing: border-box;
+							p{ width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+						}
 						span:nth-of-type(4n+3){ width: 10%; }
 						span:nth-of-type(4n+4){ 
 							width: 15%;

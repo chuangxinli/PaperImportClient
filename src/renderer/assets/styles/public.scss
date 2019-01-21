@@ -920,6 +920,23 @@ ul.itemNumList li:hover, ul.itemNumList li.active{
   overflow-y: scroll;
 }
 
+//表格样式
+.defaultTableStyle {
+  border-collapse: collapse;
+  text-align: center;
+  margin: 2px;
+}
+
+.defaultTableStyle th, table.defaultTableStyle td {
+  line-height: 30px;
+  padding: 5px;
+  white-space: normal;
+  word-break: break-all;
+  border: 1px solid #000;
+  vertical-align: middle;
+}
+
 .paperNotYetList .table_self_blue .el-table__body .el-table__row td:nth-child(2) div, .paperNotYetList .table_self_blue .el-table__body .el-table__row td:nth-child(3) div{
   text-align: left;
 }
+

@@ -1045,18 +1045,4 @@
     line-height: 24px;
   }
 
-  .defaultTableStyle {
-    border-collapse: collapse;
-    text-align: center;
-    margin: 2px;
-  }
-
-  .defaultTableStyle th, table.defaultTableStyle td {
-    line-height: 30px;
-    padding: 5px;
-    white-space: normal;
-    word-break: break-all;
-    border: 1px solid #000;
-    vertical-align: middle;
-  }
 </style>

@@ -30,6 +30,7 @@
 				
 				<el-table :data="paperList" stripe class="mTop20 table_self_blue">
           <el-table-column type="index" label="序号" width="50" ></el-table-column>
+					<el-table-column prop="paperId" label="ID" width="80"></el-table-column>
           <el-table-column prop="paperName" label="试卷名称" width=""></el-table-column>
           <el-table-column prop="subjectName" label="学段学科" width="100"></el-table-column>
           <el-table-column prop="materialName" label="教材版本" width="100"></el-table-column>
@@ -41,13 +42,11 @@
 							{{scope.row.createTime | formatTime('YMDHMS')}}
 						</template>
 					</el-table-column>
-          <el-table-column prop="useStatus" label="可用性" width="80"></el-table-column>
           <el-table-column prop="address" label="操作" width="80">
             <template slot-scope="scope">
               <el-popover placement="left" title="" trigger="click">
                 <ul class="popover-list">
-                	<li @click="testClick(scope.row)">查看试题ID</li>
-                  <li @click="testClick(scope.row)">同步至前端</li>
+                  <li @click="syncPaperQuestion(scope.row)" :class="{'success': scope.row.paperStatus == 1}">同步至前端</li>
                   <li @click="previewPaper(scope.row)">预览</li>
                 </ul>
                 <span slot="reference" class="el-icon-setting pointer handle-icon"></span>
@@ -58,7 +57,7 @@
         </el-table>
 			</div>
 			<div>
-				<paging :current-page="currentPage" :total-num="total" :page-size="pageSize" @childrenChange="pageChange"></paging>
+				<paging :current-page="currentPage" :total-num="total" :page-size="pageSize" @childrenChange="pageChange" v-show="paperList && paperList.length > 0"></paging>
 			</div>
 		</div>
 		<!--试卷预览弹框-->
@@ -309,6 +308,7 @@
       SubjectChange(){
 				if(this.selectSubjectId != 0){
           let phase
+					console.log(this.subjectList)
 			    for(let i = 0, len = this.subjectList.length; i < len; i ++){
 			      if(this.selectSubjectId == this.subjectList[i].subjectId){
 			        phase = this.subjectList[i].phase
@@ -343,6 +343,32 @@
 			},
       GradeChange(){
         this.getPaperList()
+			},
+			async syncPaperQuestion(row){
+        console.log(row.paperStatus)
+        if(row.paperStatus == 1){
+          this.$message({
+            showClose: true,
+            message: '改试卷已经同步至前端，请不要重复同步！',
+            type: 'warning'
+          })
+					return
+				}
+       	let url = '/paper/info/syncPaperQuestion'
+				let params = {
+       	  paperId: row.paperId
+				}
+				let data = await this.api.get(url, params)
+				if(data){
+       	  console.log(data)
+					if(data.recode == 0){
+       	    this.$message({
+							showClose: true,
+							message: '试卷同步前端成功！',
+							type: 'success'
+						})
+					}
+				}
 			}
 		}
 	}
@@ -408,5 +434,9 @@
 	.property div {
 		min-height: 24px;
 		line-height: 24px;
+	}
+
+	.success{
+		color: #67C23A;
 	}
 </style>

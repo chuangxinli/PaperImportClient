@@ -67,6 +67,10 @@
 			width="70%"
 			id="setDialog"
 			center>
+			<p class="paperName">
+				<span>试卷名称：</span>
+				<span>{{items.paperName}}</span>
+			</p>
 			<div class="previewPaper" v-show="items.children && items.children.length > 0">
 				<div v-for="part in items.children">
 					<div v-if="part.hasChild == 0" class="part">
@@ -438,5 +442,11 @@
 
 	.success{
 		color: #67C23A;
+	}
+	.paperName{
+		text-align: center;
+		font-size: 20px;
+		height: 40px;
+		line-height: 40px;
 	}
 </style>

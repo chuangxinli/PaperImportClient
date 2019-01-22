@@ -13,6 +13,10 @@ let loadOptions = {
 }
 axios.defaults.baseURL = global.api_url
 axios.defaults.withCredentials = true
+axios.defaults.timeout = 5000
+axios.defaults.headers = {
+  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+}
 axios.interceptors.request.use(config => {
   if (obj_options instanceof Object && obj_options.loading) {
     loadingInstance = Loading.service(loadOptions)
@@ -23,7 +27,6 @@ axios.interceptors.request.use(config => {
 })
 
 axios.interceptors.response.use(response => {
-    //console.log(document.cookie)
     if (obj_options instanceof Object && obj_options.loading) {
       loadingInstance.close()
     }
@@ -34,7 +37,6 @@ axios.interceptors.response.use(response => {
       loadingInstance.close()
     }
     return Promise.resolve(error.response)
-
   }
 )
 
@@ -78,7 +80,7 @@ function checkCode(res) {
     return ''
   }
 }
-export default {
+/*export default {
   post(url, data, obj) {
     if (obj instanceof Object) {
       obj_options = obj
@@ -132,5 +134,24 @@ export default {
         }
       }).then(checkStatus).then(checkCode)
     }
+  }
+}*/
+export default {
+  post(url, data, obj) {
+    if (obj instanceof Object) {
+      obj_options = obj
+    }
+    console.log(obj_options)
+    if (obj_options.headers && !obj_options.headers['Content-Type'].includes('application/x-www-form-urlencoded')) {
+      return axios.post(url, data, obj_options).then(checkStatus).then(checkCode)
+    } else {
+      return axios.post(url, qs.stringify(data), obj_options).then(checkStatus).then(checkCode)
+    }
+  },
+  get(url, params, obj) {
+    if (obj instanceof Object) {
+      obj_options = obj
+    }
+    return axios.get(url, { params }, obj_options).then(checkStatus).then(checkCode)
   }
 }

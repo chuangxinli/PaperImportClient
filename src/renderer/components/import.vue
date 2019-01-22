@@ -81,22 +81,38 @@
       }
     },
     methods: {
-      async postPaper(filePaths){
-        let url = '/word-to-json'
-        let params = {
-          docxList: filePaths
+      async postPaper(params){
+        let url = 'http://localhost:3004/word-to-json-2'
+        let config = {
+          loading: true,
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
+          withCredentials: false,
+          timeout: 2000000
         }
-        let data = await this.api.post(url, params)
+        let data = await this.api.post(url, params, config)
         if (data) {
           console.log(data)
-        }
-      },
-      async hello(){
-        let url = '/hello'
-        let params = {}
-        let data = await this.api.get(url, params)
-        if (data) {
-          console.log(data)
+          this.docxList = []
+          this.errArr = data.errArr
+          this.lackArr = data.lackArr
+          this.successArr = data.jsonArr
+
+          if (data.errArr.length == 0 && data.lackArr.length == 0) {
+            this.$message({
+              showClose: true,
+              message: '试卷导入成功！',
+              type: 'success'
+            });
+          } else {
+            this.paperTipDialog = true
+          }
+          this.$store.dispatch('CHANGE_jSON_ARR',
+            {
+              jsonArr: data.jsonArr
+            }
+          )
         }
       },
       confirmImport(){
@@ -117,52 +133,11 @@
           return
         }
         this.addPaperDialog = false
-        let uploadUrl = 'http://localhost:3004/word-to-json-2'
         let fd = new FormData()
         for (let i = 0, len = this.docxList.length; i < len; i++) {
           fd.append('file', this.docxList[i])
         }
-        let config = {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          },
-          withCredentials: false,
-          timeout: 2000000
-        }
-        let loadingInstance
-        let loadOptions = {
-          lock: true,
-          text: 'Loading...',
-          spinner: 'el-icon-loading',
-          background: 'rgba(0, 0, 0, 0.5)'
-        }
-        loadingInstance = Loading.service(loadOptions)
-        axios.post(uploadUrl, fd, config).then(response => {
-          console.log(response)
-          loadingInstance.close()
-          this.docxList = []
-          this.errArr = response.data.errArr
-          this.lackArr = response.data.lackArr
-          this.successArr = response.data.jsonArr
-
-          if (response.data.errArr.length == 0 && response.data.lackArr.length == 0) {
-            this.$message({
-              showClose: true,
-              message: '试卷导入成功！',
-              type: 'success'
-            });
-          } else {
-            this.paperTipDialog = true
-          }
-          this.$store.dispatch('CHANGE_jSON_ARR',
-            {
-              jsonArr: response.data.jsonArr
-            }
-          )
-        }).catch(err => {
-          console.log(err)
-          loadingInstance.close()
-        })
+        this.postPaper(fd)
       },
       selectFile(){
         $('.file')[0].click()

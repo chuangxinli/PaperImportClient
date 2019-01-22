@@ -7,10 +7,10 @@ const dealAllScoreAndNum = function(row){
   let scoreSum = 0
   let partLength = row.AllQuestionArr.length
   let AllNum = 0
+  if(row.AllQuestionArr && row.AllQuestionArr.length != 0){
+    AllNum = row.AllQuestionArr[row.AllQuestionArr.length - 1].rangeMax
+  }
   for(let i = 0; i < partLength; i++){
-    if(row.AllQuestionArr && row.AllQuestionArr.length != 0){
-      AllNum = row.AllQuestionArr[row.AllQuestionArr.length - 1].rangeMax
-    }
     if(row.AllQuestionArr[i].children && row.AllQuestionArr[i].children.length == 0){
       let qLength = row.AllQuestionArr[i].question.length
       for(let j = 0; j < qLength; j++){
@@ -20,16 +20,15 @@ const dealAllScoreAndNum = function(row){
           scoreSum = Number(row.AllQuestionArr[i].question[j].Score) + scoreSum
         }
       }
-    }else{
+    }else if(row.AllQuestionArr[i].children && row.AllQuestionArr[i].children.length > 0){
       let briefLength = row.AllQuestionArr[i].children.length
       for(let j = 0; j < briefLength; j++){
         let qLength = row.AllQuestionArr[i].children[j].question.length
         for(let m = 0; m < qLength; m ++){
-          console.log(i,j,m)
-          if(!row.AllQuestionArr[i].children[j].questionr[m].Score){
+          if(!row.AllQuestionArr[i].children[j].question[m].Score){
             row.push(row.AllQuestionArr[i].children[j].question[m].Serial_num)
           }else{
-            scoreSum = Number(row.AllQuestionArr[i].children[j].questionr[m].Score) + scoreSum
+            scoreSum = Number(row.AllQuestionArr[i].children[j].question[m].Score) + scoreSum
           }
         }
       }
@@ -75,7 +74,6 @@ const mutations = {
       if (!state.jsonArr[i]) {
         continue
       } else if (payload.paper.localId == state.jsonArr[i].localId) {
-
         state.jsonArr.splice(i, 1, dealAllScoreAndNum(payload.paper))
       }
     }

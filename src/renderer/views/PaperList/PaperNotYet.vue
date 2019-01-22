@@ -41,7 +41,7 @@
           </el-table-column>
           <el-table-column prop="Subject" label="学段学科" width="100"></el-table-column>
           <el-table-column prop="Material" label="教材版本" width="100"></el-table-column>
-          <el-table-column label="总分" width="50" prop="Score"></el-table-column>
+          <el-table-column label="总分" width="50" prop="TotalPoints"></el-table-column>
           <el-table-column label="试题总数" width="100"  prop="AllNum"></el-table-column>
           <el-table-column prop="Papersource" label="试卷来源" width="100"></el-table-column>
           <el-table-column prop="localId" label="上传时间" width="150" :formatter="FormatDatetime"></el-table-column>
@@ -92,7 +92,7 @@
           id="setDialog"
           center>
           <div class="previewPaper">
-            <div class="titleInfo">
+            <div class="titleInfo" style="display: none;">
               <p>
                 <span>试卷名称：</span>
                 <span>{{items.Title}}</span>
@@ -166,6 +166,11 @@
                 <span>{{items.Difficulty}}</span>
               </p>
             </div>
+            
+            <p class="paperName">
+              <span>试卷名称：</span>
+              <span>{{items.Title}}</span>
+            </p>
             <div v-for="part in items.AllQuestionArr">
               <div v-if="part.children.length == 0" class="part">
                 <div v-html="global.formatFirstPToSpan(part.text)" class="partText"></div>
@@ -270,9 +275,6 @@
 
 <script>
   import importPaper from '@/components/import.vue'
-  import axios from 'axios'
-  import {Loading} from 'element-ui'
-
   export default {
     components: {
       importPaper
@@ -926,8 +928,8 @@
         return row
       },
       //上传
-      uploadPaper(row){
-        if(!row.AllNum){
+      async uploadPaper(row){
+        if (!row.AllNum) {
           this.$message({
             showClose: true,
             message: '试题总数不能为空！',
@@ -936,41 +938,22 @@
           return
         }
         row = this.addDifficulty(row)
-        let loadingInstance
-        let loadOptions = {
-          lock: true,
-          text: 'Loading...',
-          spinner: 'el-icon-loading',
-          background: 'rgba(0, 0, 0, 0.5)'
-        }
-        loadingInstance = Loading.service(loadOptions)
-        let uploadUrl = 'http://cs.emingren.com:8085/paper/info/uploadPaperInfo'
+        let url = '/paper/info/uploadPaperInfo'
         let config = {
+          loading: true,
           headers: {
             'Content-Type': 'application/json'
           }
         }
-        axios.post(uploadUrl, row, config).then(response => {
-          if(response.data.recode == 0){
-            this.$message({
-              showClose: true,
-              message: '试卷上传成功！',
-              type: 'success'
-            });
-            this.$store.dispatch('DELETE_ONE_PAPER', { localId: row.localId})
-          }else{
-            this.$message({
-              showClose: true,
-              message: response.data.errmsg,
-              type: 'error'
-            });
-          }
-          loadingInstance.close()
-
-        }).catch(err => {
-          console.log(err)
-          loadingInstance.close()
-        })
+        let data = await this.api.post(url, row, config)
+        if (data) {
+          this.$message({
+            showClose: true,
+            message: '试卷上传成功！',
+            type: 'success'
+          });
+          this.$store.dispatch('DELETE_ONE_PAPER', {localId: row.localId})
+        }
       }
     }
   }
@@ -1052,4 +1035,10 @@
     line-height: 24px;
   }
 
+  .paperName{
+    text-align: center;
+    font-size: 20px;
+    height: 40px;
+    line-height: 40px;
+  }
 </style>

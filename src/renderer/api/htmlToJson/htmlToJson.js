@@ -190,7 +190,6 @@ function dealOptions(jsonObj, primaryStr, hasSubItem, add) {
 
 //处理选择题
 function dealChoice(primaryStr) {
-  primaryStr = primaryStr.replace(/\s*/g, '')
   let reg = /^\s*#?\s*[A-Z]\s*(\.|。|．)/
   let obj = {}
   if (primaryStr.match(reg)) {
@@ -393,8 +392,9 @@ function dealJsonObj(jsonObj, jsonArr, lackArr) {
       }
     }
   }
-  if(!/^([\u4e00-\u9fa5]|[a-zA-Z0-9]|_|-|\(|\)|）|（——|)+$/.test(jsonObj.Title)){
-    lackJsonObj.titleArr.push(`试卷名称：${jsonObj.Term}不和要求，应在中文或者字母或者数字或者_，-，（，），(，)，——，的之内选择`)
+  if(!/[^@%&\*~#!`\?\/\\\^\$￥？\|]/.test(jsonObj.Title)){
+    let str = '`'
+    lackJsonObj.titleArr.push(`试卷名称：${jsonObj.Title}不和要求，不能出现@，#，￥，%，$，&，~，！，?，？，*，\，/，|，${str}这些特殊字符！`)
   }
   if(!jsonObj.Term){
     lackJsonObj.titleArr.push(`适用学期：${jsonObj.Term}不和要求，不能为空`)
@@ -470,6 +470,7 @@ function htmlToJson(res, originArr, myEmitter) {
     let curItemProperty = '' //分为 choice Examination_points Special_topics Explain Analysis Comments SubItem Item
     let curLabel = 'p'  //当前的标签
     let removeAnswer = false //是否去除下划线上的文字
+    let options = false //处理table中是选择题选项的特殊情况
     mammoth.convertToHtml({path: docxArr[i]}, {
       styleMap: [
         "u => u",
@@ -492,7 +493,7 @@ function htmlToJson(res, originArr, myEmitter) {
         } else {
           primaryStr = $(document.body).children()[i].innerHTML
         }
-        primaryStr = primaryStr.replace(/(菁优网版权所有)|(菁优网：http:\/\/www\.jyeoo\.com)|(菁优网)|(http:\/\/www\.jyeoo\.com)/g, '')
+        primaryStr = primaryStr.replace(/(菁优网版权所有)|(菁优网：http:\/\/www\.jyeoo\.com)|(菁优网)|(http:\/\/www\.jyeoo\.com)/g, '').replace(/<u>\s*<\/u>/g, '<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>')
         //整行为空时跳过
         if (!primaryStr) {
           continue
@@ -502,12 +503,20 @@ function htmlToJson(res, originArr, myEmitter) {
           console.log('break 执行了！！！！')
           break
         }
-        if(/^\s*#start#$/.test(primaryStr)){
+        if(/^\s*#underline#$/.test(primaryStr)){
           removeAnswer = true
           continue
         }
-        if(/^\s*#end#/.test(primaryStr)){
+        if(/^\s*#\/underline#/.test(primaryStr)){
           removeAnswer = false
+          continue
+        }
+        if(/^\s*#options#/.test(primaryStr)){
+          options = true
+          continue
+        }
+        if(/^\s*#\/options#/.test(primaryStr)){
+          options = false
           continue
         }
         //处理题的类型
@@ -519,7 +528,21 @@ function htmlToJson(res, originArr, myEmitter) {
           curLabel = 'p'
           if ($(document.body).children()[i].tagName.toLowerCase() == 'table') {
             curLabel = 'table'
-            primaryStr = '<table class="defaultTableStyle">' + primaryStr + '</table>'
+            if(options){
+
+              let tdTextList = $(document.body).children()[i].getElementsByTagName('p')
+              for(let i = 0, len = tdTextList.length; i < len; i++){
+                
+                let str = $(tdTextList[i]).html()
+                if(judgeIsOption(str)){
+                  dealOptions(jsonObj, str, hasSubItem)
+                }else{
+                  dealOptions(jsonObj, str, hasSubItem, true)
+                }
+              }
+              continue
+            }
+            primaryStr = '<table class="defaultTableStyle" style="text-align: center; border-collapse: collapse; margin: 2px">' + primaryStr + '</table>'
           }
           //先判断标题的一些信息
           if (/^\s*#\s*#/.test(primaryStr)) {
@@ -603,6 +626,9 @@ function htmlToJson(res, originArr, myEmitter) {
                 dealOptions(jsonObj, primaryStr, hasSubItem)
                 continue
               }
+            }
+            if(options && curLabel == 'table'){
+
             }
             if (dealBracket('考点').test(primaryStr)) {
               hasSubItem = false

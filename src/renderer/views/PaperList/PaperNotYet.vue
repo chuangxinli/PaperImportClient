@@ -41,11 +41,10 @@
           </el-table-column>
           <el-table-column prop="Subject" label="学段学科" width="100"></el-table-column>
           <el-table-column prop="Material" label="教材版本" width="100"></el-table-column>
-          <el-table-column prop="TotalPoints" label="总分" width="50"></el-table-column>
-          <el-table-column prop="AllNum" label="试题总数" width="100"></el-table-column>
+          <el-table-column label="总分" width="50" prop="Score"></el-table-column>
+          <el-table-column label="试题总数" width="100"  prop="AllNum"></el-table-column>
           <el-table-column prop="Papersource" label="试卷来源" width="100"></el-table-column>
           <el-table-column prop="localId" label="上传时间" width="150" :formatter="FormatDatetime"></el-table-column>
-          <el-table-column prop="useStatus" label="可用性" width="80"></el-table-column>
           <el-table-column prop="address" label="操作" width="50">
             <template slot-scope="scope">
               <el-popover placement="left" title="" trigger="click">
@@ -288,7 +287,7 @@
         materialName: '',		// 教材版本名称
         PaperName: '',			// 试卷名称  => 检索用
         scopeArr: [],				// 设置试卷考察范围 全数组 学段学科 => 教材版本 => 章节知识点 层级数组显示
-        scopeDataStr: '',		// 最终形成的 paperData.scopeDataStr 为 章_节@章_节@章_节 拼接的字符串
+        ScopeDataStr: '',		// 最终形成的 paperData.ScopeDataStr 为 章_节@章_节@章_节 拼接的字符串
         setScopeDialog: false,
         tableData: [],
         paperData: {},			//单条试卷数据
@@ -535,7 +534,9 @@
               end: 0.6
             }
           },
-        ]
+        ],
+        //上传json
+        lackScoreArr: []
       }
     },
     computed: {
@@ -596,6 +597,7 @@
       },
       // 试题编辑
       ItemEditMain(row){
+        console.log(row)
         this.setLocal('paperData', JSON.stringify(row));
         this.changeRouterByName('ItemEditMain');
       },
@@ -681,7 +683,7 @@
         let materialName = row.Material;
         let scopeArr = this.scopeArr;
         this.paperData = row;
-        // scopeArr => scopeTree => InitScopeIdArr => scopeDataStr
+        // scopeArr => scopeTree => InitScopeIdArr => ScopeDataStr
         if (scopeArr && scopeArr.length > 0) {
           for (let i = 0; i < scopeArr.length; i++) {
             if (subjectName == scopeArr[i].subjectName) {
@@ -700,10 +702,10 @@
                   this.setScopeDialog = true;
                   setTimeout(() => {
                     if (row.InitScopeIdArr && row.InitScopeIdArr.length > 0) {
-                      // paperData.scopeDataStr 中有原始数据
+                      // paperData.ScopeDataStr 中有原始数据
                       this.$refs.rangeTree.setCheckedKeys(row.InitScopeIdArr);
                     } else {
-                      // paperData.scopeDataStr 中无原始数据
+                      // paperData.ScopeDataStr 中无原始数据
                       this.$refs.rangeTree.setCheckedKeys([]);
                     }
                   }, 0)
@@ -718,14 +720,14 @@
         let temp = this.$refs.rangeTree.getCheckedNodes();
         if (temp && temp.length > 0) {
           this.paperData.InitScopeIdArr = [];
-          this.paperData.scopeDataStr = '';
+          this.paperData.ScopeDataStr = '';
           for (let i = 0; i < temp.length; i++) {
             if (temp[i].level == 2) {
               this.paperData.InitScopeIdArr.push(temp[i].unitId);
-              this.paperData.scopeDataStr += temp[i].unitId_parent + '_' + temp[i].unitId + '@';
+              this.paperData.ScopeDataStr += temp[i].unitId_parent + '_' + temp[i].unitId + '@';
             }
           }
-          this.paperData.scopeDataStr = this.paperData.scopeDataStr.slice(0, this.paperData.scopeDataStr.length - 1);
+          this.paperData.ScopeDataStr = this.paperData.ScopeDataStr.slice(0, this.paperData.ScopeDataStr.length - 1);
           // 将其写入 vuex 原始数据
           this.$store.dispatch('CHANGE_ONE_PAPER', {paper: this.paperData});
           this.$refs.rangeTree.store.defaultExpandAll = false;
@@ -911,7 +913,6 @@
                       row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Difficulty = getDifficulty('judge', row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].judgeNum, judgeNum)
                     }
                     diffSum = Number(row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Difficulty) + diffSum
-                    console.log(diffSum)
                   }
                   row.AllQuestionArr[i].children[j].question[m].Difficulty = (diffSum / subLength).toFixed(3)
                 }
@@ -926,6 +927,14 @@
       },
       //上传
       uploadPaper(row){
+        if(!row.AllNum){
+          this.$message({
+            showClose: true,
+            message: '试题总数不能为空！',
+            type: 'warning'
+          });
+          return
+        }
         row = this.addDifficulty(row)
         let loadingInstance
         let loadOptions = {
@@ -942,7 +951,6 @@
           }
         }
         axios.post(uploadUrl, row, config).then(response => {
-          console.log(response)
           if(response.data.recode == 0){
             this.$message({
               showClose: true,
@@ -963,7 +971,6 @@
           console.log(err)
           loadingInstance.close()
         })
-        console.log(row)
       }
     }
   }

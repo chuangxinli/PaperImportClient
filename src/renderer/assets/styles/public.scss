@@ -921,13 +921,13 @@ ul.itemNumList li:hover, ul.itemNumList li.active{
 }
 
 //表格样式
-.defaultTableStyle {
+table.defaultTableStyle {
   border-collapse: collapse;
   text-align: center;
   margin: 2px;
 }
 
-.defaultTableStyle th, table.defaultTableStyle td {
+table.defaultTableStyle th, table.defaultTableStyle td {
   line-height: 30px;
   padding: 5px;
   white-space: normal;

@@ -166,6 +166,7 @@
       },
       selectFile(){
         $('.file')[0].click()
+        $('.file:eq(0)').val('')
       },
       importPaper() {
         this.docxList = []

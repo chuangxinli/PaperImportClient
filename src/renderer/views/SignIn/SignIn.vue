@@ -152,6 +152,11 @@
         let url = '/paper/baseData/getUnitAndSubUnit'
     	  return axios.get(this.global.api_url + url)
 			},
+			// 20190123 添加 UserMarkList 到 vuex
+			getUseMarkList(){
+				let url = '/paper/baseData/getQuestionType';
+				return axios.get(this.global.api_url + url)
+			},
 			async signIn() {
     	  if(!this.formLabelAlign.account){
           this.$message({
@@ -188,11 +193,12 @@
           })
 					if(data.data.version == this.version){
     	      this.newVersion = data.data.version
-    	      axios.all([this.getSubjectAboutInfo(), this.getUnitAndSubUnit()]).then(axios.spread( (SubjectAboutInfo, UnitAndSubUnit) => {
+    	      axios.all([this.getSubjectAboutInfo(), this.getUnitAndSubUnit(), this.getUseMarkList()]).then(axios.spread( (SubjectAboutInfo, UnitAndSubUnit, UserMarkList) => {
     	        if(SubjectAboutInfo.data.recode == 0 && UnitAndSubUnit.data.recode == 0){
                 this.$store.dispatch('CHANGE_VERSION', {version: this.newVersion})
                 this.$store.dispatch('UNIT_AND_SUBUINT', {unitAndSubUnit: UnitAndSubUnit.data.data})
                 this.$store.dispatch('SUBJECT_ABOUT_INFO', {subjectAboutInfo: SubjectAboutInfo.data.data})
+                this.$store.dispatch('USE_TAG_CHANGE', {userMarkList: UserMarkList.data.data})
 							}else{
                 Message({
                   showClose: true,

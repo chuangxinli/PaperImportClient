@@ -21,7 +21,7 @@
           </el-table-column>
           
           <!-- 应用题型标签 -->
-          <el-table-column prop="UseTag" label="应用标签" width="100"></el-table-column>
+          <el-table-column prop="UseTagName" label="应用标签" width="100"></el-table-column>
           <el-table-column label="试题类型" width="80">
           	<template slot-scope="scope">
 			        <p class="ItemTitle" v-if="scope.row.Type == 1">单选题</p>
@@ -94,7 +94,6 @@
 		},
 		mounted() {
 			this.paperData = JSON.parse(this.getLocal('paperData'));
-			console.log(this.paperData);
 			this.initItemList();
 		},
 		methods: {
@@ -127,6 +126,39 @@
 									question[k].index_group = k;									// 试题 			题内部下标
 									question[k].isSelected = false;								// 试题 			默认不被选中
 									
+									// 学科能力 思想方法 应用标签 
+									if(question[k].Ability == ''){
+										question[k].AbilityName = '';
+										question[k].AbilityCodeList = [];
+										question[k].AbilityNameList = [];
+									}
+									if(question[k].Thoughtway == ''){
+										question[k].ThoughtwayName = '';
+										question[k].ThoughtwayCodeList = [];
+										question[k].ThoughtwayNameList = [];
+									}
+									if(question[k].UseTag == ''){
+										question[k].UseTagName = '';
+										question[k].UseTagCodeList = [];
+										question[k].UseTagNameList = [];
+									}
+									if(question[k].Examination_points.length == 0){
+										question[k].Knowledge_points_show = [];
+									}else{
+										let Knowledge_points_show = [];
+										for(let y=0; y<question[k].Examination_points.length; y++){
+											Knowledge_points_show[y] = {};
+											if(question[k].Knowledge_main_point == question[k].Examination_points[y]){
+												Knowledge_points_show[y].isMain = true;
+											}else{
+												Knowledge_points_show[y].isMain = false;
+											}
+											Knowledge_points_show[y].pointId = question[k].Examination_points[y];
+											Knowledge_points_show[y].pointName = question[k].ExaminationPointsName[y];
+										}
+										question[k].Knowledge_points_show = JSON.parse(JSON.stringify(Knowledge_points_show));
+									}
+									
 									question[k].firstIndex = i;										// 一级题组 	指向
 									question[k].secondIndex = j;									// 二级题组 	指向
 									
@@ -156,6 +188,39 @@
 								question[k].Num = moveMin + k + 1;						// 试题序号
 								question[k].index_group = k;									// 试题 			题内部下标
 								question[k].isSelected = false;								// 试题 			默认不被选中
+								
+								// 学科能力 思想方法 应用标签 
+								if(question[k].Ability == ''){
+									question[k].AbilityName = '';
+									question[k].AbilityCodeList = [];
+									question[k].AbilityNameList = [];
+								}
+								if(question[k].Thoughtway == ''){
+									question[k].ThoughtwayName = '';
+									question[k].ThoughtwayCodeList = [];
+									question[k].ThoughtwayNameList = [];
+								}
+								if(question[k].UseTag == ''){
+									question[k].UseTagName = '';
+									question[k].UseTagCodeList = [];
+									question[k].UseTagNameList = [];
+								}
+								if(question[k].Examination_points.length == 0){
+									question[k].Knowledge_points_show = [];
+								}else{
+									let Knowledge_points_show = [];
+									for(let y=0; y<question[k].Examination_points.length; y++){
+										Knowledge_points_show[y] = {};
+										if(question[k].Knowledge_main_point == question[k].Examination_points[y]){
+											Knowledge_points_show[y].isMain = true;
+										}else{
+											Knowledge_points_show[y].isMain = false;
+										}
+										Knowledge_points_show[y].pointId = question[k].Examination_points[y];
+										Knowledge_points_show[y].pointName = question[k].ExaminationPointsName[y];
+									}
+									question[k].Knowledge_points_show = JSON.parse(JSON.stringify(Knowledge_points_show));
+								}
 								
 								question[k].firstIndex = i;										// 一级题组 	指向
 								question[k].secondIndex = 9999;								// 二级题组 	指向

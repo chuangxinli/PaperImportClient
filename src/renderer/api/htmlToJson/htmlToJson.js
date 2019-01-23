@@ -308,6 +308,7 @@ function dealJsonObj(jsonObj, jsonArr, lackArr) {
   for(let i = 0, len = unitAndSubUnit.length; i < len; i ++){
     if(unitAndSubUnit[i].subjectName === jsonObj.Subject){
       jsonObj.SubjectId = unitAndSubUnit[i].subjectId
+      jsonObj.SubjectCode = unitAndSubUnit[i].subjectCode
       jsonObj.Phase = unitAndSubUnit[i].phase
       materialList = unitAndSubUnit[i].materialList
     }
@@ -734,7 +735,7 @@ function htmlToJson(res, originArr, myEmitter) {
                 Correct: jsonObj.IsTrue,
                 Checnote: '',
                 Text: getItemDes(primaryStr) ? '<p>' + getItemDes(primaryStr) + '</p>' : '',
-                Options: [],
+                Options: itemTypeNum == 5 ? [{Index: 1, Text: '对', IsRight: '', Id: ''}, {Index: 2, Text: '错', IsRight: '', Id: ''}] : [],
                 Knowledge_points: [],
                 Explain: '',
                 Analysis: '',
@@ -787,7 +788,7 @@ function htmlToJson(res, originArr, myEmitter) {
                 Correct: jsonObj.IsTrue,
                 Checnote: '',
                 Text: getSubItemDes(primaryStr) ? '<p>' + getSubItemDes(primaryStr) + '</p>' : '',
-                Options: [],
+                Options: itemTypeNum == 5 ? [{Index: 1, Text: '对', IsRight: '', Id: ''}, {Index: 2, Text: '错', IsRight: '', Id: ''}] : [],
                 Knowledge_points: [],
                 Explain: '',
                 Analysis: '',

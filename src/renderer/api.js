@@ -13,7 +13,7 @@ let loadOptions = {
 }
 axios.defaults.baseURL = global.api_url
 axios.defaults.withCredentials = true
-axios.defaults.timeout = 5000
+axios.defaults.timeout = 30000
 axios.defaults.headers = {
   'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
 }

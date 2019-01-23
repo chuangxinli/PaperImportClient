@@ -4,7 +4,8 @@ const path = require('path')
 const state = {
   version: '0.0.0',
   subjectAboutInfo: {},
-  unitAndSubUnit: {}
+  unitAndSubUnit: {},
+  userMarkList: {}
 }
 
 const mutations = {
@@ -25,7 +26,14 @@ const mutations = {
     writeFile(path.join(__dirname, '../../api/json/unitAndSubUnit.json'), JSON.stringify(payload), (err) => {
       console.log(err)
     })
-  }
+  },
+  //更新 userMarkList 应用标签
+  USE_TAG_CHANGE(state, payload) {
+    state.userMarkList = payload.userMarkList
+    writeFile(path.join(__dirname, '../../api/json/userMarkList.json'), JSON.stringify(payload), (err) => {
+      console.log(err)
+    })
+  },
 }
 
 const actions = {
@@ -37,6 +45,9 @@ const actions = {
   },
   UNIT_AND_SUBUINT({commit}, payload) {
     commit('UNIT_AND_SUBUINT', payload)
+  },
+  USE_TAG_CHANGE({commit}, payload) {
+    commit('USE_TAG_CHANGE', payload)
   }
 }
 

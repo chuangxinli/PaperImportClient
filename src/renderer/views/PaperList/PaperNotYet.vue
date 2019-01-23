@@ -178,7 +178,7 @@
                   <div
                     v-html="(question.Serial_num ? question.Serial_num : qIndex + 1) + '.' + (question.Score ? '（' + question.Score + '分）' : '') + global.formatFirstPToSpan(question.Text)"
                     class="text"></div>
-                  <div v-if="question.Type == 1 || question.Type == 2" class="question">
+                  <div v-if="question.Type == 1 || question.Type == 2 || question.Type == 5" class="question">
                     <div class="options" v-for="option in question.Options">
                       <div v-html="getOption(option.Index) + '.' + global.formatFirstPToSpan(option.Text)"
                            class="option" :class="{'trueOption': option.IsRight === true}"></div>
@@ -189,7 +189,7 @@
                       <div class="subText" v-html="(subQuestion.Serial_num
  ? subQuestion.Serial_num : subIndex + 1)  + ' ' + (subQuestion.Score ? '（' + subQuestion.Score + '分）' : '') + global.formatFirstPToSpan(subQuestion.Text)">
                       </div>
-                      <div v-if="subQuestion.Type == 1 || subQuestion.Type == 2" class="subQuestion">
+                      <div v-if="subQuestion.Type == 1 || subQuestion.Type == 2 || subQuestion.Type == 5" class="subQuestion">
                         <div class="options" v-for="option in subQuestion.Options">
                           <div v-html="getOption(option.Index) + '. ' + global.formatFirstPToSpan(option.Text)"
                                class="option" :class="{'trueOption': option.IsRight === true}"></div>
@@ -225,7 +225,7 @@
                     <div
                       v-html="(question.Serial_num ? question.Serial_num : qIndex + 1) + '.' + (question.Score ? '（' + question.Score + '分）' : '') + global.formatFirstPToSpan(question.Text)"
                       class="text"></div>
-                    <div v-if="question.Type == 1 || question.Type == 2" class="question">
+                    <div v-if="question.Type == 1 || question.Type == 2 || question.Type == 5" class="question">
                       <div class="options" v-for="option in question.Options">
                         <div v-html="getOption(option.Index) + '.' + global.formatFirstPToSpan(option.Text)"
                              class="option" :class="{'trueOption': option.IsRight === true}"></div>
@@ -236,7 +236,7 @@
                         <div class="subText"
                              v-html="(subQuestion.Serial_num ? subQuestion.Serial_num : subIndex + 1) + ' ' + (subQuestion.Score ? '（' + subQuestion.Score + '分）' : '') + global.formatFirstPToSpan(subQuestion.Text)">
                         </div>
-                        <div v-if="subQuestion.Type == 1 || subQuestion.Type == 2" class="subQuestion">
+                        <div v-if="subQuestion.Type == 1 || subQuestion.Type == 2 || subQuestion.Type == 5" class="subQuestion">
                           <div class="options" v-for="option in subQuestion.Options">
                             <div v-html="getOption(option.Index) + '. ' + global.formatFirstPToSpan(option.Text)"
                                  class="option" :class="{'trueOption': option.IsRight === true}"></div>

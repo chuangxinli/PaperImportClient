@@ -77,9 +77,9 @@
 						<div v-html="global.formatFirstPToSpan(part.text)" class="partText"></div>
 						<div v-for="question,qIndex in part.questionList">
 							<div
-								v-html="(question.serial_num ? question.serial_num : qIndex + 1) + '.' + (question.score ? '（' + question.score + '分）' : '') + global.formatFirstPToSpan(question.text)"
+								v-html="(question.serial_num ? question.serial_num : question.num) + '.' + (question.score ? '（' + question.score + '分）' : '') + global.formatFirstPToSpan(question.text)"
 								class="text"></div>
-							<div v-if="question.qType == 1 || question.qType == 2" class="question">
+							<div v-if="question.qType == 1 || question.qType == 2 || question.qType == 5" class="question">
 								<div class="options" v-for="option in question.answerList">
 									<div v-html="getOption(option.index) + '.' + global.formatFirstPToSpan(option.text)"
 											 class="option" :class="{'trueOption': option.isRight == 1}"></div>
@@ -88,9 +88,9 @@
 							<div v-show="question.subQuestionList && question.subQuestionList.length > 0" class="sub">
 								<div v-for="subQuestion,subIndex in question.subQuestionList">
 									<div class="subText" v-html="(subQuestion.serial_num
- ? subQuestion.serial_num : subIndex + 1)  + ' ' + (subQuestion.score ? '（' + subQuestion.score + '分）' : '') + global.formatFirstPToSpan(subQuestion.text)">
+ ? '(' + subQuestion.serial_num + ')' : '(' + (subIndex + 1) + ')')  + ' ' + (subQuestion.score ? '（' + subQuestion.score + '分）' : '') + global.formatFirstPToSpan(subQuestion.text)">
 									</div>
-									<div v-if="subQuestion.qType == 1 || subQuestion.qType == 2" class="subQuestion">
+									<div v-if="subQuestion.qType == 1 || subQuestion.qType == 2 | subQuestion.qType == 5" class="subQuestion">
 										<div class="options" v-for="option in subQuestion.answerList">
 											<div v-html="getOption(option.index) + '. ' + global.formatFirstPToSpan(option.text)"
 													 class="option" :class="{'trueOption': option.isRight == 1}"></div>
@@ -132,9 +132,9 @@
 							<div v-html="global.formatFirstPToSpan(brief.text)" class="briefText"></div>
 							<div v-for="question,qIndex in brief.questionList">
 								<div
-									v-html="(question.serial_num ? question.serial_num : qIndex + 1) + '.' + (question.score ? '（' + question.score + '分）' : '') + global.formatFirstPToSpan(question.text)"
+									v-html="(question.serial_num ? question.serial_num : question.num) + '.' + (question.score ? '（' + question.score + '分）' : '') + global.formatFirstPToSpan(question.text)"
 									class="text"></div>
-								<div v-if="question.qType == 1 || question.qType == 2" class="question">
+								<div v-if="question.qType == 1 || question.qType == 2 || question.qType == 5" class="question">
 									<div class="options" v-for="option in question.answerList">
 										<div v-html="getOption(option.index) + '.' + global.formatFirstPToSpan(option.text)"
 												 class="option" :class="{'trueOption': option.isRight == 1}"></div>
@@ -143,9 +143,9 @@
 								<div v-show="question.subQuestionList && question.subQuestionList.length > 0" class="sub">
 									<div v-for="subQuestion,subIndex in question.subQuestionList">
 										<div class="subText"
-												 v-html="(subQuestion.serial_num ? subQuestion.serial_num : subIndex + 1) + ' ' + (subQuestion.score ? '（' + subQuestion.score + '分）' : '') + global.formatFirstPToSpan(subQuestion.text)">
+												 v-html="(subQuestion.serial_num ? '(' + subQuestion.serial_num + ')' : '(' + (subIndex + 1) + ')') + ' ' + (subQuestion.score ? '（' + subQuestion.score + '分）' : '') + global.formatFirstPToSpan(subQuestion.text)">
 										</div>
-										<div v-if="subQuestion.qType == 1 || subQuestion.qType == 2" class="subQuestion">
+										<div v-if="subQuestion.qType == 1 || subQuestion.qType == 2 || subQuestion.qType == 5" class="subQuestion">
 											<div class="options" v-for="option in subQuestion.answerList">
 												<div v-html="getOption(option.index) + '. ' + global.formatFirstPToSpan(option.text)"
 														 class="option" :class="{'trueOption': option.isRight == 1}"></div>

@@ -308,6 +308,7 @@ function dealJsonObj(jsonObj, jsonArr, lackArr) {
   for(let i = 0, len = unitAndSubUnit.length; i < len; i ++){
     if(unitAndSubUnit[i].subjectName === jsonObj.Subject){
       jsonObj.SubjectId = unitAndSubUnit[i].subjectId
+      jsonObj.SubjectCode = unitAndSubUnit[i].subjectCode
       jsonObj.Phase = unitAndSubUnit[i].phase
       materialList = unitAndSubUnit[i].materialList
     }
@@ -628,15 +629,12 @@ function htmlToJson(res, originArr, myEmitter) {
               continue
             }
           } else {
-            if (itemTypeNum == 1 || itemTypeNum == 2) {
+            if (itemTypeNum == 1 || itemTypeNum == 2 || itemTypeNum == 5) {
               if (judgeIsOption(primaryStr)) {
                 curItemProperty = 'choice'
                 dealOptions(jsonObj, primaryStr, hasSubItem)
                 continue
               }
-            }
-            if(options && curLabel == 'table'){
-
             }
             if (dealBracket('考点').test(primaryStr)) {
               hasSubItem = false

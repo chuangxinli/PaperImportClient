@@ -190,7 +190,6 @@ function dealOptions(jsonObj, primaryStr, hasSubItem, add) {
 
 //处理选择题
 function dealChoice(primaryStr) {
-  primaryStr = primaryStr.replace(/\s*/g, '')
   let reg = /^\s*#?\s*[A-Z]\s*(\.|。|．)/
   let obj = {}
   if (primaryStr.match(reg)) {

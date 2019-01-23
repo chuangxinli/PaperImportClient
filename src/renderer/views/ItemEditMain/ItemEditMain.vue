@@ -415,7 +415,7 @@
 					td:nth-child(2) div{
 						text-align: left;
 						p.ItemTitle { height: 50px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-							*{ display: inline; line-height: 50px;}
+							*{ overflow: hidden; text-overflow: ellipsis; line-height: 50px;}
 						}
 					}
 				}

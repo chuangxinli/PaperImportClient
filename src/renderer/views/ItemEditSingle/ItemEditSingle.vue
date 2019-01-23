@@ -26,6 +26,12 @@
 					<li v-for="(item,key) in itemList" :class="item.isSelected ? 'active' : ''" @click="SingleItemInfo(item)">{{ key+1 }}</li>
 				</ul>
 				
+				<!-- 试题保存(提示单题保存,不保存将视为无效修改) -->
+				<div class="restore_one_item">
+					<i class="el-icon-warning warnFont"> 每修改一道题目，请记得保存一次，否则将视为无效！</i>
+					<div class="btn-medium-self-blue fRight ml-20" @click="restoreItemForVuexAndLocal()">保存试题</div>
+				</div>
+				
 				<div class="leftMarkBox">
 					
 					<!-- 基本标签 -->
@@ -440,6 +446,18 @@
 					this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 				}
 			},
+			// 单题保存
+			restoreItemForVuexAndLocal(){
+				// 将 paperData.AllQuestionArr 提交到 vuex
+				this.setLocal('paperData',JSON.stringify(this.paperData));
+				this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
+				this.$message({
+					showClose: true,
+					message: '第'+this.itemData.Num+'的修改信息保存成功！',
+					type: 'success',
+					duration: 2000
+				});
+			},
 			changeInputValue(){					// 修改试卷名称		修改试题类型
 				switch (this.itemData.Type){
 					case '1':
@@ -476,8 +494,6 @@
 					default:
 						break;
 				}
-				this.setLocal('paperData',JSON.stringify(this.paperData));
-				this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 			},
 			vuexDataChange(type){
 				if(type == 'IsCombination'){
@@ -486,9 +502,6 @@
 					}else{
 						this.itemData.Type = '1';		// 不勾选题主题 	默认为选择题
 					}
-					// 将 paperData.AllQuestionArr 提交到 vuex
-					this.setLocal('paperData',JSON.stringify(this.paperData));
-					this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 				}else if(type == 'addCombination'){
 					let item_parent = JSON.parse(JSON.stringify(this.itemData));																// 题主题父题
 					this.itemData.SubQuestionList[this.itemData.SubQuestionList.length] = item_parent;					// 默认继承 题主题 父级题所有内容
@@ -502,17 +515,10 @@
 						type: 'success',
 						duration: 4000
 					});
-					// 将 paperData.AllQuestionArr 提交到 vuex
-					this.setLocal('paperData',JSON.stringify(this.paperData));
-					this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 					this.initItemList();
 				}else{
-					// 将 paperData.AllQuestionArr 提交到 vuex
-					this.setLocal('paperData',JSON.stringify(this.paperData));
-					this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
+					
 				}
-				
-				
 			},
 			deleteOption(optionIndex){
 				// 删除选项
@@ -523,9 +529,6 @@
 					}
 				})
 				this.itemData.Options = option_new;
-				// 将 paperData.AllQuestionArr 提交到 vuex
-				this.setLocal('paperData',JSON.stringify(this.paperData));
-				this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 			},
 			deleteSubQuestion(subQuestionIndex){
 				let SubQuestionList_new = [];
@@ -535,9 +538,6 @@
 					}
 				})
 				this.itemData.SubQuestionList = SubQuestionList_new;
-				// 将 paperData.AllQuestionArr 提交到 vuex
-				this.setLocal('paperData',JSON.stringify(this.paperData));
-				this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 			},
 			EditHtml(title, html, type, optionIndex){
 				this.editorInfo.editTextDialog = true;
@@ -581,9 +581,6 @@
 						break;
 				}
 				this.editorInfo.txt = '';
-				// 将 paperData.AllQuestionArr 提交到 vuex
-				this.setLocal('paperData',JSON.stringify(this.paperData));
-				this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 			},
 			setRightOrWrong(key){
 				// 设置为 '正确选项' 或者 '错误选项'
@@ -598,9 +595,6 @@
 				}else{
 					this.itemData.Options[key].IsRight = !this.itemData.Options[key].IsRight;
 				}
-				// 将 paperData.AllQuestionArr 提交到 vuex
-				this.setLocal('paperData',JSON.stringify(this.paperData));
-				this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 			},
 			goBack(){
 				this.changeRouterByName('ItemEditMain');
@@ -610,6 +604,7 @@
 				this.itemData.isSelected = false;
 				row.isSelected = true;
 				this.itemData = row;
+				this.initItemList();
 			},
 			
 			// 弹窗方法
@@ -659,9 +654,6 @@
 					}
 				}
 				this.addPointsDialog = false;
-				// 将 paperData.AllQuestionArr 提交到 vuex
-				this.setLocal('paperData',JSON.stringify(this.paperData));
-				this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 			},
 			initStaticData(SubjectId,MaterialId){	// 初始化  学科能力  思想方法  知识点
 				// 接收 Vuex 学段学科教材版本数据					=> 只做 学段学科 教材版本 学科能力 思想方法 级联
@@ -727,8 +719,6 @@
 					this.itemData.Knowledge_points = Knowledge_points;
 					this.itemData.Examination_points = Examination_points;
 					this.itemData.ExaminationPointsName = ExaminationPointsName;
-					this.setLocal('paperData',JSON.stringify(this.paperData));
-					this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 				}
 			},
 			setMainOrNot(key){			// 设置或取消 '主知识点'
@@ -742,8 +732,6 @@
 					this.itemData.Knowledge_points_show[key].isMain = true;
 					this.itemData.Knowledge_main_point = this.itemData.Knowledge_points_show[key].pointId;
 				}
-				this.setLocal('paperData',JSON.stringify(this.paperData));
-				this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 			},
 			initAbilityOrThoughtWay(){	// 初始化 学科能力 思想方法
 				if(this.itemData.Ability == ''){
@@ -781,8 +769,6 @@
 					this.itemData.AbilityName = AbilityName;
 					this.itemData.AbilityCodeList = AbilityCodeList;
 				}
-				this.setLocal('paperData',JSON.stringify(this.paperData));
-				this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 			},
 			ThoughtwayNameListChange(value){
 				let Thoughtway = '';
@@ -808,8 +794,6 @@
 					this.itemData.ThoughtwayName = ThoughtwayName;
 					this.itemData.ThoughtwayCodeList = ThoughtwayCodeList;
 				}
-				this.setLocal('paperData',JSON.stringify(this.paperData));
-				this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 			},
 			
 			
@@ -828,6 +812,9 @@
 			overflow-x: hidden;
 			.itemEditSingle {
 				padding: 20px;
+				
+				/* 保存试题提示语 以及保存按钮 */
+				div.restore_one_item{ height: 30px; line-height: 30px; margin-bottom: 15px; font-size: 14px;}
 				/* 基本标签  核心标签  其他标签 (左侧盒子)*/
 				.leftMarkBox{ width: 62%; float: left;
 					div.box-left{ width: 28%; float: left;

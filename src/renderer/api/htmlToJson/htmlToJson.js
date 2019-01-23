@@ -333,6 +333,10 @@ function dealJsonObj(jsonObj, jsonArr, lackArr) {
         jsonObj.AllQuestionArr[i].rangeMax = qIndex + qLength - 1
         qIndex += qLength
         for(let j = 0; j < qLength; j ++){
+
+          if(!jsonObj.AllQuestionArr[i].question[j].Score){
+            jsonObj.lackScoreArr.push(jsonObj.AllQuestionArr[i].question[j].Serial_num)
+          }
           let pointsObj = dealExaminationPoints(jsonObj.AllQuestionArr[i].question[j].Examination_points, jsonObj)
           jsonObj.AllQuestionArr[i].question[j].Examination_points = pointsObj.arr
           jsonObj.AllQuestionArr[i].question[j].Knowledge_points = pointsObj.arr
@@ -368,6 +372,9 @@ function dealJsonObj(jsonObj, jsonArr, lackArr) {
           jsonObj.AllQuestionArr[i].children[j].rangeMax = qIndex + qLength - 1
           qIndex += qLength
           for(let k = 0; k < qLength; k ++){
+            if(!jsonObj.AllQuestionArr[i].children[j].question[k].Score){
+              jsonObj.lackScoreArr.push(jsonObj.AllQuestionArr[i].children[j].question[k].Serial_num)
+            }
             let pointsObj = dealExaminationPoints(jsonObj.AllQuestionArr[i].children[j].question[k].Examination_points, jsonObj)
             jsonObj.AllQuestionArr[i].children[j].question[k].Examination_points = pointsObj.arr
             jsonObj.AllQuestionArr[i].children[j].question[k].Knowledge_points = pointsObj.arr
@@ -436,9 +443,9 @@ function htmlToJson(res, originArr, myEmitter) {
   for (let i = 0, len = originArr.length; i < len; i++) {
     docxArr.push(originArr[i].path)
   }
-  let itemNum = 0, allScore = 0
   let jsonArr = [], errArr = [], lackArr = []  //成功解析和失败解析以及成功解析但是缺少必要属性的列表
   for (let i = 0, len = docxArr.length; i < len; i++) {
+    let itemNum = 0, allScore = 0
     let jsonObj = {
       Title: '',
       Attribute: '',
@@ -460,7 +467,8 @@ function htmlToJson(res, originArr, myEmitter) {
       Difficulty: '',
       ScopeDataStr: '',
       localId: '',
-      AllQuestionArr: []
+      AllQuestionArr: [],
+      lackScoreArr: []
     }  //单个试卷的json对象
     jsonObj.fileName = path.basename(docxArr[i], '.docx')
     let primaryStr = '' //p标签中的内容
@@ -889,7 +897,8 @@ function htmlToJson(res, originArr, myEmitter) {
         res.send({
           jsonArr,
           errArr,
-          lackArr
+          lackArr,
+          recode: 0
         })
       }
     })
@@ -902,7 +911,8 @@ function htmlToJson(res, originArr, myEmitter) {
           res.send({
             jsonArr,
             errArr,
-            lackArr
+            lackArr,
+            recode: 0
           })
         }
       })

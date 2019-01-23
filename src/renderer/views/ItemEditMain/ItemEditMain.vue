@@ -94,7 +94,6 @@
 		},
 		mounted() {
 			this.paperData = JSON.parse(this.getLocal('paperData'));
-			console.log(this.paperData);
 			this.initItemList();
 		},
 		methods: {

@@ -294,6 +294,7 @@
 		components: {
 			Editor
     },
+    name: 'heshaoxu-modal',
 		data() {
 			return {
 				paperData: {						// 试卷结构大数组 
@@ -376,8 +377,6 @@
 			this.paperData = JSON.parse(this.getLocal('paperData'));
 			this.initItemList();
 			this.initStaticData(this.paperData.SubjectId, this.paperData.MaterialId, this.paperData.SubjectCode);
-			console.log(this.paperData);
-			console.log(this.itemData);
 		},
 		methods: {
 			// 初始化 题目数据
@@ -635,13 +634,8 @@
 			},
 			querySearch(pointName, cb) {
         var allPointsList = this.allPointsList;
-        var results = pointName ? allPointsList.filter(this.pointNameFilter(pointName)) : allPointsList;
+        var results = pointName ? allPointsList.filter((item) => {return item.pointName.toLowerCase().includes(pointName.toLowerCase())}) : allPointsList;
         cb(results);
-      },
-      pointNameFilter(pointName) {
-        return (singlePoint) => {
-          return (singlePoint.value.toLowerCase().indexOf(pointName.toLowerCase()) === 0);
-        };
       },
       pushToSelPointsList(item) {
         // this.selPointsList 添加时去重
@@ -664,19 +658,9 @@
 				this.selPointsList = selPointsList_new;
 			},
 			confirmAddPoints(){										// 确认添加 知识点
-				console.log(1111111)
-				console.log(this.selPointsList);
-				console.log(this.itemData.Knowledge_points);
-				console.log(this.itemData.Knowledge_points_show);
-				
 				for (let i=0; i<this.selPointsList.length; i++){
 					this.selPointsList[i].isMain = false;
-					if(this.itemData.Knowledge_points.length>0 && !this.itemData.Knowledge_points.includes(this.selPointsList[i].pointId)){
-						this.itemData.Knowledge_points.push(this.selPointsList[i].pointId);
-						this.itemData.Examination_points.push(this.selPointsList[i].pointId);
-						this.itemData.ExaminationPointsName.push(this.selPointsList[i].pointName);
-						this.itemData.Knowledge_points_show.push(this.selPointsList[i]);
-					}else{
+					if( !this.itemData.Knowledge_points.includes(this.selPointsList[i].pointId) ){
 						this.itemData.Knowledge_points.push(this.selPointsList[i].pointId);
 						this.itemData.Examination_points.push(this.selPointsList[i].pointId);
 						this.itemData.ExaminationPointsName.push(this.selPointsList[i].pointName);
@@ -762,16 +746,18 @@
 				}
 			},
 			setMainOrNot(key){			// 设置或取消 '主知识点'
-				if(this.itemData.Knowledge_points_show[key].isMain){
-					this.itemData.Knowledge_points_show[key].isMain = false;
+				let Knowledge_points_show = JSON.parse(JSON.stringify(this.itemData.Knowledge_points_show));
+				if(Knowledge_points_show[key].isMain){
+					Knowledge_points_show[key].isMain = false;
 					this.itemData.Knowledge_main_point = '';
 				}else{
-					this.itemData.Knowledge_points_show.forEach((item)=>{
+					Knowledge_points_show.forEach((item)=>{
 						item.isMain = false;
 					})
-					this.itemData.Knowledge_points_show[key].isMain = true;
+					Knowledge_points_show[key].isMain = true;
 					this.itemData.Knowledge_main_point = this.itemData.Knowledge_points_show[key].pointId;
 				}
+				this.itemData.Knowledge_points_show = JSON.parse(JSON.stringify(Knowledge_points_show));
 			},
 			initAbilityOrThoughtWay(itemData){	// 初始化 学科能力 思想方法
 				if(itemData.Ability == ''){

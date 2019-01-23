@@ -126,10 +126,10 @@
 	        </ul>
 	        <ul class="ul_section_content ul_common" v-show="!isMainSelect && paperData.AllQuestionArr && paperData.AllQuestionArr.length>0">
 	        	<li v-for="(itemMain,key) in paperData.AllQuestionArr">
-	        		<span @click="openOrNotChild(itemMain)">
+	        		<span>
 	        			{{ key+1 }} 
-	        			<img src="../../assets/images/arrow_up_gray.png" class="" v-if="itemMain.children.length > 0 && itemMain.isOpen" class="left_6em" alt="" />
-	        			<img src="../../assets/images/arrow_down.png" v-else class="left_6em" alt="" />
+	        			<img src="../../assets/images/arrow_up_gray.png" v-show="itemMain.children.length > 0 && itemMain.isOpen" class="left_6em" alt="" />
+	        			<img src="../../assets/images/arrow_down.png" v-show="itemMain.children.length > 0 && !itemMain.isOpen" class="left_6em" alt="" />
 	        		</span>
 	        		<span :title="itemMain.text" v-html="itemMain.text"></span>
 	        		<span v-if="itemMain.rangeMin == itemMain.rangeMax">{{ itemMain.rangeMin }}</span>

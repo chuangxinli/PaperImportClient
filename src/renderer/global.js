@@ -198,3 +198,4 @@ function removePtag(str){
 function addPtag(str){
 	return '<p>' + str + '</p>';
 }
+

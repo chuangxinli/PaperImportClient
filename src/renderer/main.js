@@ -10,8 +10,8 @@ import App from './App'
 import router from './router'
 import store from './store'
 import global from './global.js'
-import './filters'
 
+import './filters'
 
 Vue.prototype.global = global
 Vue.prototype.api = api

@@ -191,7 +191,7 @@
           this.$router.push({
             path: '/Main'
           })
-					if(data.data.version == this.version){
+					if(data.data.version != this.version){
     	      this.newVersion = data.data.version
     	      axios.all([this.getSubjectAboutInfo(), this.getUnitAndSubUnit(), this.getUseMarkList()]).then(axios.spread( (SubjectAboutInfo, UnitAndSubUnit, UserMarkList) => {
     	        if(SubjectAboutInfo.data.recode == 0 && UnitAndSubUnit.data.recode == 0){

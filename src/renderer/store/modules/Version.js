@@ -22,14 +22,14 @@ const mutations = {
     state.subjectAboutInfo = payload.subjectAboutInfo
     writeFile(path.join(__dirname, '../../api/json/subjectAboutInfo.json'), JSON.stringify(payload), (err) => {
       console.log(err)
-      if(!err){
-        num++
-        if(num % 2 == 0){
-          exec(`node ${appPath}`, function (err) {
-            console.log(err)
-          })
-        }
-      }
+//    if(!err){
+//      num++
+//      if(num % 2 == 0){
+//        exec(`node ${appPath}`, function (err) {
+//          console.log(err)
+//        })
+//      }
+//    }
     })
   },
   //更新unitAndSubUnit
@@ -37,14 +37,14 @@ const mutations = {
     state.unitAndSubUnit = payload.unitAndSubUnit
     writeFile(path.join(__dirname, '../../api/json/unitAndSubUnit.json'), JSON.stringify(payload), (err) => {
       console.log(err)
-      if(!err){
-        num++
-        if(num % 2 == 0){
-          exec(`node ${appPath}`, function (err) {
-            console.log(err)
-          })
-        }
-      }
+//    if(!err){
+//      num++
+//      if(num % 2 == 0){
+//        exec(`node ${appPath}`, function (err) {
+//          console.log(err)
+//        })
+//      }
+//    }
     })
   },
   //更新 userMarkList 应用标签

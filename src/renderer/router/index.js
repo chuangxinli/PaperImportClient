@@ -8,6 +8,7 @@ import PaperAlready from '../views/PaperList/PaperAlready.vue'												// 二
 import PaperAttributeEdit from '../views/PaperAttributeEdit/PaperAttributeEdit.vue'		// 二级路由
 import ItemEditMain from '../views/ItemEditMain/ItemEditMain.vue'											// 二级路由
 import ItemEditSingle from '../views/ItemEditSingle/ItemEditSingle.vue'								// 二级路由
+import ItemEditSingle_SubQuestion from '../views/ItemEditSingle_SubQuestion/ItemEditSingle_SubQuestion.vue'								// 二级路由
 
 Vue.use(Router)
 
@@ -48,6 +49,11 @@ const router = new Router({
         	path: '/Main/ItemEditSingle',				// 二级路由 试题单题编辑	ItemEditSingle
           name: 'ItemEditSingle',
           component: ItemEditSingle
+        },
+        {
+        	path: '/Main/ItemEditSingle_SubQuestion',	// 二级路由 试题单题编辑(小题编辑)	ItemEditSingle_SubQuestion
+          name: 'ItemEditSingle_SubQuestion',
+          component: ItemEditSingle_SubQuestion
         }
       ]
     }

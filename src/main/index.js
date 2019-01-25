@@ -37,7 +37,7 @@ function createWindow () {
   });
 
   mainWindow.loadURL(winURL)
-  require('../renderer/api/startPort.js')
+//require('../renderer/api/startPort.js')
 
   mainWindow.on('closed', () => {
     mainWindow = null

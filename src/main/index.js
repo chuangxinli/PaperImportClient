@@ -35,9 +35,9 @@ function createWindow () {
     autoHideMenuBar: true,
     maximizable: true				// 支持最大化
   });
-
+  mainWindow.webContents.openDevTools()
   mainWindow.loadURL(winURL)
-  require('../renderer/api/startPort.js')
+  require('../renderer/api/appExpress.js')
 
   mainWindow.on('closed', () => {
     mainWindow = null

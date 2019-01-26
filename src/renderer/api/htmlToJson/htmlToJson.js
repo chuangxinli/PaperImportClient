@@ -393,6 +393,7 @@ function dealJsonObj(jsonObj, jsonArr, lackArr) {
                 jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].Special_topics = jsonObj.AllQuestionArr[i].children[j].question[k].Special_topics
                 jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].Examination_points = jsonObj.AllQuestionArr[i].children[j].question[k].Examination_points
                 jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].Knowledge_points = jsonObj.AllQuestionArr[i].children[j].question[k].Knowledge_points
+                jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].ExaminationPointsName = jsonObj.AllQuestionArr[i].children[j].question[k].ExaminationPointsName
               }
             }
           }

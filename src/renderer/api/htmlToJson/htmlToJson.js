@@ -287,7 +287,8 @@ function dealExaminationPoints(primaryStr, jsonObj) {
   if (ExaminationPoints.length > 0) {
     for (let i = 0, len = ExaminationPoints.length; i < len; i++) {
       for (let j = 0, len2 = knowledgePointList.length; j < len2; j++) {
-        if (ExaminationPoints[i] == knowledgePointList[j].pointName) {
+        
+        if (knowledgePointList[j].jingYouName.split('|').includes(ExaminationPoints[i])) {
           arr.push(knowledgePointList[j].pointId)
           ExaminationPointsName.push(knowledgePointList[j].pointName)
           break
@@ -481,6 +482,7 @@ function htmlToJson(res, originArr, myEmitter) {
     let curLabel = 'p'  //当前的标签
     let removeAnswer = false //是否去除下划线上的文字
     let options = false //处理table中是选择题选项的特殊情况
+    let OptionalFlag = false //是否是选做题
     mammoth.convertToHtml({path: docxArr[i]}, {
       styleMap: [
         "u => u",
@@ -527,6 +529,14 @@ function htmlToJson(res, originArr, myEmitter) {
         }
         if(/^\s*#\/options#/.test(primaryStr)){
           options = false
+          continue
+        }
+        if(/^\s*#noselect#/.test(primaryStr)){
+          OptionalFlag = false
+          continue
+        }
+        if(/^\s*#select#/.test(primaryStr)){
+          OptionalFlag = true
           continue
         }
         //处理题的类型
@@ -750,7 +760,8 @@ function htmlToJson(res, originArr, myEmitter) {
                 IsCombination: 0,
                 SubQuestionList: [],
                 Knowledge_main_points: '',
-                UseTag: ''
+                UseTag: '',
+                OptionalFlag
               }
               if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '0') {
                 jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question.push(itemObj)
@@ -804,7 +815,8 @@ function htmlToJson(res, originArr, myEmitter) {
                 SubQuestionList: [],
                 Knowledge_main_points: '',
                 UseTag: '',
-                Combination_index: ''
+                Combination_index: '',
+                OptionalFlag
               }
               if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '0') {
                 let qLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question.length
@@ -865,7 +877,8 @@ function htmlToJson(res, originArr, myEmitter) {
               IsCombination: 1,
               SubQuestionList: [],
               Knowledge_main_points: '',
-              UseTag: ''
+              UseTag: '',
+              OptionalFlag
             }
             if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '0') {
               jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question.push(itemObj)

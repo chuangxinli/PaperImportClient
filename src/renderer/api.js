@@ -13,7 +13,7 @@ let loadOptions = {
 }
 axios.defaults.baseURL = global.api_url
 axios.defaults.withCredentials = true
-axios.defaults.timeout = 50000
+axios.defaults.timeout = 30000
 axios.defaults.headers = {
   'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
 }
@@ -63,29 +63,79 @@ function checkCode(res) {
     return ''
   } else if (res.data.recode == 1006) {
     Message({
-      message: '用户为登录或会话已经失效！',
+      message: '用户为登录或会话已经失效!',
       type: 'warning',
       showClose: true
     })
-    setTimeout(() => {
+    setTimeout(function () {
       router.push({
         path: '/Signin'
       })
     }, 2000)
     return ''
-  } else if (res.data.recode == 1005) {
-    Message({
-      message: '用户已经登录，不允许重复登录！',
-      type: 'warning',
-      showClose: true
-    })
-  }else if (res.data.recode == 0) {
+  } else if (res.data.recode == 0) {
     return res.data
   } else {
     Message.error(res.data.errmsg)
     return ''
   }
 }
+/*export default {
+  post(url, data, obj) {
+    if (obj instanceof Object) {
+      obj_options = obj
+    }
+    if (obj_options instanceof Object && obj_options.baseUrl) {
+      return axios({
+        method: 'post',
+        url,
+        baseURL: obj_options.baseUrl,
+        data: qs.stringify(data),
+        timeout: 30000,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
+      }).then(checkStatus).then(checkCode)
+    } else {
+      return axios({
+        method: 'post',
+        url,
+        data: data,
+        timeout: 30000,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
+      }).then(checkStatus).then(checkCode)
+    }
+  },
+  get(url, params, obj) {
+    if (obj instanceof Object) {
+      obj_options = obj
+    }
+    if (obj_options instanceof Object && obj_options.baseUrl) {
+      return axios({
+        method: 'get',
+        url,
+        baseURL: obj_options.baseUrl,
+        params,
+        timeout: 3000,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
+      }).then(checkStatus).then(checkCode)
+    } else {
+      return axios({
+        method: 'get',
+        url,
+        params,
+        timeout: 3000,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
+      }).then(checkStatus).then(checkCode)
+    }
+  }
+}*/
 export default {
   post(url, data, obj) {
     if (obj instanceof Object) {

@@ -103,13 +103,21 @@
 						  </ul>
 						  <!-- 学科能力 box -->
 						  <p class="coreMarkTitle">学科能力</p>
+						  <p class="checkListNoData" v-if="AbilityNameList.length == 0">该学科下暂无对应的学科能力，数据完善中，敬请期待。。。</p>
 						  <el-checkbox-group v-model="itemData.AbilityNameList" @change="AbilityNameListChange">
 						    <el-checkbox v-for="item in AbilityNameList" class="checkbox-self ml-30 w_100" :label="item" :key="item">{{item}}</el-checkbox>
 						  </el-checkbox-group>
 						  <!-- 思想方法 box -->
 						  <p class="coreMarkTitle">思想方法</p>
+						  <p class="checkListNoData" v-if="ThoughtwayNameList.length == 0">该学科下暂无对应的思想方法，数据完善中，敬请期待。。。</p>
 						  <el-checkbox-group v-model="itemData.ThoughtwayNameList" @change="ThoughtwayNameListChange">
 						    <el-checkbox v-for="item in ThoughtwayNameList" class="checkbox-self ml-30 w_100" :label="item" :key="item">{{item}}</el-checkbox>
+						  </el-checkbox-group>
+						  <!-- 应用标签 box -->
+						  <p class="coreMarkTitle">应用标签（ 只能选一个 ）</p>
+						  <p class="checkListNoData" v-if="UseTagNameList.length == 0">该学科下暂无对应的应用标签题型，数据完善中，敬请期待。。。</p>
+						  <el-checkbox-group v-model="itemData.UseTagNameList" @change="UseTagNameListChange" :min="0" :max="1">
+						    <el-checkbox v-for="item in UseTagNameList" class="checkbox-self ml-30 w_100" :label="item" :key="item">{{item}}</el-checkbox>
 						  </el-checkbox-group>
 					  </div>
 					</div>
@@ -286,6 +294,7 @@
 		components: {
 			Editor
     },
+    name: 'heshaoxu-modal',
 		data() {
 			return {
 				paperData: {						// 试卷结构大数组 
@@ -315,7 +324,12 @@
 					ThoughtwayName: '',				// 思想方法 name 值 以','分割
 					ThoughtwayCodeList: [],		// 思想方法 [15,56]									选中的
 					ThoughtwayNameList: [],		// 思想方法 { '函数思想'}						选中的
+					UseTag: '',								// 应用标签 code 值 以','分割
+					UseTagName: '',						// 应用标签 name 值 以','分割
+					UseTagCodeList: [],				// 应用标签 [12, 15]								选中的
+					UseTagNameList: [],				// 应用标签 ['写作能力', '创新能力']	选中的
 					
+					SubjectCode:'',						// 学科 code 值
 					Type: '1',								// 试题类型
 					Options: [],							// 选项数组
 					SubQuestionList:[],				// 题主题小题 个数
@@ -326,6 +340,10 @@
 				AbilityNameList: [],				// 学科能力 全数组	(静态数据中获取)
 				ThoughtwayCodeList: [],			// 思想方法 全数组	(静态数据中获取)
 				ThoughtwayNameList: [],			// 思想方法 全数组	(静态数据中获取)
+				
+				UseTagCodeList: [],					// 应用标签 全数组	(静态数据中获取)
+				UseTagNameList: [],					// 应用标签 全数组	(静态数据中获取)
+				
 				
 				addPointsDialog: false,	// 知识点	弹窗		
 				allPointsList: [],			// 知识点全数组		(静态数据中获取)
@@ -350,14 +368,15 @@
 					editHtml: '',						// 子传父 数据
 					editHtmlType: '',				// 编辑 试题部分类型 => '题干', '选项', '分析', '解答', '点评'
 					editOptionIndex: 1,			// 编辑 试题选项下标 => '选项' 下标
-				}
+				},
+				
+				
 			}
 		},
 		mounted() {
 			this.paperData = JSON.parse(this.getLocal('paperData'));
 			this.initItemList();
-			this.initStaticData(this.paperData.SubjectId, this.paperData.MaterialId);
-			console.log(this.itemData);
+			this.initStaticData(this.paperData.SubjectId, this.paperData.MaterialId, this.paperData.SubjectCode);
 		},
 		methods: {
 			// 初始化 题目数据
@@ -389,9 +408,9 @@
 									question[k].Num = moveMin + k + 1;						// 试题序号
 									question[k].index_group = k;									// 试题 			题内部下标
 									if(question[k].isSelected == true){
+										this.initSelectKnowList(question[k]);
+										// this.initAbilityOrThoughtWay(question[k]);
 										this.itemData = question[k];
-										this.initSelectKnowList();
-										this.initAbilityOrThoughtWay();
 									}
 									question[k].firstIndex = i;										// 一级题组 	指向
 									question[k].secondIndex = j;									// 二级题组 	指向
@@ -422,9 +441,9 @@
 								question[k].Num = moveMin + k + 1;						// 试题序号
 								question[k].index_group = k;									// 试题 			题内部下标
 								if(question[k].isSelected == true){
+									this.initSelectKnowList(question[k]);
+									// this.initAbilityOrThoughtWay(question[k]);
 									this.itemData = question[k];
-									this.initSelectKnowList();
-									this.initAbilityOrThoughtWay();
 								}
 								question[k].firstIndex = i;										// 一级题组 	指向
 								question[k].secondIndex = 9999;								// 二级题组 	指向
@@ -563,7 +582,6 @@
 							this.itemData.Options[this.itemData.Options.length-1].Index = this.itemData.Options.length;
 							this.itemData.Options[this.itemData.Options.length-1].IsRight = false;
 							this.itemData.Options[this.itemData.Options.length-1].Text = this.editorInfo.editHtml;	// 新增选项
-							console.log(this.itemData.Options);
 						}else{
 							this.itemData.Options[this.editorInfo.editOptionIndex].Text = this.editorInfo.editHtml;	// 修改选项
 						}
@@ -603,7 +621,8 @@
 			SingleItemInfo(row){
 				this.itemData.isSelected = false;
 				row.isSelected = true;
-				this.itemData = row;
+				this.itemData = JSON.parse(JSON.stringify(row));
+				this.setLocal('paperData',JSON.stringify(this.paperData));
 				this.initItemList();
 			},
 			
@@ -615,13 +634,8 @@
 			},
 			querySearch(pointName, cb) {
         var allPointsList = this.allPointsList;
-        var results = pointName ? allPointsList.filter(this.pointNameFilter(pointName)) : allPointsList;
+        var results = pointName ? allPointsList.filter((item) => {return item.pointName.toLowerCase().includes(pointName.toLowerCase())}) : allPointsList;
         cb(results);
-      },
-      pointNameFilter(pointName) {
-        return (singlePoint) => {
-          return (singlePoint.value.toLowerCase().indexOf(pointName.toLowerCase()) === 0);
-        };
       },
       pushToSelPointsList(item) {
         // this.selPointsList 添加时去重
@@ -646,7 +660,7 @@
 			confirmAddPoints(){										// 确认添加 知识点
 				for (let i=0; i<this.selPointsList.length; i++){
 					this.selPointsList[i].isMain = false;
-					if(this.itemData.Knowledge_points.length>0 && !this.itemData.Knowledge_points.includes(this.selPointsList[i].pointId)){
+					if( !this.itemData.Knowledge_points.includes(this.selPointsList[i].pointId) ){
 						this.itemData.Knowledge_points.push(this.selPointsList[i].pointId);
 						this.itemData.Examination_points.push(this.selPointsList[i].pointId);
 						this.itemData.ExaminationPointsName.push(this.selPointsList[i].pointName);
@@ -655,14 +669,18 @@
 				}
 				this.addPointsDialog = false;
 			},
-			initStaticData(SubjectId,MaterialId){	// 初始化  学科能力  思想方法  知识点
+			initStaticData(SubjectId,MaterialId,SubjectCode){	// 初始化  学科能力  思想方法  知识点
 				// 接收 Vuex 学段学科教材版本数据					=> 只做 学段学科 教材版本 学科能力 思想方法 级联
 				let subjectAboutInfo = JSON.parse(JSON.stringify(this.$store.state.Version.subjectAboutInfo));
+				// 接收 Vuex 学科下的应用标签
+      	let userMarkList = JSON.parse(JSON.stringify(this.$store.state.Version.userMarkList));
 				this.AbilityCodeList = [];
 				this.AbilityNameList = [];
 				this.ThoughtwayCodeList = [];
 				this.ThoughtwayNameList = [];
-				// 知识点 => 全数据
+				this.UseTagCodeList = [];
+				this.UseTagNameList = [];
+				// 学科能力  思想方法  知识点
 				for(let i=0; i<subjectAboutInfo.length; i++){
 					if(SubjectId == subjectAboutInfo[i].subjectId){
 						this.allPointsList = subjectAboutInfo[i].knowledgePointList;		// 弹窗中	知识点检索全数据
@@ -676,16 +694,23 @@
 						});
 					}
 				}
+				// 应用标签
+				for(let i=0; i<userMarkList.length; i++){
+					if(userMarkList[i].subjectcode==0 || SubjectCode == userMarkList[i].subjectcode){
+						this.UseTagCodeList.push(userMarkList[i].id);										// 应用标签 code值 全数据
+						this.UseTagNameList.push(userMarkList[i].name);									// 应用标签 name值 全数据
+					}
+				}
 			},
-			initSelectKnowList(){		// 初始化  知识点选框
+			initSelectKnowList(itemData){		// 初始化  知识点选框
 				// 循环 生成 itemData.Knowledge_points_show
 				let Knowledge_points_show = [];
-				if(this.itemData.Examination_points.length > 0){
-					for(let i=0; i<this.itemData.Examination_points.length; i++){
+				if(itemData.Examination_points.length > 0){
+					for(let i=0; i<itemData.Examination_points.length; i++){
 						Knowledge_points_show[i] = {};
-						Knowledge_points_show[i].pointName = this.itemData.ExaminationPointsName[i];
-						Knowledge_points_show[i].pointId = this.itemData.Examination_points[i];
-						if(this.itemData.Knowledge_main_point == this.itemData.Examination_points[i]){
+						Knowledge_points_show[i].pointName = itemData.ExaminationPointsName[i];
+						Knowledge_points_show[i].pointId = itemData.Examination_points[i];
+						if(itemData.Knowledge_main_point == itemData.Examination_points[i]){
 							Knowledge_points_show[i].isMain = true;
 						}else{
 							Knowledge_points_show[i].isMain = false;
@@ -701,7 +726,6 @@
 					let Knowledge_points = [];
 					let Examination_points = [];
 					let ExaminationPointsName = [];
-					
 					for(let i=0; i<this.itemData.Knowledge_points_show.length; i++){
 						if(i != key){
 							Knowledge_points_show.push(this.itemData.Knowledge_points_show[i]);
@@ -722,27 +746,34 @@
 				}
 			},
 			setMainOrNot(key){			// 设置或取消 '主知识点'
-				if(this.itemData.Knowledge_points_show[key].isMain){
-					this.itemData.Knowledge_points_show[key].isMain = false;
+				let Knowledge_points_show = JSON.parse(JSON.stringify(this.itemData.Knowledge_points_show));
+				if(Knowledge_points_show[key].isMain){
+					Knowledge_points_show[key].isMain = false;
 					this.itemData.Knowledge_main_point = '';
 				}else{
-					this.itemData.Knowledge_points_show.forEach((item)=>{
+					Knowledge_points_show.forEach((item)=>{
 						item.isMain = false;
 					})
-					this.itemData.Knowledge_points_show[key].isMain = true;
+					Knowledge_points_show[key].isMain = true;
 					this.itemData.Knowledge_main_point = this.itemData.Knowledge_points_show[key].pointId;
 				}
+				this.itemData.Knowledge_points_show = JSON.parse(JSON.stringify(Knowledge_points_show));
 			},
-			initAbilityOrThoughtWay(){	// 初始化 学科能力 思想方法
-				if(this.itemData.Ability == ''){
-					this.itemData.AbilityName = '';
-					this.itemData.AbilityCodeList = [];
-					this.itemData.AbilityNameList = [];
+			initAbilityOrThoughtWay(itemData){	// 初始化 学科能力 思想方法
+				if(itemData.Ability == ''){
+					itemData.AbilityName = '';
+					itemData.AbilityCodeList = [];
+					itemData.AbilityNameList = [];
 				}
-				if(this.itemData.Thoughtway == ''){
-					this.itemData.ThoughtwayName = '';
-					this.itemData.ThoughtwayCodeList = [];
-					this.itemData.ThoughtwayNameList = [];
+				if(itemData.Thoughtway == ''){
+					itemData.ThoughtwayName = '';
+					itemData.ThoughtwayCodeList = [];
+					itemData.ThoughtwayNameList = [];
+				}
+				if(itemData.UseTag == ''){
+					itemData.UseTagName = '';
+					itemData.UseTagCodeList = [];
+					itemData.UseTagNameList = [];
 				}
 			},
 			AbilityNameListChange(){
@@ -795,6 +826,31 @@
 					this.itemData.ThoughtwayCodeList = ThoughtwayCodeList;
 				}
 			},
+			UseTagNameListChange(){
+				let UseTag = '';
+				let UseTagName = '';
+				let UseTagCodeList = [];
+				if(this.itemData.UseTagNameList.length == 0){
+					this.itemData.UseTag = '';
+					this.itemData.UseTagName = '';
+					this.itemData.UseTagCodeList = [];
+				}else{
+					for(let i=0; i<this.itemData.UseTagNameList.length; i++){
+						UseTagName += this.itemData.UseTagNameList[i] + ',';
+						for(let j=0; j<this.UseTagNameList.length; j++){
+							if(this.itemData.UseTagNameList[i] == this.UseTagNameList[j]){
+								UseTag += this.UseTagCodeList[j] + ',';
+								UseTagCodeList.push(this.UseTagCodeList[j]);
+							}
+						}
+					}
+					UseTag = UseTag.slice(0, UseTag.length-1);
+					UseTagName = UseTagName.slice(0, UseTagName.length-1);
+					this.itemData.UseTag = UseTag;
+					this.itemData.UseTagName = UseTagName;
+					this.itemData.UseTagCodeList = UseTagCodeList;
+				}
+			},
 			
 			
 			
@@ -830,7 +886,8 @@
 					/* 核心标签 */
 					div.coreMarkBox{ width: 70%; height: 500px; overflow-y: hidden;
 						div.scroll-container{ height: 464px; padding-bottom: 20px; box-sizing: border-box; overflow-x: hidden; overflow-y: auto;
-							p.coreMarkTitle{ width: 100%; height: 12px; line-height: 12px; padding: 20px 20px 0px; font-size: 12px; color: #41C0BC; text-align: left; }
+							p.coreMarkTitle{ width: 100%; height: 12px; line-height: 12px; padding: 20px 0px 0px 20px; font-size: 12px; color: #41C0BC; text-align: left; }
+							p.checkListNoData{ width: 100%; height: 30px; line-height: 40px; text-align: center; font-size: 12px; color: #e6a23c; letter-spacing: 1px; }
 							ul.pointList{ list-style: none; -webkit-padding-start: 30px;
 								li{ width: 100%; height: 12px; line-height: 12px; margin: 10px 0px; color: #555555; font-size: 12px;
 									i{ margin-left: 10px; color: #41C0BC; cursor: pointer; font-size: 14px; }

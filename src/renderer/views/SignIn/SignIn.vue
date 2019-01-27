@@ -52,7 +52,7 @@
 				</div>
 				<div class="bottomContainer">
 					<p class="top">铭仁（北京）教育科技有限公司@Copyr</p>
-					<p class="bottom">服务电话：400-0052-365</p>
+					<p class="bottom">服务电话：400-0052-365&&&&{{version}}</p>
 				</div>
 			</div>
     </div>
@@ -61,11 +61,14 @@
 
 <script>
 	import axios from 'axios'
-	const {BrowserWindow} = require('electron')
+	const {BrowserWindow, ipcRenderer} = require('electron')
 	import { Message } from 'element-ui'
+	const writeFile = require('write')
+	const path = require('path')
 	export default {
 	  computed: {
 	    version() {
+	      this.tempVersion = this.$store.state.Version.version
 	      return this.$store.state.Version.version
 			},
       subjectAboutInfo() {
@@ -74,6 +77,17 @@
       unitAndSubUnit() {
 	      return this.$store.state.Version.unitAndSubUnit
 			}
+		},
+		watch: {
+      version: function () {
+				alert(this.version)
+        /*writeFile.sync(path.join(__dirname, '../../api/uploads/subjectAboutInfo.json'), JSON.stringify(this.subjectAboutInfo))
+        writeFile.sync(path.join(__dirname, '../../api/uploads/unitAndSubUnit.json'), JSON.stringify(this.unitAndSubUnit))*/
+				ipcRenderer.send('startServe', '111', this.oldSessionUser)
+        this.$router.push({
+          path: '/Main'
+        })
+      }
 		},
 		props: {
 			height: {
@@ -92,16 +106,23 @@
       	},
 				isGetSubjectAboutInfo: false,
 				isGetUnitAndSubUnit: false,
-				newVersion: ''
+				newVersion: '',
+				tempVersion: '',
+				jsonData: '',
+				oldSessionUser: ''
       };
     },
     mounted() {
+	    console.log(this.getCookie())
+	    this.oldSessionUser = this.getSession('account')
 	    console.log(this.unitAndSubUnit)
 			console.log(this.subjectAboutInfo)
 	    if(this.getLocal('isSetCookie') == 'true'){
         this.formLabelAlign.isSetCookie = true
-        this.formLabelAlign.account = this.getCookie('account')
-        this.formLabelAlign.userPwd = this.getCookie('userPwd')
+        /*this.formLabelAlign.account = this.getCookie('account')
+        this.formLabelAlign.userPwd = this.getCookie('userPwd')*/
+        this.formLabelAlign.account = this.getLocal('account')
+        this.formLabelAlign.userPwd = this.getLocal('userPwd')
 			}else{
         this.formLabelAlign.isSetCookie = false
         this.formLabelAlign.account = ''
@@ -180,17 +201,20 @@
 				}
 				let data = await this.api.get(url, params)
 				if(data){
+          this.setSession('account', this.formLabelAlign.account)
     	    if(!this.formLabelAlign.isSetCookie){
-						this.clearCookie()
+						/*this.clearCookie()*/
 						this.setLocal('isSetCookie', false)
+						this.setLocal('account', '')
+						this.setLocal('userPwd', '')
 					}else{
             this.setLocal('isSetCookie', true)
-    	      this.saveUserAndPassword(this.formLabelAlign.account, this.formLabelAlign.userPwd)
+    	      //this.saveUserAndPassword(this.formLabelAlign.account, this.formLabelAlign.userPwd)
+						this.setLocal('account', this.formLabelAlign.account)
+						this.setLocal('userPwd', this.formLabelAlign.userPwd)
 					}
           this.setSession('isSchoolUser', data.data.isSchoolUser)
-          this.$router.push({
-            path: '/Main'
-          })
+					this.jsonData = data.data
 					if(data.data.version != this.version){
     	      this.newVersion = data.data.version
     	      axios.all([this.getSubjectAboutInfo(), this.getUnitAndSubUnit(), this.getUseMarkList()]).then(axios.spread( (SubjectAboutInfo, UnitAndSubUnit, UserMarkList) => {
@@ -213,6 +237,11 @@
                 type: 'error'
               });
 							console.log(err)
+            })
+					}else{
+					  ipcRenderer.send('startServe', '222', this.oldSessionUser)
+            this.$router.push({
+              path: '/Main'
             })
 					}
 				}

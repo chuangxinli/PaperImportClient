@@ -3,10 +3,12 @@ const jsdom = require('jsdom');
 const {JSDOM} = jsdom;
 const path = require('path');
 const fs = require('fs');
-const subjectAboutInfo = require('../json/subjectAboutInfo.json').subjectAboutInfo
-const unitAndSubUnit = require('../json/unitAndSubUnit.json').unitAndSubUnit
+//const subjectAboutInfo = require('../json/subjectAboutInfo.json').subjectAboutInfo
+//const unitAndSubUnit = require('../json/unitAndSubUnit.json').unitAndSubUnit
 //const subjectAboutInfo = store.state.Version.subjectAboutInfo
 //const unitAndSubUnit = store.state.Version.unitAndSubUnit
+let subjectAboutInfo = {}
+let unitAndSubUnit = {}
 
 
 let choiceList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
@@ -261,7 +263,7 @@ function dealItem(item, jsonObj, primaryStr, removeAnswer) {
 }
 
 //处理考点
-function dealExaminationPoints(primaryStr, jsonObj) {
+function dealExaminationPoints(primaryStr, jsonObj, subjectAboutInfo) {
   let tempArr = primaryStr.replace(dealBracket('考点'), '').replace(/\s*/g, '').replace(/(．\S*|\.\S*|。\S*)/, '').replace(/:/g, '：').replace(/;/g, '；').split('；'), ExaminationPoints = []
   for (let i = 0, len = tempArr.length; i < len; i++) {
     ExaminationPoints.push(tempArr[i].split('：')[1])
@@ -306,7 +308,7 @@ function dealExaminationPoints(primaryStr, jsonObj) {
 
 
 //对解析无误的jsonObj处理  (1，给小题添加Explain，Analysis，Comments，Special_topics，Examination_points   2，添加相应的rangeMin，rangeMax  3，对考点的处理  4，对必选字段的验证)
-function dealJsonObj(jsonObj, jsonArr, lackArr) {
+function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit) {
   let materialList = [], lackJsonObj = {titleArr: [], examPointsArr: []}, hasMaterial = false
   for(let i = 0, len = unitAndSubUnit.length; i < len; i ++){
     if(unitAndSubUnit[i].subjectName === jsonObj.Subject){
@@ -317,6 +319,8 @@ function dealJsonObj(jsonObj, jsonArr, lackArr) {
     }
   }
   if(materialList.length === 0){
+    console.log('$$$$$$$$$$$$$$')
+    console.log(unitAndSubUnit)
     lackJsonObj.titleArr.push(`学段学科：${jsonObj.Subject}不和要求，匹配不到该学科`)
   }else{
     for(let i = 0, len = materialList.length; i < len; i ++){
@@ -341,7 +345,7 @@ function dealJsonObj(jsonObj, jsonArr, lackArr) {
           if(!jsonObj.AllQuestionArr[i].question[j].Score){
             jsonObj.lackScoreArr.push(jsonObj.AllQuestionArr[i].question[j].Serial_num)
           }
-          let pointsObj = dealExaminationPoints(jsonObj.AllQuestionArr[i].question[j].Examination_points, jsonObj)
+          let pointsObj = dealExaminationPoints(jsonObj.AllQuestionArr[i].question[j].Examination_points, jsonObj, subjectAboutInfo)
           jsonObj.AllQuestionArr[i].question[j].Examination_points = pointsObj.arr
           jsonObj.AllQuestionArr[i].question[j].Knowledge_points = pointsObj.arr
           if(jsonObj.AllQuestionArr[i].question[j].Examination_points.length === 0){
@@ -379,7 +383,7 @@ function dealJsonObj(jsonObj, jsonArr, lackArr) {
             if(!jsonObj.AllQuestionArr[i].children[j].question[k].Score){
               jsonObj.lackScoreArr.push(jsonObj.AllQuestionArr[i].children[j].question[k].Serial_num)
             }
-            let pointsObj = dealExaminationPoints(jsonObj.AllQuestionArr[i].children[j].question[k].Examination_points, jsonObj)
+            let pointsObj = dealExaminationPoints(jsonObj.AllQuestionArr[i].children[j].question[k].Examination_points, jsonObj, subjectAboutInfo)
             jsonObj.AllQuestionArr[i].children[j].question[k].Examination_points = pointsObj.arr
             jsonObj.AllQuestionArr[i].children[j].question[k].Knowledge_points = pointsObj.arr
             if(jsonObj.AllQuestionArr[i].children[j].question[k].Examination_points.length === 0){
@@ -442,7 +446,11 @@ function dealJsonObj(jsonObj, jsonArr, lackArr) {
 }
 
 //处理htmlToJson函数
-function htmlToJson(res, originArr, myEmitter) {
+function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit) {
+  //console.log(subjectAboutInfo)
+  //console.log(unitAndSubUnit)
+  subjectAboutInfo = subjectAboutInfo
+  unitAndSubUnit = unitAndSubUnit
   let docxArr = []
   let dir = originArr[0].dir
   for (let i = 0, len = originArr.length; i < len; i++) {
@@ -745,7 +753,7 @@ function htmlToJson(res, originArr, myEmitter) {
                 Correct: jsonObj.IsTrue,
                 Checnote: '',
                 Text: getItemDes(primaryStr) ? '<p>' + getItemDes(primaryStr) + '</p>' : '',
-                Options: itemTypeNum == 5 ? [{Index: 1, Text: '对', IsRight: '', Id: ''}, {Index: 2, Text: '错', IsRight: '', Id: ''}] : [],
+                Options: [],
                 Knowledge_points: [],
                 Explain: '',
                 Analysis: '',
@@ -799,7 +807,7 @@ function htmlToJson(res, originArr, myEmitter) {
                 Correct: jsonObj.IsTrue,
                 Checnote: '',
                 Text: getSubItemDes(primaryStr) ? '<p>' + getSubItemDes(primaryStr) + '</p>' : '',
-                Options: itemTypeNum == 5 ? [{Index: 1, Text: '对', IsRight: '', Id: ''}, {Index: 2, Text: '错', IsRight: '', Id: ''}] : [],
+                Options: [],
                 Knowledge_points: [],
                 Explain: '',
                 Analysis: '',
@@ -904,7 +912,7 @@ function htmlToJson(res, originArr, myEmitter) {
       jsonObj.localId = new Date().getTime()
       jsonObj.AllNum = itemNum
       jsonObj.Score = allScore  //自己计算的试卷总分，可用可不用
-      dealJsonObj(jsonObj, jsonArr, lackArr)
+      dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit)
       myEmitter.emit('jsonObjSuccess', {jsonObj, temp})
       if ((jsonArr.length + errArr.length + lackArr.length) === docxArr.length) {
         myEmitter.emit('success', {dir})

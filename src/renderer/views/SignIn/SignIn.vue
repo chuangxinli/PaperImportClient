@@ -83,7 +83,7 @@
 				alert(this.version)
         /*writeFile.sync(path.join(__dirname, '../../api/uploads/subjectAboutInfo.json'), JSON.stringify(this.subjectAboutInfo))
         writeFile.sync(path.join(__dirname, '../../api/uploads/unitAndSubUnit.json'), JSON.stringify(this.unitAndSubUnit))*/
-				ipcRenderer.send('startServe', '111')
+				ipcRenderer.send('startServe', '111', this.oldSessionUser)
         this.$router.push({
           path: '/Main'
         })
@@ -108,16 +108,21 @@
 				isGetUnitAndSubUnit: false,
 				newVersion: '',
 				tempVersion: '',
-				jsonData: ''
+				jsonData: '',
+				oldSessionUser: ''
       };
     },
     mounted() {
+	    console.log(this.getCookie())
+	    this.oldSessionUser = this.getSession('account')
 	    console.log(this.unitAndSubUnit)
 			console.log(this.subjectAboutInfo)
 	    if(this.getLocal('isSetCookie') == 'true'){
         this.formLabelAlign.isSetCookie = true
-        this.formLabelAlign.account = this.getCookie('account')
-        this.formLabelAlign.userPwd = this.getCookie('userPwd')
+        /*this.formLabelAlign.account = this.getCookie('account')
+        this.formLabelAlign.userPwd = this.getCookie('userPwd')*/
+        this.formLabelAlign.account = this.getLocal('account')
+        this.formLabelAlign.userPwd = this.getLocal('userPwd')
 			}else{
         this.formLabelAlign.isSetCookie = false
         this.formLabelAlign.account = ''
@@ -191,23 +196,27 @@
 				}
 				let data = await this.api.get(url, params)
 				if(data){
+          this.setSession('account', this.formLabelAlign.account)
     	    if(!this.formLabelAlign.isSetCookie){
-						this.clearCookie()
+						/*this.clearCookie()*/
 						this.setLocal('isSetCookie', false)
+						this.setLocal('account', '')
+						this.setLocal('userPwd', '')
 					}else{
             this.setLocal('isSetCookie', true)
-    	      this.saveUserAndPassword(this.formLabelAlign.account, this.formLabelAlign.userPwd)
+    	      //this.saveUserAndPassword(this.formLabelAlign.account, this.formLabelAlign.userPwd)
+						this.setLocal('account', this.formLabelAlign.account)
+						this.setLocal('userPwd', this.formLabelAlign.userPwd)
 					}
           this.setSession('isSchoolUser', data.data.isSchoolUser)
 					this.jsonData = data.data
-					if(data.data.version){
+					if(data.data.version != this.version){
     	      this.newVersion = data.data.version
-    	      this.newVersion = new Date().getTime()
     	      axios.all([this.getSubjectAboutInfo(), this.getUnitAndSubUnit()]).then(axios.spread( (SubjectAboutInfo, UnitAndSubUnit) => {
     	        if(SubjectAboutInfo.data.recode == 0 && UnitAndSubUnit.data.recode == 0){
                 this.$store.dispatch('CHANGE_VERSION', {version: this.newVersion})
-                this.$store.dispatch('UNIT_AND_SUBUINT', {unitAndSubUnit: UnitAndSubUnit.data.data, version: this.newVersion})
-                this.$store.dispatch('SUBJECT_ABOUT_INFO', {subjectAboutInfo: SubjectAboutInfo.data.data, version: this.newVersion, unitAndSubUnit: UnitAndSubUnit.data.data})
+                this.$store.dispatch('UNIT_AND_SUBUINT', {unitAndSubUnit: UnitAndSubUnit.data.data})
+                this.$store.dispatch('SUBJECT_ABOUT_INFO', {subjectAboutInfo: SubjectAboutInfo.data.data})
 							}else{
                 Message({
                   showClose: true,
@@ -224,7 +233,10 @@
 							console.log(err)
             })
 					}else{
-					  ipcRenderer.send('startServe', '222')
+					  ipcRenderer.send('startServe', '222', this.oldSessionUser)
+            this.$router.push({
+              path: '/Main'
+            })
 					}
 				}
 				// 登陆成功后向父级组件传值

@@ -19,7 +19,7 @@
 			</div>
 			<div class="bottomContainer">
 				<div class="userLogout fRight no-drag" @click="userLogout()">退出</div>
-				<div class="userInfo fRight">欢迎您！Tes******om</div>
+				<div class="userInfo fRight">欢迎您！{{account}}</div>
 			</div>
 		</div>
 	</div>
@@ -30,15 +30,25 @@
 	export default {
 		data(){
 			return {
-				isFullScreen: false
+				isFullScreen: false,
+        account: ''
 			}
 		},
+		mounted(){
+      this.account = this.getSession('account')
+		},
 		methods: {
-			userLogout() {
-				// 退出登录
-				this.$router.push({
-					name: 'SignIn'
-				})
+			async userLogout() {
+				let url = '/paper/system/logout'
+				let params = {}
+				let data = await this.api.get(url, params)
+				if(data){
+				  console.log(data)
+          // 退出登录
+          this.$router.push({
+            name: 'SignIn'
+          })
+				}
 			},
 			close() {
 				this.$confirm('此操作将退出 "试卷导入客户端",是否继续?', '提示', {

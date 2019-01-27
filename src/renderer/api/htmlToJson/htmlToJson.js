@@ -5,6 +5,8 @@ const path = require('path');
 const fs = require('fs');
 const subjectAboutInfo = require('../json/subjectAboutInfo.json').subjectAboutInfo
 const unitAndSubUnit = require('../json/unitAndSubUnit.json').unitAndSubUnit
+//const subjectAboutInfo = store.state.Version.subjectAboutInfo
+//const unitAndSubUnit = store.state.Version.unitAndSubUnit
 
 
 let choiceList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];

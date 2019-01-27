@@ -90,11 +90,11 @@ appExpress.post('/word-to-json-2', multer({
   dest: 'uploads'
 }).array('file', 6), function (req, res, next) {
   let time = new Date().getTime()
- /* try{
+  try{
     fs.accessSync('./static',fs.F_OK)
   }catch (e){
     fs.mkdirSync('./static')
-  }*/
+  }
   fs.mkdirSync('./static/' + time)
   let files = req.files;
   console.log(files)

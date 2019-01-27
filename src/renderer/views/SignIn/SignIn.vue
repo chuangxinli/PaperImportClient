@@ -52,7 +52,7 @@
 				</div>
 				<div class="bottomContainer">
 					<p class="top">铭仁（北京）教育科技有限公司@Copyr</p>
-					<p class="bottom">服务电话：400-0052-365</p>
+					<p class="bottom">服务电话：400-0052-365&&&&{{version}}</p>
 				</div>
 			</div>
     </div>
@@ -61,11 +61,14 @@
 
 <script>
 	import axios from 'axios'
-	const {BrowserWindow} = require('electron')
+	const {BrowserWindow, ipcRenderer} = require('electron')
 	import { Message } from 'element-ui'
+	const writeFile = require('write')
+	const path = require('path')
 	export default {
 	  computed: {
 	    version() {
+	      this.tempVersion = this.$store.state.Version.version
 	      return this.$store.state.Version.version
 			},
       subjectAboutInfo() {
@@ -74,6 +77,17 @@
       unitAndSubUnit() {
 	      return this.$store.state.Version.unitAndSubUnit
 			}
+		},
+		watch: {
+      version: function () {
+				alert(this.version)
+        /*writeFile.sync(path.join(__dirname, '../../api/uploads/subjectAboutInfo.json'), JSON.stringify(this.subjectAboutInfo))
+        writeFile.sync(path.join(__dirname, '../../api/uploads/unitAndSubUnit.json'), JSON.stringify(this.unitAndSubUnit))*/
+				ipcRenderer.send('startServe', '111')
+        this.$router.push({
+          path: '/Main'
+        })
+      }
 		},
 		props: {
 			height: {
@@ -92,7 +106,9 @@
       	},
 				isGetSubjectAboutInfo: false,
 				isGetUnitAndSubUnit: false,
-				newVersion: ''
+				newVersion: '',
+				tempVersion: '',
+				jsonData: ''
       };
     },
     mounted() {
@@ -183,16 +199,15 @@
     	      this.saveUserAndPassword(this.formLabelAlign.account, this.formLabelAlign.userPwd)
 					}
           this.setSession('isSchoolUser', data.data.isSchoolUser)
-          this.$router.push({
-            path: '/Main'
-          })
-					if(data.data.version != this.version){
+					this.jsonData = data.data
+					if(data.data.version){
     	      this.newVersion = data.data.version
+    	      this.newVersion = new Date().getTime()
     	      axios.all([this.getSubjectAboutInfo(), this.getUnitAndSubUnit()]).then(axios.spread( (SubjectAboutInfo, UnitAndSubUnit) => {
     	        if(SubjectAboutInfo.data.recode == 0 && UnitAndSubUnit.data.recode == 0){
                 this.$store.dispatch('CHANGE_VERSION', {version: this.newVersion})
-                this.$store.dispatch('UNIT_AND_SUBUINT', {unitAndSubUnit: UnitAndSubUnit.data.data})
-                this.$store.dispatch('SUBJECT_ABOUT_INFO', {subjectAboutInfo: SubjectAboutInfo.data.data})
+                this.$store.dispatch('UNIT_AND_SUBUINT', {unitAndSubUnit: UnitAndSubUnit.data.data, version: this.newVersion})
+                this.$store.dispatch('SUBJECT_ABOUT_INFO', {subjectAboutInfo: SubjectAboutInfo.data.data, version: this.newVersion, unitAndSubUnit: UnitAndSubUnit.data.data})
 							}else{
                 Message({
                   showClose: true,
@@ -208,6 +223,8 @@
               });
 							console.log(err)
             })
+					}else{
+					  ipcRenderer.send('startServe', '222')
 					}
 				}
 				// 登陆成功后向父级组件传值

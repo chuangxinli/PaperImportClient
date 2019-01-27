@@ -4,7 +4,12 @@ import {
   ipcMain
 } from 'electron'
 
+const path = require('path')
+//const {exec, spawn} = require('child_process')
+
 import store from '../renderer/store'
+
+console.log('version:',store.state.Version.version)
 
 /**
  * Set `__static` path to static files in production
@@ -13,7 +18,6 @@ import store from '../renderer/store'
 if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
-
 let mainWindow
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
@@ -37,8 +41,12 @@ function createWindow () {
   });
   mainWindow.webContents.openDevTools()
   mainWindow.loadURL(winURL)
-  require('../renderer/api/appExpress.js')
-
+  /*let appPath =  path.join(__dirname, '../renderer/api/appExpress.js')
+  spawn('node', [appPath])*/
+  ipcMain.on('startServe',function (e, arg) {
+    console.log(arg)
+    require('../renderer/api/appExpress.js')
+  })
   mainWindow.on('closed', () => {
     mainWindow = null
   })
@@ -49,6 +57,7 @@ app.on('ready', createWindow)
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
+
   }
 })
 

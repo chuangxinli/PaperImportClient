@@ -34,7 +34,7 @@
           </el-table-column>
           <el-table-column label="是否关联主知识点" width="80">
           	<template slot-scope="scope">
-			        <p class="ItemTitle blueFont" v-if="scope.row.Knowledge_main_point">是</p>
+			        <p class="ItemTitle blueFont" v-if="scope.row.Knowledge_main_points">是</p>
 			        <p class="ItemTitle" v-else>否</p>
 			      </template>
           </el-table-column>
@@ -145,10 +145,10 @@
 									if(question[k].Examination_points.length == 0){
 										question[k].Knowledge_points_show = [];
 									}else{
-										let Knowledge_points_show = [];
+										let Knowledge_points_show = JSON.parse(JSON.stringify(question[k].Examination_points));
 										for(let y=0; y<question[k].Examination_points.length; y++){
 											Knowledge_points_show[y] = {};
-											if(question[k].Knowledge_main_point == question[k].Examination_points[y]){
+											if(question[k].Knowledge_main_points == question[k].Examination_points[y]){
 												Knowledge_points_show[y].isMain = true;
 											}else{
 												Knowledge_points_show[y].isMain = false;
@@ -169,6 +169,42 @@
 									if(question[k].SubQuestionList && question[k].SubQuestionList.length > 0){
 										for(let m=0; m<question[k].SubQuestionList.length; m++){
 											question[k].SubQuestionList[m].Combination_index = m+1;
+											if(question[k].SubQuestionList[m].Ability == ''){
+												question[k].SubQuestionList[m].AbilityName = '';
+												question[k].SubQuestionList[m].AbilityCodeList = [];
+												question[k].SubQuestionList[m].AbilityNameList = [];
+											}
+											if(question[k].SubQuestionList[m].Thoughtway == ''){
+												question[k].SubQuestionList[m].ThoughtwayName = '';
+												question[k].SubQuestionList[m].ThoughtwayCodeList = [];
+												question[k].SubQuestionList[m].ThoughtwayNameList = [];
+											}
+											if(question[k].SubQuestionList[m].UseTag == ''){
+												question[k].SubQuestionList[m].UseTagName = '';
+												question[k].SubQuestionList[m].UseTagCodeList = [];
+												question[k].SubQuestionList[m].UseTagNameList = [];
+											}
+											if(question[k].SubQuestionList[m].Examination_points.length == 0){
+												question[k].SubQuestionList[m].Knowledge_points_show = [];
+											}else{
+												var Knowledge_points_show_sub = [];
+												for(let y=0; y<question[k].SubQuestionList[m].Examination_points.length; y++){
+													let Knowledge_points_show_new = {
+														isMain: false,
+														pointId: '',
+														pointName: ''
+													};
+													if(question[k].SubQuestionList[m].Knowledge_main_points == question[k].SubQuestionList[m].Examination_points[y]){
+														Knowledge_points_show_new.isMain = true;
+													}else{
+														Knowledge_points_show_new.isMain = false;
+													}
+													Knowledge_points_show_new.pointId = question[k].SubQuestionList[m].Examination_points[y];
+													Knowledge_points_show_new.pointName = question[k].SubQuestionList[m].ExaminationPointsName[y];
+													Knowledge_points_show_sub.push(Knowledge_points_show_new);
+												}
+												question[k].SubQuestionList[m].Knowledge_points_show = JSON.parse(JSON.stringify(Knowledge_points_show_sub));
+											}
 										}
 									}
 									this.itemList.push(question[k]);
@@ -208,10 +244,10 @@
 								if(question[k].Examination_points.length == 0){
 									question[k].Knowledge_points_show = [];
 								}else{
-									let Knowledge_points_show = [];
+									let Knowledge_points_show = JSON.parse(JSON.stringify(question[k].Examination_points));
 									for(let y=0; y<question[k].Examination_points.length; y++){
 										Knowledge_points_show[y] = {};
-										if(question[k].Knowledge_main_point == question[k].Examination_points[y]){
+										if(question[k].Knowledge_main_points == question[k].Examination_points[y]){
 											Knowledge_points_show[y].isMain = true;
 										}else{
 											Knowledge_points_show[y].isMain = false;
@@ -230,6 +266,42 @@
 								if(question[k].SubQuestionList && question[k].SubQuestionList.length > 0){
 									for(let m=0; m<question[k].SubQuestionList.length; m++){
 										question[k].SubQuestionList[m].Combination_index = m+1;
+										if(question[k].SubQuestionList[m].Ability == ''){
+											question[k].SubQuestionList[m].AbilityName = '';
+											question[k].SubQuestionList[m].AbilityCodeList = [];
+											question[k].SubQuestionList[m].AbilityNameList = [];
+										}
+										if(question[k].SubQuestionList[m].Thoughtway == ''){
+											question[k].SubQuestionList[m].ThoughtwayName = '';
+											question[k].SubQuestionList[m].ThoughtwayCodeList = [];
+											question[k].SubQuestionList[m].ThoughtwayNameList = [];
+										}
+										if(question[k].SubQuestionList[m].UseTag == ''){
+											question[k].SubQuestionList[m].UseTagName = '';
+											question[k].SubQuestionList[m].UseTagCodeList = [];
+											question[k].SubQuestionList[m].UseTagNameList = [];
+										}
+										if(question[k].SubQuestionList[m].Examination_points.length == 0){
+											question[k].SubQuestionList[m].Knowledge_points_show = [];
+										}else{
+											var Knowledge_points_show_sub = [];
+											for(let y=0; y<question[k].SubQuestionList[m].Examination_points.length; y++){
+												let Knowledge_points_show_new = {
+													isMain: false,
+													pointId: '',
+													pointName: ''
+												};
+												if(question[k].SubQuestionList[m].Knowledge_main_points == question[k].SubQuestionList[m].Examination_points[y]){
+													Knowledge_points_show_new.isMain = true;
+												}else{
+													Knowledge_points_show_new.isMain = false;
+												}
+												Knowledge_points_show_new.pointId = question[k].SubQuestionList[m].Examination_points[y];
+												Knowledge_points_show_new.pointName = question[k].SubQuestionList[m].ExaminationPointsName[y];
+												Knowledge_points_show_sub.push(Knowledge_points_show_new);
+											}
+											question[k].SubQuestionList[m].Knowledge_points_show = JSON.parse(JSON.stringify(Knowledge_points_show_sub));
+										}
 									}
 								}
 								this.itemList.push(question[k]);

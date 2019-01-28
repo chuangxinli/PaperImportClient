@@ -545,6 +545,7 @@
       showVuexData(){
         // 接收 Vuex 中未上传试卷列表数据
         this.tableData = JSON.parse(JSON.stringify(this.$store.state.Paper.jsonArr));
+        console.log(this.tableData);
         // 接收 Vuex 学段学科教材版本数据					=> 只做 学段学科 教材版本 学科能力 思想方法 级联
         let subjectAboutInfo = JSON.parse(JSON.stringify(this.$store.state.Version.subjectAboutInfo));
         this.SubjectArr = this.SubjectArr.concat(subjectAboutInfo);		// 学段学科 加上全部 ''
@@ -937,6 +938,74 @@
           });
           return
         }
+        // 20190125 对考察范围的限制 => 试卷考查范围为"" => 不能上传至后台
+        if(!row.ScopeDataStr){
+        	this.$message({
+            showClose: true,
+            message: '试卷考察范围不能为空，请设置试卷考察范围！',
+            type: 'warning'
+          });
+          return
+        }
+        // 20190125 对每道试题的限制 => 大题小题主知识点为"" => 不能上传至后台
+        row.AllQuestionArr.forEach((firstItem)=>{
+        	if(firstItem.children==0){
+        		// 一级题组
+        		firstItem.question.forEach((item)=>{
+        			if(item.Knowledge_main_points == ""){
+        				this.$message({
+			            showClose: true,
+			            message: '该套试卷题目中有所有题目（题主题下小题在内）必须关联主知识点，请仔细核对！',
+			            type: 'warning'
+			          });
+			          console.log(item);
+			          return;
+        			}else{
+        				// 题主题小题处理
+        				item.SubQuestionList.forEach((subItem)=>{
+        					if(subItem.Knowledge_main_points == ""){
+        						this.$message({
+					            showClose: true,
+					            message: '该套试卷题目中有所有题目（题主题下小题在内）必须关联主知识点，请仔细核对！',
+					            type: 'warning'
+					          });
+					          console.log(subItem);
+					          return;
+        					}
+        				})
+        			}
+        		})
+        	}else{
+        		// 二级题组
+        		firstItem.children.forEach((secondItem)=>{
+        			secondItem.question.forEach((item)=>{
+        				if(item.Knowledge_main_points == ""){
+	        				this.$message({
+				            showClose: true,
+				            message: '该套试卷题目中有所有题目（题主题下小题在内）必须关联主知识点，请仔细核对！',
+				            type: 'warning'
+				          });
+				          console.log(item);
+				          return;
+	        			}else{
+	        				// 题主题小题处理
+	        				item.SubQuestionList.forEach((subItem)=>{
+	        					if(subItem.Knowledge_main_points == ""){
+	        						this.$message({
+						            showClose: true,
+						            message: '该套试卷题目中有所有题目（题主题下小题在内）必须关联主知识点，请仔细核对！',
+						            type: 'warning'
+						          });
+						          console.log(subItem);
+						          return;
+	        					}
+	        				})
+	        			}
+        			})
+        		})
+        	}
+        })
+        
         row = this.addDifficulty(row)
         let url = '/paper/info/uploadPaperInfo'
         let config = {

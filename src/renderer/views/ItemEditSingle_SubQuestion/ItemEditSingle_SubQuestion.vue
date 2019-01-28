@@ -8,27 +8,21 @@
 					<img src="../../assets/images/process.png"/>
 					<span @click="changeRouterByName('PaperNotYet')">待处理试卷</span> 》 
 					<span @click="changeRouterByName('ItemEditMain')">试题编辑</span> 》 
-					<a href="javascript: void(0);">单道试题编辑</a>
+					<span @click="changeRouterByName('ItemEditSingle')">（题主题）编辑</span> 》 
+					<a href="javascript: void(0);">小题编辑</a>
+					<span class="fRight blueFont">&nbsp;您正在修改<span class="redFont">第 {{mainData.Num}} 题</span>(题主题)下的<span class="redFont">第 {{subKey+1}} 小题</span></span>
+					<span class="el-icon-info blueFont fRight"></span>
 				</p>
-				
-				<!-- 编辑试卷名称 -->
-				<el-input class="w_500 input-search-self"
-					placeholder="请输入试卷名称"
-				  prefix-icon="el-icon-edit"
-				  v-model="paperData.Title"
-				  @blur="changeInputValue">
-				</el-input>
-				
-				<div class="btn-medium-self-blue fRight ml-20" @click="goBack()">返回</div>
 				
 				<!-- 题号部分 -->
 				<ul class="itemNumList">
-					<li v-for="(item,key) in itemList" :class="item.isSelected ? 'active' : ''" @click="SingleItemInfo(item)">{{ key+1 }}</li>
+					<li v-for="(item,key) in mainData.SubQuestionList" :class="item.isSelected ? 'active' : ''" @click="SingleItemInfo(item,key)">{{ key+1 }}</li>
 				</ul>
+				<div class="btn-medium-self-blue fRight ml-20" @click="goBack()">返回</div>
 				
 				<!-- 试题保存(提示单题保存,不保存将视为无效修改) -->
 				<div class="restore_one_item">
-					<i class="el-icon-warning warnFont"> 每修改一道题目，请记得保存一次，否则将视为无效！</i>
+					<i class="el-icon-warning warnFont"> 请在修改完成后保存，否则将视为无效修改！</i>
 					<div class="btn-medium-self-blue fRight ml-20" @click="restoreItemForVuexAndLocal()">保存试题</div>
 				</div>
 				
@@ -45,7 +39,6 @@
 							<el-checkbox class="checkbox-self block" v-model="itemData.Douthree" true-label="1" false-label="0" @change="vuexDataChange()">双三试题</el-checkbox>
 							<el-checkbox class="checkbox-self block" v-model="itemData.IsHide" true-label="1" false-label="0" @change="vuexDataChange()">是否隐藏</el-checkbox>
 							<el-checkbox class="checkbox-self block" v-model="itemData.Correct" true-label="1" false-label="0" @change="vuexDataChange()">是否正确</el-checkbox>
-							<el-checkbox class="checkbox-self block" v-model="itemData.IsCombination" true-label="1" false-label="0" @change="vuexDataChange('IsCombination')">是否题主题</el-checkbox>
 						</div>
 						<div class="boderRadiusBox othersMarkBox fLeft">
 							<div class="headerSpread">
@@ -131,23 +124,11 @@
 					<img class="ipadFram" src="../../assets/images/ipad.png"/>
 					<div class="itemContentBox">
 						<!-- 题干信息 -->
-						<p class="contentTitle">{{itemData.Num}}、
+						<p class="contentTitle">{{itemData.Serial_num}}、
 							<span v-html="itemData.Text"></span>
 							<!-- 单选题和多选题(非题主题) -->
 							<ul v-if="itemData.Type == 1 || itemData.Type == 2">
 								<li v-for="(option, optionIndex) in itemData.Options" :key="optionIndex" :class="option.IsRight?'redFont':''">
-									<p class="choice_one" v-html="'<span>'+optionList[optionIndex]+'：'+'</span>'+ option.Text"></p>
-								</li>
-							</ul>
-						</p>
-						
-						<!-- 题主题 -->
-						<p class="subQuesBox" v-show="itemData.Type == 6 && itemData.SubQuestionList.length>0" v-for="(subQuestion,key) in itemData.SubQuestionList" :key="key">
-							{{ '（' + subQuestion.Combination_index + '）' }} 
-							<span v-html="subQuestion.Text"></span>
-							<!-- 题主题小题为选择题 -->
-							<ul v-if="subQuestion.Type == 1 || subQuestion.Type == 2">
-								<li v-for="(option, optionIndex) in subQuestion.Options" :key="optionIndex" :class="option.IsRight?'redFont':''">
 									<p class="choice_one" v-html="'<span>'+optionList[optionIndex]+'：'+'</span>'+ option.Text"></p>
 								</li>
 							</ul>
@@ -171,9 +152,15 @@
 					</div>
 					
 					<div class="itemSelect">
-						<div class="block w_50 blueFont fLeft indentTitle">试题题干</div>
-						<p class="Text" v-html="itemData.Text"></p>
-						<i class="cursor_pointer el-icon-edit" @click="EditHtml('编辑题干', itemData.Text, 'Text')"> 编辑</i>
+						<div class="block w_50 blueFont fLeft indentTitle">大题题干</div>
+						<p class="Text" v-html="mainData.Text"></p>
+						<div class="inline_block notice"></div>
+					</div>
+					
+					<div class="itemSelect">
+						<div class="block w_50 blueFont fLeft indentTitle">小题题干</div>
+						<p class="Text_Sub" v-html="'（' +Number(subKey+1)+ '）' + itemData.Text"></p>
+						<i class="cursor_pointer el-icon-edit" @click="EditHtml('编辑小题题干', itemData.Text, 'Text')"> 编辑</i>
 						<div class="inline_block notice"></div>
 					</div>
 					
@@ -306,8 +293,10 @@
 					AllQuestionArr: [],
 					Title: '',
 				},
-				itemList: [],						// 试题总数组
-				itemData : {						// 单道题目数组
+				itemList: [],						// 试题总数组		(小题)
+				mainData: [],						// 题主题			(题主题)
+				subKey: 0,							// 小题下标
+				itemData : {						// 单道题目数组 (小题)
 					Core: '',									// 是否是核心
 					Synchronization: '',			// 是否是同步
 					Douthree: '',							// 是否是双三
@@ -360,8 +349,7 @@
 					{type: '2', typeName: '多选题'}, 
 					{type: '3', typeName: '填空题'}, 
 					{type: '4', typeName: '简答题'}, 
-					{type: '5', typeName: '判断题'}, 
-					{type: '6', typeName: '题组题'} 
+					{type: '5', typeName: '判断题'}
 				],
 				// 选项
 				optionList: [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
@@ -379,107 +367,44 @@
 			}
 		},
 		mounted() {
-			this.paperData = JSON.parse(this.getLocal('paperData'));
-			this.initItemList();
+			this.paperData = JSON.parse(this.getLocal('paperData'));		// 获取总试卷数据
+			this.mainData = JSON.parse(this.getSession('itemData'));		// 获取题主题数据
+			this.subKey = Number(this.getSession('subKey'));						// 小题下标
+			this.itemData = this.mainData.SubQuestionList[this.subKey];	// 小题信息
+			this.initSubItemList();																			// 初始化小题列表
+			
 			this.initStaticData(this.paperData.SubjectId, this.paperData.MaterialId, this.paperData.SubjectCode);
 		},
 		methods: {
 			// 初始化 题目数据
-			initItemList(){
-				this.itemList = [];																			// 总试题数组
-				let num_flag = 0;																				// 试题题号指针
-				if(this.paperData.AllQuestionArr && this.paperData.AllQuestionArr.length > 0){
-					let allItems = this.paperData.AllQuestionArr;
-					for(let i=0; i<allItems.length; i++){
-						let firstItem = allItems[i];  											// 一个个 	一级题组 { rangeMin, rangeMax, children:[ {'二级题组1'}, {'二级题组2'} ] }
-						firstItem.rangeMin = num_flag + 1;
-						if(firstItem.children && firstItem.children.length>0){
-							// 有 '二级题组' 并循环
-							for(let j=0; j<firstItem.children.length; j++){
-								let secondItem = firstItem.children[j];					// 一个个 	二级题组 { rangeMin, rangeMax, question:[ {'考试试题1'}, {'考试试题2'} ] }
-								let question = secondItem.question;
-								secondItem.rangeMin = num_flag + 1;							// 矫正 二级题组 rangeMin 值
-								let moveMin = num_flag;													// 判断向上移动的 		最小下标
-								num_flag += question.length;
-								secondItem.rangeMax = num_flag;									// 矫正 二级题组 rangeMax 值
-								if(j === firstItem.children.length-1){
-									firstItem.rangeMax = num_flag;								// 矫正 一级题组 rangeMax 值
-								}
-								let moveMax = num_flag - 1;											// 判断向下移动的		最大下标
-								for(let k=0; k<question.length; k++ ){
-									question[k].Type =  String(question[k].Type);
-									question[k].moveMin = moveMin + 1;
-									question[k].moveMax = moveMax + 1;
-									question[k].Num = moveMin + k + 1;						// 试题序号
-									question[k].index_group = k;									// 试题 			题内部下标
-									if(question[k].isSelected == true){
-										this.initSelectKnowList(question[k]);
-										// this.initAbilityOrThoughtWay(question[k]);
-										this.itemData = question[k];
-									}
-									question[k].firstIndex = i;										// 一级题组 	指向
-									question[k].secondIndex = j;									// 二级题组 	指向
-									// 题目所在的 一级题组二级题组 中文
-									question[k].group_name = question[k].Num + '（' + this.global.numToChinese(i+1) + '、' + String(i+1) + '.' + String(j+1) +'）';
-									// 题主题情况
-									if(question[k].SubQuestionList && question[k].SubQuestionList.length > 0){
-										for(let m=0; m<question[k].SubQuestionList.length; m++){
-											question[k].SubQuestionList[m].Type = String(question[k].SubQuestionList[m].Type);
-											question[k].SubQuestionList[m].Combination_index = m+1;
-										}
-									}
-									this.itemList.push(question[k]);
-								}
-							}
-						}else{
-							// 没有 '二级题组' 并循环
-							let question = firstItem.question;
-							firstItem.rangeMin = num_flag + 1;							// 矫正 一级题组 rangeMin 值
-							let moveMin = num_flag;													// 判断向上移动的 		最小下标
-							num_flag += question.length;
-							firstItem.rangeMax = num_flag;
-							let moveMax = num_flag - 1;											// 判断向下移动的		最大下标
-							for(let k=0; k<question.length; k++ ){
-								question[k].Type =  String(question[k].Type);
-								question[k].moveMin = moveMin + 1;
-								question[k].moveMax = moveMax + 1;
-								question[k].Num = moveMin + k + 1;						// 试题序号
-								question[k].index_group = k;									// 试题 			题内部下标
-								if(question[k].isSelected == true){
-									this.initSelectKnowList(question[k]);
-									// this.initAbilityOrThoughtWay(question[k]);
-									this.itemData = question[k];
-								}
-								question[k].firstIndex = i;										// 一级题组 	指向
-								question[k].secondIndex = 9999;								// 二级题组 	指向
-								// 题目所在的 一级题组二级题组 中文
-								question[k].group_name = question[k].Num + '（' + this.global.numToChinese(i+1) + '）';
-								// 题主题情况
-								if(question[k].SubQuestionList && question[k].SubQuestionList.length > 0){
-									for(let m=0; m<question[k].SubQuestionList.length; m++){
-										question[k].SubQuestionList[m].Type = String(question[k].SubQuestionList[m].Type);
-										question[k].SubQuestionList[m].Combination_index = m+1;
-									}
-								}
-								this.itemList.push(question[k]);
-							}
-						}
+			initSubItemList(){
+				this.mainData.SubQuestionList.forEach((item,subKey)=>{
+					if(subKey == this.subKey){
+						item.isSelected = true;
+					}else{
+						item.isSelected = false;
 					}
-					// 将 paperData.AllQuestionArr 提交到 vuex
-					this.setLocal('paperData',JSON.stringify(this.paperData));
-					this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
-				}
+				})
 			},
 			// 单题保存
 			restoreItemForVuexAndLocal(){
 				// 将 paperData.AllQuestionArr 提交到 vuex
+				this.mainData.SubQuestionList[this.subKey] = JSON.parse(JSON.stringify(this.itemData));
+				this.setSession('itemData',JSON.stringify(this.mainData));
+				if(this.mainData.secondIndex == 9999){
+					// 一级题组 题目
+					this.paperData.AllQuestionArr[Number(this.mainData.firstIndex)].question[Number(this.mainData.index_group)] = JSON.parse(JSON.stringify(this.mainData));
+				}else{
+					// 二级题组 题目
+					this.paperData.AllQuestionArr[Number(this.mainData.firstIndex)].children[Number(this.mainData.secondIndex)].question[Number(this.mainData.index_group)] = JSON.parse(JSON.stringify(this.mainData));
+				}
 				this.setLocal('paperData',JSON.stringify(this.paperData));
 				this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 				this.$message({
 					showClose: true,
-					message: '第'+this.itemData.Num+'的修改信息保存成功！',
+					message: '第 '+this.mainData.Num+' 题(题主题)下 第 '+Number(this.subKey+1)+' 小题'+'的修改信息保存成功！',
 					type: 'success',
-					duration: 2000
+					duration: 4000
 				});
 			},
 			changeInputValue(){					// 修改试卷名称		修改试题类型
@@ -539,7 +464,7 @@
 						type: 'success',
 						duration: 4000
 					});
-					this.initItemList();
+					this.initSubItemList();
 				}else{
 					
 				}
@@ -564,13 +489,10 @@
 				this.itemData.SubQuestionList = SubQuestionList_new;
 			},
 			editSubQuestion(itemData,subKey){
-				// 编辑题主题小题 itemData 为 题主题题号 key 为小题索引	=> 跳转到 题主题编辑小题页面
+				// 编辑题主题小题 itemData 为 题主题题号 key 为小题索引
 				console.log(itemData);
 				console.log(subKey);
-				// 将 itemData (题主题) 和 小题下标subKey 存入session
-				this.setSession('itemData',JSON.stringify(itemData));
-				this.setSession('subKey',JSON.stringify(subKey));
-				this.changeRouterByName('ItemEditSingle_SubQuestion');
+				
 			},
 			EditHtml(title, html, type, optionIndex){
 				this.editorInfo.editTextDialog = true;
@@ -629,15 +551,26 @@
 				}
 			},
 			goBack(){
-				this.changeRouterByName('ItemEditMain');
+				this.changeRouterByName('ItemEditSingle');
 			},
 			// 单题信息展示
-			SingleItemInfo(row){
+			SingleItemInfo(row,subKey){
 				this.itemData.isSelected = false;
+				this.subKey = subKey;
 				row.isSelected = true;
-				this.itemData = JSON.parse(JSON.stringify(row));
+				this.itemData = JSON.parse(JSON.stringify(row)); 	// 小题
+				this.mainData.SubQuestionList[subKey] = JSON.parse(JSON.stringify(this.itemData));
+				this.setSession('itemData',JSON.stringify(this.mainData));
+				if(this.mainData.secondIndex == 9999){
+					// 一级题组 题目
+					this.paperData.AllQuestionArr[Number(this.mainData.firstIndex)].question[Number(this.mainData.index_group)] = JSON.parse(JSON.stringify(this.mainData));
+				}else{
+					// 二级题组 题目
+					this.paperData.AllQuestionArr[Number(this.mainData.firstIndex)].children[Number(this.mainData.secondIndex)].question[Number(row.index_group)] = JSON.parse(JSON.stringify(this.mainData));
+				}
 				this.setLocal('paperData',JSON.stringify(this.paperData));
-				this.initItemList();
+				this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
+				this.initSubItemList();
 			},
 			
 			// 弹窗方法
@@ -961,7 +894,8 @@
 						}
 						div.indentTitle{ line-height: 30px; }
 						/* 题干 选项 分析 解答 点评 */
-						p.Text, p.analysis, p.explain, p.comments{ display: inline-block; line-height: 30px; width: 90%; }
+						p.Text, p.Text_Sub, p.analysis, p.explain, p.comments{ display: inline-block; line-height: 30px; width: 90%; }
+						p.Text_Sub>*{ display: inline ; }
 						div.notice{ overflow:hidden; clear: both; }
 					}
 				}

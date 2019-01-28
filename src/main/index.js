@@ -154,8 +154,8 @@ function startSever(subjectAboutInfo, unitAndSubUnit) {
     }
   })
 
-  appExpress.listen(3004)
-  console.log('3004 success')
+  appExpress.listen(13004)
+  console.log('13004 success')
 }
 
 function killPort() {

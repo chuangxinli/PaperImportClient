@@ -81,8 +81,10 @@
       }
     },
     methods: {
+
       async postPaper(params){
-        let url = 'http://39.96.186.199:3004/word-to-json-2'
+        let serve1 = 'http://39.96.186.199:3004', serve2 = 'http://localhost:13004'
+        let url = serve2 + '/word-to-json-2'
         let config = {
           loading: true,
           headers: {

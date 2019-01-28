@@ -8,9 +8,9 @@
 					<img src="../../assets/images/process.png"/>
 					<span @click="changeRouterByName('PaperNotYet')">待处理试卷</span> 》 
 					<span @click="changeRouterByName('ItemEditMain')">试题编辑</span> 》 
-					<span @click="changeRouterByName('ItemEditSingle')">（题主题）编辑</span> 》 
+					<span @click="changeRouterByName('ItemEditSingle')">（题组题）编辑</span> 》
 					<a href="javascript: void(0);">小题编辑</a>
-					<span class="fRight blueFont">&nbsp;您正在修改<span class="redFont">第 {{mainData.Num}} 题</span>(题主题)下的<span class="redFont">第 {{subKey+1}} 小题</span></span>
+					<span class="fRight blueFont">&nbsp;您正在修改<span class="redFont">第 {{mainData.Num}} 题</span>(题组题)下的<span class="redFont">第 {{subKey+1}} 小题</span></span>
 					<span class="el-icon-info blueFont fRight"></span>
 				</p>
 				
@@ -126,7 +126,7 @@
 						<!-- 题干信息 -->
 						<p class="contentTitle">{{itemData.Serial_num}}、
 							<span v-html="itemData.Text"></span>
-							<!-- 单选题和多选题(非题主题) -->
+							<!-- 单选题和多选题(非题组题) -->
 							<ul v-if="itemData.Type == 1 || itemData.Type == 2">
 								<li v-for="(option, optionIndex) in itemData.Options" :key="optionIndex" :class="option.IsRight?'redFont':''">
 									<p class="choice_one" v-html="'<span>'+optionList[optionIndex]+'：'+'</span>'+ option.Text"></p>
@@ -294,7 +294,7 @@
 					Title: '',
 				},
 				itemList: [],						// 试题总数组		(小题)
-				mainData: [],						// 题主题			(题主题)
+				mainData: [],						// 题组题			(题组题)
 				subKey: 0,							// 小题下标
 				itemData : {						// 单道题目数组 (小题)
 					Core: '',									// 是否是核心
@@ -302,7 +302,7 @@
 					Douthree: '',							// 是否是双三
 					IsHide: '',								// 是否是隐藏
 					Correct: '',							// 是否是正确
-					IsCombination: '',				// 是否是题主题
+					IsCombination: '',				// 是否是题组题
 					Division: '',							// 区分度
 					Difficulty: '',						// 难度值
 					Spenttime:  '',						// 答题时长
@@ -326,7 +326,7 @@
 					SubjectCode:'',						// 学科 code 值
 					Type: '1',								// 试题类型
 					Options: [],							// 选项数组
-					SubQuestionList:[],				// 题主题小题 个数
+					SubQuestionList:[],				// 题组题小题 个数
 					Serial_num: '',						// 显示题号
 					
 				},
@@ -368,7 +368,7 @@
 		},
 		mounted() {
 			this.paperData = JSON.parse(this.getLocal('paperData'));		// 获取总试卷数据
-			this.mainData = JSON.parse(this.getSession('itemData'));		// 获取题主题数据
+			this.mainData = JSON.parse(this.getSession('itemData'));		// 获取题组题数据
 			this.subKey = Number(this.getSession('subKey'));						// 小题下标
 			this.itemData = this.mainData.SubQuestionList[this.subKey];	// 小题信息
 			this.initSubItemList();																			// 初始化小题列表
@@ -402,7 +402,7 @@
 				this.$store.dispatch('CHANGE_ONE_PAPER',{paper: this.paperData});
 				this.$message({
 					showClose: true,
-					message: '第 '+this.mainData.Num+' 题(题主题)下 第 '+Number(this.subKey+1)+' 小题'+'的修改信息保存成功！',
+					message: '第 '+this.mainData.Num+' 题(题组题)下 第 '+Number(this.subKey+1)+' 小题'+'的修改信息保存成功！',
 					type: 'success',
 					duration: 4000
 				});
@@ -410,12 +410,12 @@
 			changeInputValue(){					// 修改试卷名称		修改试题类型
 				switch (this.itemData.Type){
 					case '1':
-						if(this.itemData.Options && this.itemData.Options.length>0){
+						/*if(this.itemData.Options && this.itemData.Options.length>0){
 							// 多选题 <=> 单选题 => 选项全设为false(错误选项)
 							this.itemData.Options.forEach((option)=>{
 								option.IsRight = false;
 							})
-						}
+						}*/
 						this.itemData.IsCombination = '0';
 						break;
 					case '2':
@@ -437,7 +437,7 @@
 						this.itemData.IsCombination = '0';
 						break;
 					case '6':
-						// 题主题
+						// 题组题
 						this.itemData.IsCombination = '1';
 						break;
 					default:
@@ -449,18 +449,18 @@
 					if(this.itemData.IsCombination == '1'){
 						this.itemData.Type = '6';
 					}else{
-						this.itemData.Type = '1';		// 不勾选题主题 	默认为选择题
+						this.itemData.Type = '1';		// 不勾选题组题 	默认为选择题
 					}
 				}else if(type == 'addCombination'){
-					let item_parent = JSON.parse(JSON.stringify(this.itemData));																// 题主题父题
-					this.itemData.SubQuestionList[this.itemData.SubQuestionList.length] = item_parent;					// 默认继承 题主题 父级题所有内容
+					let item_parent = JSON.parse(JSON.stringify(this.itemData));																// 题组题父题
+					this.itemData.SubQuestionList[this.itemData.SubQuestionList.length] = item_parent;					// 默认继承 题组题 父级题所有内容
 					this.itemData.SubQuestionList[this.itemData.SubQuestionList.length-1].SubQuestionList = [];	// 小题数组 为空数组
-					this.itemData.SubQuestionList[this.itemData.SubQuestionList.length-1].IsCombination = '0';	// 小题显示为非题主题
+					this.itemData.SubQuestionList[this.itemData.SubQuestionList.length-1].IsCombination = '0';	// 小题显示为非题组题
 					this.itemData.SubQuestionList[this.itemData.SubQuestionList.length-1].Type = '1';						// 小题 默认题型为单选题
 					this.itemData.SubQuestionList[this.itemData.SubQuestionList.length-1].Combination_index = this.itemData.SubQuestionList.length;	// 小题 序号(决定小题顺序)
 					this.$message({
 						showClose: true,
-						message: '题主题第 ' +this.itemData.SubQuestionList.length+ ' 小题添加成功，该小题将继承大题所有属性，默认题型为单选题！',
+						message: '题组题第 ' +this.itemData.SubQuestionList.length+ ' 小题添加成功，该小题将继承大题所有属性，默认题型为单选题！',
 						type: 'success',
 						duration: 4000
 					});
@@ -489,7 +489,7 @@
 				this.itemData.SubQuestionList = SubQuestionList_new;
 			},
 			editSubQuestion(itemData,subKey){
-				// 编辑题主题小题 itemData 为 题主题题号 key 为小题索引
+				// 编辑题组题小题 itemData 为 题组题题号 key 为小题索引
 				console.log(itemData);
 				console.log(subKey);
 				
@@ -538,7 +538,7 @@
 			},
 			setRightOrWrong(key){
 				// 设置为 '正确选项' 或者 '错误选项'
-				if(this.itemData.Type == 1){
+				/*if(this.itemData.Type == 1){
 					if(!this.itemData.Options[key].IsRight){
 						// 错误改成正确时
 						this.itemData.Options.forEach((option)=>{
@@ -548,7 +548,18 @@
 					}
 				}else{
 					this.itemData.Options[key].IsRight = !this.itemData.Options[key].IsRight;
-				}
+				}*/
+        if(this.itemData.Type == 1){
+          for(let i = 0, len = this.itemData.Options.length; i < len; i++){
+            this.itemData.Options[i].IsRight = false
+            this.$set(this.itemData.Options, i, this.itemData.Options[i])
+          }
+          this.itemData.Options[key].IsRight = !this.itemData.Options[key].IsRight
+          this.$set(this.itemData.Options, key, this.itemData.Options[key])
+        }else{
+          this.itemData.Options[key].IsRight = !this.itemData.Options[key].IsRight
+          this.$set(this.itemData.Options, key, this.itemData.Options[key])
+        }
 			},
 			goBack(){
 				this.changeRouterByName('ItemEditSingle');
@@ -850,7 +861,7 @@
 				.rightMarkBox{ width: 36%; height: 500px; float: right; margin: 0 auto; position: relative;
 					img.ipadFram{ height: 450px; width: 84%; position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin: auto; margin-top: 45px; }
 					div.itemContentBox{ height: 360px; width: 74%; position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin: auto; margin-top: 90px; box-sizing: border-box; padding: 10px 10px; overflow-y: auto; font-size: 12px; color: #555555;
-						/* 题干信息		题主题信息 */
+						/* 题干信息		题组题信息 */
 						p.contentTitle, p.subQuesBox{display: block; line-height: 30px;
 							img{ max-width: 100%; }
 							ul{ display: block; -webkit-margin-before: 0em; -webkit-margin-after: 0em; -webkit-padding-start: 30px;

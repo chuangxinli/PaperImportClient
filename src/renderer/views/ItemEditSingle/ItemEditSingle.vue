@@ -45,7 +45,7 @@
 							<el-checkbox class="checkbox-self block" v-model="itemData.Douthree" true-label="1" false-label="0" @change="vuexDataChange()">双三试题</el-checkbox>
 							<el-checkbox class="checkbox-self block" v-model="itemData.IsHide" true-label="1" false-label="0" @change="vuexDataChange()">是否隐藏</el-checkbox>
 							<el-checkbox class="checkbox-self block" v-model="itemData.Correct" true-label="1" false-label="0" @change="vuexDataChange()">是否正确</el-checkbox>
-							<el-checkbox class="checkbox-self block" v-model="itemData.IsCombination" true-label="1" false-label="0" @change="vuexDataChange('IsCombination')">是否题主题</el-checkbox>
+							<el-checkbox class="checkbox-self block" v-model="itemData.IsCombination" true-label="1" false-label="0" @change="vuexDataChange('IsCombination')">是否题组题</el-checkbox>
 						</div>
 						<div class="boderRadiusBox othersMarkBox fLeft">
 							<div class="headerSpread">
@@ -133,7 +133,7 @@
 						<!-- 题干信息 -->
 						<p class="contentTitle">{{itemData.Num}}、
 							<span v-html="itemData.Text"></span>
-							<!-- 单选题和多选题(非题主题) -->
+							<!-- 单选题和多选题(非题组题) -->
 							<ul v-if="itemData.Type == 1 || itemData.Type == 2">
 								<li v-for="(option, optionIndex) in itemData.Options" :key="optionIndex" :class="option.IsRight?'redFont':''">
 									<p class="choice_one" v-html="'<span>'+optionList[optionIndex]+'：'+'</span>'+ option.Text"></p>
@@ -141,11 +141,11 @@
 							</ul>
 						</p>
 						
-						<!-- 题主题 -->
+						<!-- 题组题 -->
 						<p class="subQuesBox" v-show="itemData.Type == 6 && itemData.SubQuestionList.length>0" v-for="(subQuestion,key) in itemData.SubQuestionList" :key="key">
 							{{ '（' + subQuestion.Combination_index + '）' }} 
 							<span v-html="subQuestion.Text"></span>
-							<!-- 题主题小题为选择题 -->
+							<!-- 题组题小题为选择题 -->
 							<ul v-if="subQuestion.Type == 1 || subQuestion.Type == 2">
 								<li v-for="(option, optionIndex) in subQuestion.Options" :key="optionIndex" :class="option.IsRight?'redFont':''">
 									<p class="choice_one" v-html="'<span>'+optionList[optionIndex]+'：'+'</span>'+ option.Text"></p>
@@ -313,7 +313,7 @@
 					Douthree: '',							// 是否是双三
 					IsHide: '',								// 是否是隐藏
 					Correct: '',							// 是否是正确
-					IsCombination: '',				// 是否是题主题
+					IsCombination: '',				// 是否是题组题
 					Division: '',							// 区分度
 					Difficulty: '',						// 难度值
 					Spenttime:  '',						// 答题时长
@@ -337,7 +337,7 @@
 					SubjectCode:'',						// 学科 code 值
 					Type: '1',								// 试题类型
 					Options: [],							// 选项数组
-					SubQuestionList:[],				// 题主题小题 个数
+					SubQuestionList:[],				// 题组题小题 个数
 					Serial_num: '',						// 显示题号
 					
 				},
@@ -421,7 +421,7 @@
 									question[k].secondIndex = j;									// 二级题组 	指向
 									// 题目所在的 一级题组二级题组 中文
 									question[k].group_name = question[k].Num + '（' + this.global.numToChinese(i+1) + '、' + String(i+1) + '.' + String(j+1) +'）';
-									// 题主题情况
+									// 题组题情况
 									if(question[k].SubQuestionList && question[k].SubQuestionList.length > 0){
 										for(let m=0; m<question[k].SubQuestionList.length; m++){
 											question[k].SubQuestionList[m].Type = String(question[k].SubQuestionList[m].Type);
@@ -454,7 +454,7 @@
 								question[k].secondIndex = 9999;								// 二级题组 	指向
 								// 题目所在的 一级题组二级题组 中文
 								question[k].group_name = question[k].Num + '（' + this.global.numToChinese(i+1) + '）';
-								// 题主题情况
+								// 题组题情况
 								if(question[k].SubQuestionList && question[k].SubQuestionList.length > 0){
 									for(let m=0; m<question[k].SubQuestionList.length; m++){
 										question[k].SubQuestionList[m].Type = String(question[k].SubQuestionList[m].Type);
@@ -485,12 +485,12 @@
 			changeInputValue(){					// 修改试卷名称		修改试题类型
 				switch (this.itemData.Type){
 					case '1':
-						if(this.itemData.Options && this.itemData.Options.length>0){
+						/*if(this.itemData.Options && this.itemData.Options.length>0){
 							// 多选题 <=> 单选题 => 选项全设为false(错误选项)
 							this.itemData.Options.forEach((option)=>{
 								option.IsRight = false;
 							})
-						}
+						}*/
 						this.itemData.IsCombination = '0';
 						break;
 					case '2':
@@ -512,7 +512,7 @@
 						this.itemData.IsCombination = '0';
 						break;
 					case '6':
-						// 题主题
+						// 题组题
 						this.itemData.IsCombination = '1';
 						break;
 					default:
@@ -524,18 +524,18 @@
 					if(this.itemData.IsCombination == '1'){
 						this.itemData.Type = '6';
 					}else{
-						this.itemData.Type = '1';		// 不勾选题主题 	默认为选择题
+						this.itemData.Type = '1';		// 不勾选题组题 	默认为选择题
 					}
 				}else if(type == 'addCombination'){
-					let item_parent = JSON.parse(JSON.stringify(this.itemData));																// 题主题父题
-					this.itemData.SubQuestionList[this.itemData.SubQuestionList.length] = item_parent;					// 默认继承 题主题 父级题所有内容
+					let item_parent = JSON.parse(JSON.stringify(this.itemData));																// 题组题父题
+					this.itemData.SubQuestionList[this.itemData.SubQuestionList.length] = item_parent;					// 默认继承 题组题 父级题所有内容
 					this.itemData.SubQuestionList[this.itemData.SubQuestionList.length-1].SubQuestionList = [];	// 小题数组 为空数组
-					this.itemData.SubQuestionList[this.itemData.SubQuestionList.length-1].IsCombination = '0';	// 小题显示为非题主题
+					this.itemData.SubQuestionList[this.itemData.SubQuestionList.length-1].IsCombination = '0';	// 小题显示为非题组题
 					this.itemData.SubQuestionList[this.itemData.SubQuestionList.length-1].Type = '1';						// 小题 默认题型为单选题
 					this.itemData.SubQuestionList[this.itemData.SubQuestionList.length-1].Combination_index = this.itemData.SubQuestionList.length;	// 小题 序号(决定小题顺序)
 					this.$message({
 						showClose: true,
-						message: '题主题第 ' +this.itemData.SubQuestionList.length+ ' 小题添加成功，该小题将继承大题所有属性，默认题型为单选题！',
+						message: '题组题第 ' +this.itemData.SubQuestionList.length+ ' 小题添加成功，该小题将继承大题所有属性，默认题型为单选题！',
 						type: 'success',
 						duration: 4000
 					});
@@ -564,10 +564,10 @@
 				this.itemData.SubQuestionList = SubQuestionList_new;
 			},
 			editSubQuestion(itemData,subKey){
-				// 编辑题主题小题 itemData 为 题主题题号 key 为小题索引	=> 跳转到 题主题编辑小题页面
+				// 编辑题组题小题 itemData 为 题组题题号 key 为小题索引	=> 跳转到 题组题编辑小题页面
 				console.log(itemData);
 				console.log(subKey);
-				// 将 itemData (题主题) 和 小题下标subKey 存入session
+				// 将 itemData (题组题) 和 小题下标subKey 存入session
 				this.setSession('itemData',JSON.stringify(itemData));
 				this.setSession('subKey',JSON.stringify(subKey));
 				this.changeRouterByName('ItemEditSingle_SubQuestion');
@@ -617,16 +617,16 @@
 			setRightOrWrong(key){
 				// 设置为 '正确选项' 或者 '错误选项'
 				if(this.itemData.Type == 1){
-					if(!this.itemData.Options[key].IsRight){
-						// 错误改成正确时
-						this.itemData.Options.forEach((option)=>{
-							option.IsRight = false;
-						})
-						this.itemData.Options[key].IsRight = true;
-					}
-				}else{
-					this.itemData.Options[key].IsRight = !this.itemData.Options[key].IsRight;
-				}
+          for(let i = 0, len = this.itemData.Options.length; i < len; i++){
+            this.itemData.Options[i].IsRight = false
+            this.$set(this.itemData.Options, i, this.itemData.Options[i])
+          }
+          this.itemData.Options[key].IsRight = !this.itemData.Options[key].IsRight
+          this.$set(this.itemData.Options, key, this.itemData.Options[key])
+        }else{
+          this.itemData.Options[key].IsRight = !this.itemData.Options[key].IsRight
+          this.$set(this.itemData.Options, key, this.itemData.Options[key])
+        }
 			},
 			goBack(){
 				this.changeRouterByName('ItemEditMain');
@@ -683,8 +683,7 @@
 				}
 				this.addPointsDialog = false;
 			},
-			initStaticData(SubjectId,MaterialId,SubjectCode){	// 初始化  学科能力  思想方法  知识点
-				// 接收 Vuex 学段学科教材版本数据					=> 只做 学段学科 教材版本 学科能力 思想方法 级联
+			initStaticData(SubjectId,MaterialId,SubjectCode){	// 初始化  学科能力  思想方法  知识点  接收 Vuex 学段学科教材版本数据					=> 只做 学段学科 教材版本 学科能力 思想方法 级联
 				let subjectAboutInfo = JSON.parse(JSON.stringify(this.$store.state.Version.subjectAboutInfo));
 				// 接收 Vuex 学科下的应用标签
       	let userMarkList = JSON.parse(JSON.stringify(this.$store.state.Version.userMarkList));
@@ -716,8 +715,7 @@
 					}
 				}
 			},
-			initSelectKnowList(itemData){		// 初始化  知识点选框
-				// 循环 生成 itemData.Knowledge_points_show
+			initSelectKnowList(itemData){		// 初始化  知识点选框循环 生成 itemData.Knowledge_points_show
 				let Knowledge_points_show = [];
 				if(itemData.Examination_points.length > 0){
 					for(let i=0; i<itemData.Examination_points.length; i++){
@@ -865,12 +863,6 @@
 					this.itemData.UseTagCodeList = UseTagCodeList;
 				}
 			},
-			
-			
-			
-			
-			
-			
 		}
 	}
 </script>
@@ -917,7 +909,7 @@
 				.rightMarkBox{ width: 36%; height: 500px; float: right; margin: 0 auto; position: relative;
 					img.ipadFram{ height: 450px; width: 84%; position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin: auto; margin-top: 45px; }
 					div.itemContentBox{ height: 360px; width: 74%; position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin: auto; margin-top: 90px; box-sizing: border-box; padding: 10px 10px; overflow-y: auto; font-size: 12px; color: #555555;
-						/* 题干信息		题主题信息 */
+						/* 题干信息		题组题信息 */
 						p.contentTitle, p.subQuesBox{display: block; line-height: 30px;
 							img{ max-width: 100%; }
 							ul{ display: block; -webkit-margin-before: 0em; -webkit-margin-after: 0em; -webkit-padding-start: 30px;

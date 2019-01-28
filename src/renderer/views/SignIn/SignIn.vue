@@ -26,7 +26,7 @@
 						  <el-form-item label="">
 						  	<img src="../../assets/images/icon_user_green@2x.png"/>
 						    <el-input
-							    placeholder="请输入您的账号..."
+							    placeholder="请输入您的账号"
 							    v-model="formLabelAlign.account">
 							  </el-input>
 						  </el-form-item>
@@ -34,13 +34,13 @@
 						  <el-form-item label="">
 						  	<img src="../../assets/images/icon_password_green@2x.png"/>
 						    <el-input type="password" 
-						    	placeholder="请输入账户密码..." 
+						    	placeholder="请输入账户密码"
 						    	v-model="formLabelAlign.userPwd" autocomplete="off"></el-input>
 						  </el-form-item>
 						  
 						  <el-form-item label="" class="fLeft">
 						    <el-checkbox-group v-model="formLabelAlign.isSetCookie">
-						      <el-checkbox label="15天内免登录" name="type"></el-checkbox>
+						      <el-checkbox label="记住密码" name="type"></el-checkbox>
 						    </el-checkbox-group>
 						  </el-form-item>
 						</el-form>
@@ -52,7 +52,8 @@
 				</div>
 				<div class="bottomContainer">
 					<p class="top">铭仁（北京）教育科技有限公司@Copyr</p>
-					<p class="bottom">服务电话：400-0052-365&&&&{{version}}</p>
+					<p class="bottom">服务电话：400-0052-365</p>
+					<span style="display: none">{{version}}</span>
 				</div>
 			</div>
     </div>
@@ -80,10 +81,12 @@
 		},
 		watch: {
       version: function () {
-				alert(this.version)
+				//alert(this.version)
         /*writeFile.sync(path.join(__dirname, '../../api/uploads/subjectAboutInfo.json'), JSON.stringify(this.subjectAboutInfo))
         writeFile.sync(path.join(__dirname, '../../api/uploads/unitAndSubUnit.json'), JSON.stringify(this.unitAndSubUnit))*/
-				ipcRenderer.send('startServe', '111', this.oldSessionUser)
+        setTimeout(() => {
+          ipcRenderer.send('startServe', '111', this.oldSessionUser)
+				}, 4000)
         this.$router.push({
           path: '/Main'
         })

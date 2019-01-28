@@ -550,7 +550,7 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
           continue
         }
         //处理题的类型
-        if (/^#\d+#$/.test(primaryStr)) {
+        if (/^\s*#\d+#$/.test(primaryStr)) {
           itemTypeNum = getItemType(primaryStr, itemTypeNum)
           continue
         }

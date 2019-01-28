@@ -29,7 +29,7 @@
 			        <p class="ItemTitle" v-else-if="scope.row.Type == 3">填空题</p>
 			        <p class="ItemTitle" v-else-if="scope.row.Type == 4">简答题</p>
 			        <p class="ItemTitle" v-else-if="scope.row.Type == 5">判断题</p>
-			        <p class="ItemTitle" v-else>题主题</p>
+			        <p class="ItemTitle" v-else>题组题</p>
 			      </template>
           </el-table-column>
           <el-table-column label="是否关联主知识点" width="80">
@@ -165,7 +165,7 @@
 									// 题目所在的 一级题组二级题组 中文
 									question[k].group_name = question[k].Num + '（' + this.global.numToChinese(i+1) + '、' + String(i+1) + '.' + String(j+1) +'）';
 									
-									// 题主题情况
+									// 题组题情况
 									if(question[k].SubQuestionList && question[k].SubQuestionList.length > 0){
 										for(let m=0; m<question[k].SubQuestionList.length; m++){
 											question[k].SubQuestionList[m].Combination_index = m+1;
@@ -262,7 +262,7 @@
 								question[k].secondIndex = 9999;								// 二级题组 	指向
 								// 题目所在的 一级题组二级题组 中文
 								question[k].group_name = question[k].Num + '（' + this.global.numToChinese(i+1) + '）';
-								// 题主题情况																		// 小题顺序
+								// 题组题情况																		// 小题顺序
 								if(question[k].SubQuestionList && question[k].SubQuestionList.length > 0){
 									for(let m=0; m<question[k].SubQuestionList.length; m++){
 										question[k].SubQuestionList[m].Combination_index = m+1;

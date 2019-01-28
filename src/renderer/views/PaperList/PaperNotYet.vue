@@ -35,7 +35,7 @@
           }else{
             return false
           }
-        })" stripe class="mTop20 table_self_blue">
+        })" stripe class="mTop20 table_self_blue" >
           <el-table-column type="index" label="序号" width="50"></el-table-column>
           <el-table-column prop="Title" label="试卷名称" width="" class="text_left">
           </el-table-column>
@@ -956,17 +956,17 @@
         			if(item.Knowledge_main_points == ""){
         				this.$message({
 			            showClose: true,
-			            message: '该套试卷题目中有所有题目（题主题下小题在内）必须关联主知识点，请仔细核对！',
+			            message: '该套试卷题目中有所有题目（题组题下小题在内）必须关联主知识点，请仔细核对！',
 			            type: 'warning'
 			          });
 			          flagIndex++;
         			}else{
-        				// 题主题小题处理
+        				// 题组题小题处理
         				item.SubQuestionList.forEach((subItem)=>{
         					if(subItem.Knowledge_main_points == ""){
         						this.$message({
 					            showClose: true,
-					            message: '该套试卷题目中有所有题目（题主题下小题在内）必须关联主知识点，请仔细核对！',
+					            message: '该套试卷题目中有所有题目（题组题下小题在内）必须关联主知识点，请仔细核对！',
 					            type: 'warning'
 					          });
 					          flagIndex++;
@@ -981,17 +981,17 @@
         				if(item.Knowledge_main_points == ""){
 	        				this.$message({
 				            showClose: true,
-				            message: '该套试卷题目中有所有题目（题主题下小题在内）必须关联主知识点，请仔细核对！',
+				            message: '该套试卷题目中有所有题目（题组题下小题在内）必须关联主知识点，请仔细核对！',
 				            type: 'warning'
 				          });
 				          flagIndex++;
 	        			}else{
-	        				// 题主题小题处理
+	        				// 题组题小题处理
 	        				item.SubQuestionList.forEach((subItem)=>{
 	        					if(subItem.Knowledge_main_points == ""){
 	        						this.$message({
 						            showClose: true,
-						            message: '该套试卷题目中有所有题目（题主题下小题在内）必须关联主知识点，请仔细核对！',
+						            message: '该套试卷题目中有所有题目（题组题下小题在内）必须关联主知识点，请仔细核对！',
 						            type: 'warning'
 						          });
 						          flagIndex++;

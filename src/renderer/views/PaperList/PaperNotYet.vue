@@ -948,6 +948,7 @@
           return
         }
         // 20190125 对每道试题的限制 => 大题小题主知识点为"" => 不能上传至后台
+        var flagIndex = 0;
         row.AllQuestionArr.forEach((firstItem)=>{
         	if(firstItem.children==0){
         		// 一级题组
@@ -958,8 +959,7 @@
 			            message: '该套试卷题目中有所有题目（题主题下小题在内）必须关联主知识点，请仔细核对！',
 			            type: 'warning'
 			          });
-			          console.log(item);
-			          return;
+			          flagIndex++;
         			}else{
         				// 题主题小题处理
         				item.SubQuestionList.forEach((subItem)=>{
@@ -969,8 +969,7 @@
 					            message: '该套试卷题目中有所有题目（题主题下小题在内）必须关联主知识点，请仔细核对！',
 					            type: 'warning'
 					          });
-					          console.log(subItem);
-					          return;
+					          flagIndex++;
         					}
         				})
         			}
@@ -985,8 +984,7 @@
 				            message: '该套试卷题目中有所有题目（题主题下小题在内）必须关联主知识点，请仔细核对！',
 				            type: 'warning'
 				          });
-				          console.log(item);
-				          return;
+				          flagIndex++;
 	        			}else{
 	        				// 题主题小题处理
 	        				item.SubQuestionList.forEach((subItem)=>{
@@ -996,8 +994,7 @@
 						            message: '该套试卷题目中有所有题目（题主题下小题在内）必须关联主知识点，请仔细核对！',
 						            type: 'warning'
 						          });
-						          console.log(subItem);
-						          return;
+						          flagIndex++;
 	        					}
 	        				})
 	        			}
@@ -1005,23 +1002,26 @@
         		})
         	}
         })
-        
-        row = this.addDifficulty(row)
-        let url = '/paper/info/uploadPaperInfo'
-        let config = {
-          loading: true,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-        let data = await this.api.post(url, row, config)
-        if (data) {
-          this.$message({
-            showClose: true,
-            message: '试卷上传成功！',
-            type: 'success'
-          });
-          this.$store.dispatch('DELETE_ONE_PAPER', {localId: row.localId})
+        if(flagIndex == 0){
+        	row = this.addDifficulty(row)
+	        let url = '/paper/info/uploadPaperInfo'
+	        let config = {
+	          loading: true,
+	          headers: {
+	            'Content-Type': 'application/json'
+	          }
+	        }
+	        let data = await this.api.post(url, row, config)
+	        if (data) {
+	          this.$message({
+	            showClose: true,
+	            message: '试卷上传成功！',
+	            type: 'success'
+	          });
+	          this.$store.dispatch('DELETE_ONE_PAPER', {localId: row.localId})
+	        }
+        }else{
+        	return;
         }
       }
     }

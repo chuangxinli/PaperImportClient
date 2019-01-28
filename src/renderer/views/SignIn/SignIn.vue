@@ -96,8 +96,6 @@
       };
     },
     mounted() {
-	    console.log(this.unitAndSubUnit)
-			console.log(this.subjectAboutInfo)
 	    if(this.getLocal('isSetCookie') == 'true'){
         this.formLabelAlign.isSetCookie = true
         this.formLabelAlign.account = this.getCookie('account')
@@ -187,7 +185,8 @@
             this.setLocal('isSetCookie', true)
     	      this.saveUserAndPassword(this.formLabelAlign.account, this.formLabelAlign.userPwd)
 					}
-          this.setSession('isSchoolUser', data.data.isSchoolUser)
+          this.setSession('isSchoolUser', data.data.isSchoolUser);
+          this.setSession('userName', data.data.name);
           this.$router.push({
             path: '/Main'
           })

@@ -19,7 +19,7 @@
 			</div>
 			<div class="bottomContainer">
 				<div class="userLogout fRight no-drag" @click="userLogout()">退出</div>
-				<div class="userInfo fRight">欢迎您！Tes******om</div>
+				<div class="userInfo fRight">欢迎您！{{userName}}</div>
 			</div>
 		</div>
 	</div>
@@ -30,8 +30,12 @@
 	export default {
 		data(){
 			return {
-				isFullScreen: false
+				isFullScreen: false,
+				userName: ''
 			}
+		},
+		mounted(){
+			this.userName = this.getSession('userName');
 		},
 		methods: {
 			userLogout() {

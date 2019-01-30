@@ -753,7 +753,7 @@
           }
           return (start + (end - start) / (count - 1) * currentNum).toFixed(3)
         }
-        let Num = 0, paperDiffSum = 0
+        let Num = 0, paperDiffSum = 0 , allScore = 0
         let singleNum = 0, multipleNum = 0, blankNum = 0, resolveNum = 0, judgeNum = 0
         let partLength = row.AllQuestionArr.length
         for(let i = 0; i < partLength; i ++){
@@ -761,6 +761,7 @@
             let qLength = row.AllQuestionArr[i].question.length
             for(let j = 0; j < qLength; j ++){
               Num++
+              allScore = Number(row.AllQuestionArr[i].question[j].Score) + allScore
               row.AllQuestionArr[i].question[j].Num = Num
               if(row.AllQuestionArr[i].question[j].Type == 1){
                 singleNum++
@@ -806,6 +807,7 @@
               let qLength = row.AllQuestionArr[i].children[j].question.length
               for(let m = 0; m < qLength; m++){
                 Num++
+                allScore = Number(row.AllQuestionArr[i].children[j].question[m].Score) + allScore
                 row.AllQuestionArr[i].children[j].question[m].Num = Num
                 if(row.AllQuestionArr[i].children[j].question[m].Type == 1){
                   singleNum++
@@ -882,7 +884,7 @@
                 }
                 row.AllQuestionArr[i].question[j].Difficulty = (diffSum / subLength).toFixed(3)
               }
-              paperDiffSum = Number(row.AllQuestionArr[i].question[j].Difficulty) + paperDiffSum
+              paperDiffSum = Number(row.AllQuestionArr[i].question[j].Difficulty * row.AllQuestionArr[i].question[j].Score) + paperDiffSum
             }
           }else{
             let briefLength = row.AllQuestionArr[i].children.length
@@ -919,12 +921,13 @@
                   }
                   row.AllQuestionArr[i].children[j].question[m].Difficulty = (diffSum / subLength).toFixed(3)
                 }
-                paperDiffSum = Number(row.AllQuestionArr[i].children[j].question[m].Difficulty) + paperDiffSum
+                paperDiffSum = Number(row.AllQuestionArr[i].children[j].question[m].Difficulty * row.AllQuestionArr[i].children[j].question[m].Score) + paperDiffSum
               }
             }
           }
         }
-        row.Difficulty = (paperDiffSum / Num).toFixed(3)
+        row.Difficulty = (paperDiffSum / allScore).toFixed(3)
+        row.Score = allScore
         row.IsSchoolUser = this.getSession('isSchoolUser')
         return row
       },
@@ -1004,6 +1007,14 @@
         })
         if(flagIndex == 0){
         	row = this.addDifficulty(row)
+          if (row.Score != row.TotalPoints) {
+            this.$message({
+              showClose: true,
+              message: `设置的试题总分值为${row.TotalPoints}与实际的试题总分值${row.Score}不同，请再次确认！`,
+              type: 'warning'
+            });
+            return
+          }
 	        let url = '/paper/info/uploadPaperInfo'
 	        let config = {
 	          loading: true,

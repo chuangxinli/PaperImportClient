@@ -645,6 +645,7 @@ ul.popover-list li:hover{
 }
 .el-icon-setting{
   color: #41C0BC;
+  cursor: pointer;
 }
 
 /* border-radius 阴影盒子 */
@@ -748,17 +749,18 @@ ul.itemNumList{
 }
 ul.itemNumList li{
   display: inline-block;
-  width: 22px;
-  height: 22px;
-  line-height: 22px;
+  width: 26px;
+  height: 26px;
+  line-height: 26px;
   font-size: 12px;
-  border-radius: 11px;
+  border-radius: 15px;
   background: white;
   padding: 0;
   color: #A1A1A1;
-  margin-left: 2px;
-  margin-right: 2px;
+  margin-left: 6px;
+  margin-right: 6px;
   text-align: center;
+  cursor: pointer;
 }
 ul.itemNumList li:hover, ul.itemNumList li.active{
   background: #41C0BC;

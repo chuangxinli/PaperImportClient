@@ -134,7 +134,7 @@
 						<p class="contentTitle">{{itemData.Num}}、
 							<span v-html="itemData.Text"></span>
 							<!-- 单选题和多选题(非题组题) -->
-							<ul v-if="itemData.Type == 1 || itemData.Type == 2">
+							<ul v-if="itemData.Type == 1 || itemData.Type == 2 || itemData.Type == 5">
 								<li v-for="(option, optionIndex) in itemData.Options" :key="optionIndex" :class="option.IsRight?'redFont':''">
 									<p class="choice_one" v-html="'<span>'+optionList[optionIndex]+'：'+'</span>'+ option.Text"></p>
 								</li>
@@ -166,7 +166,7 @@
 						<el-select class="w_100 ml-10 mr-10" v-model="itemData.Type" @change="changeInputValue">
 		          <el-option v-for="item in itemTypeList" :key="item.type" :label="item.typeName" :value="item.type"></el-option>
 		        </el-select>
-		        <i class="cursor_pointer blueFont el-icon-plus" v-show="itemData.Type == 1 || itemData.Type == 2" @click="EditHtml('添加选项', '<p>选项内容</p>', 'Options', 9999)"> 添加选项</i>
+		        <i class="cursor_pointer blueFont el-icon-plus" v-show="itemData.Type == 1 || itemData.Type == 2 || itemData.Type == 5" @click="EditHtml('添加选项', '<p>选项内容</p>', 'Options', 9999)"> 添加选项</i>
 						<div class="inline_block notice"></div>
 					</div>
 					
@@ -177,7 +177,7 @@
 						<div class="inline_block notice"></div>
 					</div>
 					
-					<div class="itemSelect" v-show="itemData.Type==1 || itemData.Type==2">
+					<div class="itemSelect" v-show="itemData.Type==1 || itemData.Type==2 || itemData.Type == 5">
 						<div class="block w_50 blueFont fLeft indentTitle">试题选项</div>
 						<ul class="ChoiceBox" v-if="itemData.Options.length>0">
 							<li v-for="(option, key) in itemData.Options" :class="option.IsRight?'redFont':''">
@@ -616,7 +616,7 @@
 			},
 			setRightOrWrong(key){
 				// 设置为 '正确选项' 或者 '错误选项'
-				if(this.itemData.Type == 1){
+				if(this.itemData.Type == 1 || this.itemData.Type == 5){
           for(let i = 0, len = this.itemData.Options.length; i < len; i++){
             this.itemData.Options[i].IsRight = false
             this.$set(this.itemData.Options, i, this.itemData.Options[i])

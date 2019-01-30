@@ -49,6 +49,7 @@
           </div>
           <div v-for="titleItem in lackItem.titleArr" class="mLeft rowHeight">{{titleItem}}</div>
           <div v-for="examPointItem in lackItem.examPointsArr" class="mLeft rowHeight">{{examPointItem}}</div>
+          <div v-for="scoreItem in lackItem.scoreItemArr" class="mLeft rowHeight">{{scoreItem}}</div>
         </div>
         <p v-show="successArr.length > 0">解析成功的试卷为：</p>
         <div v-for="item,index in successArr" class="rowHeight mLeft">

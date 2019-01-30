@@ -201,7 +201,7 @@ function createWindow () {
     autoHideMenuBar: true,
     maximizable: true				// 支持最大化
   });
-  mainWindow.webContents.openDevTools()
+  //mainWindow.webContents.openDevTools()
   mainWindow.loadURL(winURL)
   /*let appPath =  path.join(__dirname, '../renderer/api/appExpress.js')
   spawn('node', [appPath])*/

@@ -51,7 +51,7 @@
 					</div>
 				</div>
 				<div class="bottomContainer">
-					<p class="top">铭仁（北京）教育科技有限公司@Copyr</p>
+					<p class="top">铭仁（北京）教育科技有限公司@Copyright2018&nbsp;&nbsp;&nbsp;&nbsp;版本号：{{version}}</p>
 					<p class="bottom">服务电话：400-0052-365</p>
 					<span style="display: none">{{version}}</span>
 				</div>

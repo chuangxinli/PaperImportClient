@@ -31,13 +31,13 @@
 				<el-table :data="paperList" stripe class="mTop20 table_self_blue">
           <el-table-column type="index" label="序号" width="50" ></el-table-column>
 					<el-table-column prop="paperId" label="ID" width="80"></el-table-column>
-          <el-table-column prop="paperName" label="试卷名称" width=""></el-table-column>
+          <el-table-column prop="paperName" label="试卷名称" width="300"></el-table-column>
           <el-table-column prop="subjectName" label="学段学科" width="100"></el-table-column>
           <el-table-column prop="materialName" label="教材版本" width="100"></el-table-column>
-          <el-table-column prop="score" label="试卷总分" width="100"></el-table-column>
-          <el-table-column prop="allNum" label="试题数量" width="100"></el-table-column>
-          <el-table-column prop="source" label="试卷来源" width="100"></el-table-column>
-          <el-table-column prop="createTime" label="上传时间" width="150">
+          <el-table-column prop="score" label="试卷总分" width="50"></el-table-column>
+          <el-table-column prop="allNum" label="试题数量" width="50"></el-table-column>
+          <el-table-column prop="source" label="试卷来源" width="120"></el-table-column>
+          <el-table-column prop="createTime" label="上传时间" width="100">
 						<template slot-scope="scope">
 							{{scope.row.createTime | formatTime('YMDHMS')}}
 						</template>

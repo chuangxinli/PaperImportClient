@@ -222,7 +222,7 @@ function dealChoice(primaryStr) {
 
 //获取题的类型   返回的是 Number
 function getItemType(primaryStr, itemTypeNum) {
-  if (primaryStr.trim().match(/^#\d+#$/) == null) {
+  if (primaryStr.match(/^#\d+#$/) == null) {
     return itemTypeNum
   } else {
     let match = primaryStr.match(/^#\d+#$/)[0]
@@ -292,7 +292,7 @@ function dealExaminationPoints(primaryStr, jsonObj, subjectAboutInfo) {
     for (let i = 0, len = ExaminationPoints.length; i < len; i++) {
       for (let j = 0, len2 = knowledgePointList.length; j < len2; j++) {
         
-        if (knowledgePointList[j].jingYouName.split('|').includes(ExaminationPoints[i])) {
+        if (knowledgePointList[j].jingYouName.replace(/\s*/g, '').split('|').includes(ExaminationPoints[i].replace(/\s*/g, ''))) {
           arr.push(knowledgePointList[j].pointId)
           ExaminationPointsName.push(knowledgePointList[j].pointName)
           break
@@ -307,9 +307,9 @@ function dealExaminationPoints(primaryStr, jsonObj, subjectAboutInfo) {
 }
 
 
-//对解析无误的jsonObj处理  (1，给小题添加Explain，Analysis，Comments，Special_topics，Examination_points   2，添加相应的rangeMin，rangeMax  3，对考点的处理  4，对必选字段的验证)
+//对解析无误的jsonObj处理  (1，给小题添加Explain，Analysis，Comments，Special_topics，Examination_points   2，添加相应的rangeMin，rangeMax  3，对考点的处理  4，对必选字段的验证 5，分数的判断)
 function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit) {
-  let materialList = [], lackJsonObj = {titleArr: [], examPointsArr: []}, hasMaterial = false
+  let materialList = [], lackJsonObj = {titleArr: [], examPointsArr: [], scoreItemArr: []}, hasMaterial = false
   for(let i = 0, len = unitAndSubUnit.length; i < len; i ++){
     if(unitAndSubUnit[i].subjectName === jsonObj.Subject){
       jsonObj.SubjectId = unitAndSubUnit[i].subjectId
@@ -319,8 +319,6 @@ function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit
     }
   }
   if(materialList.length === 0){
-    console.log('$$$$$$$$$$$$$$')
-    console.log(unitAndSubUnit)
     lackJsonObj.titleArr.push(`学段学科：${jsonObj.Subject}不和要求，匹配不到该学科`)
   }else{
     for(let i = 0, len = materialList.length; i < len; i ++){
@@ -349,7 +347,12 @@ function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit
           jsonObj.AllQuestionArr[i].question[j].Examination_points = pointsObj.arr
           jsonObj.AllQuestionArr[i].question[j].Knowledge_points = pointsObj.arr
           if(jsonObj.AllQuestionArr[i].question[j].Examination_points.length === 0){
-            lackJsonObj.examPointsArr.push(`第${jsonObj.AllQuestionArr[i].question[j].Serial_num}题的考点匹配不到，请在认真检查`)
+            lackJsonObj.examPointsArr.push(`第${jsonObj.AllQuestionArr[i].question[j].Serial_num}题的考点匹配不到，请再认真检查`)
+          }else{
+            jsonObj.AllQuestionArr[i].question[j].Knowledge_main_points = jsonObj.AllQuestionArr[i].question[j].Examination_points[0]
+          }
+          if(jsonObj.AllQuestionArr[i].question[j].Score == ''){
+            lackJsonObj.scoreItemArr.push(`第${jsonObj.AllQuestionArr[i].question[j].Serial_num}题的分值没有设置，请再认真检查`)
           }
           jsonObj.AllQuestionArr[i].question[j].ExaminationPointsName = pointsObj.ExaminationPointsName
           if(jsonObj.AllQuestionArr[i].question[j].SubQuestionList.length > 0){
@@ -363,6 +366,7 @@ function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit
               jsonObj.AllQuestionArr[i].question[j].SubQuestionList[k].Examination_points = jsonObj.AllQuestionArr[i].question[j].Examination_points
               jsonObj.AllQuestionArr[i].question[j].SubQuestionList[k].Knowledge_points = jsonObj.AllQuestionArr[i].question[j].Knowledge_points
               jsonObj.AllQuestionArr[i].question[j].SubQuestionList[k].ExaminationPointsName = jsonObj.AllQuestionArr[i].question[j].ExaminationPointsName
+              jsonObj.AllQuestionArr[i].question[j].SubQuestionList[k].Knowledge_main_points = jsonObj.AllQuestionArr[i].question[j].Knowledge_main_points
             }
           }
         }
@@ -387,7 +391,12 @@ function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit
             jsonObj.AllQuestionArr[i].children[j].question[k].Examination_points = pointsObj.arr
             jsonObj.AllQuestionArr[i].children[j].question[k].Knowledge_points = pointsObj.arr
             if(jsonObj.AllQuestionArr[i].children[j].question[k].Examination_points.length === 0){
-              lackJsonObj.examPointsArr.push(`第${jsonObj.AllQuestionArr[i].children[j].question[k].Serial_num}题的考点匹配不到，请在认真检查`)
+              lackJsonObj.examPointsArr.push(`第${jsonObj.AllQuestionArr[i].children[j].question[k].Serial_num}题的考点匹配不到，请再认真检查`)
+            }else{
+              jsonObj.AllQuestionArr[i].children[j].question[k].Knowledge_main_points = jsonObj.AllQuestionArr[i].children[j].question[k].Examination_points[0]
+            }
+            if(jsonObj.AllQuestionArr[i].children[j].question[k].Score == ''){
+              lackJsonObj.scoreItemArr.push(`第${jsonObj.AllQuestionArr[i].children[j].question[k].Serial_num}题的分值没有设置，请再认真检查`)
             }
             jsonObj.AllQuestionArr[i].children[j].question[k].ExaminationPointsName = pointsObj.ExaminationPointsName
             if(jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList.length > 0){
@@ -401,6 +410,7 @@ function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit
                 jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].Examination_points = jsonObj.AllQuestionArr[i].children[j].question[k].Examination_points
                 jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].Knowledge_points = jsonObj.AllQuestionArr[i].children[j].question[k].Knowledge_points
                 jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].ExaminationPointsName = jsonObj.AllQuestionArr[i].children[j].question[k].ExaminationPointsName
+                jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].Knowledge_main_points = jsonObj.AllQuestionArr[i].children[j].question[k].Knowledge_main_points
               }
             }
           }
@@ -410,32 +420,33 @@ function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit
   }
   if(!/[^@%&\*~#!`\?\/\\\^\$￥？\|]/.test(jsonObj.Title)){
     let str = '`'
-    lackJsonObj.titleArr.push(`试卷名称：${jsonObj.Title}不和要求，不能出现@，#，￥，%，$，&，~，！，?，？，*，\，/，|，${str}这些特殊字符！`)
+    lackJsonObj.titleArr.push(`试卷名称：${jsonObj.Title}不合要求，不能出现@，#，￥，%，$，&，~，！，?，？，*，\，/，|，${str}这些特殊字符！`)
   }
   if(!jsonObj.Term){
-    lackJsonObj.titleArr.push(`适用学期：${jsonObj.Term}不和要求，不能为空`)
+    lackJsonObj.titleArr.push(`适用学期：${jsonObj.Term}不合要求，不能为空`)
   }
   if(jsonObj.Papertype !== '套卷'){
-    lackJsonObj.titleArr.push(`试卷类型：${jsonObj.Papertype}不和要求，只能为套卷`)
+    lackJsonObj.titleArr.push(`试卷类型：${jsonObj.Papertype}不合要求，只能为套卷`)
   }
   if(/^\s*\d(\.\d+)?/.test(jsonObj.Division)){
     if(!(jsonObj.Division < 1 && jsonObj.Division > 0)){
-      lackJsonObj.titleArr.push(`区分度：${jsonObj.Division}不和要求，应为0到1数值`)
+      lackJsonObj.titleArr.push(`区分度：${jsonObj.Division}不合要求，应为0到1数值`)
     }
   }else{
-    lackJsonObj.titleArr.push(`区分度：${jsonObj.Division}不和要求，应为0到1数值`)
+    lackJsonObj.titleArr.push(`区分度：${jsonObj.Division}不合要求，应为0到1数值`)
   }
   if(!/^\s*\d+\s*$/.test(jsonObj.DiffcultyType)){
-    lackJsonObj.titleArr.push(`难度方案：${jsonObj.DiffcultyType}不和要求，应为整数值`)
+    lackJsonObj.titleArr.push(`难度方案：${jsonObj.DiffcultyType}不合要求，应为整数值`)
   }
-  if(/^\s*\d(\.\d+)?/.test(jsonObj.Difficulty)){
+  //难度不做匹配了
+  /*if(/^\s*\d(\.\d+)?/.test(jsonObj.Difficulty)){
     if(!(jsonObj.Difficulty < 1 && jsonObj.Difficulty > 0)){
-      lackJsonObj.titleArr.push(`难度：${jsonObj.Difficulty}不和要求，应为0到1数值`)
+      lackJsonObj.titleArr.push(`难度：${jsonObj.Difficulty}不合要求，应为0到1数值`)
     }
   }else{
-    lackJsonObj.titleArr.push(`难度：${jsonObj.Difficulty}不和要求，应为0到1的数值`)
-  }
-  if(lackJsonObj.titleArr.length > 0 || lackJsonObj.examPointsArr.length > 0){
+    lackJsonObj.titleArr.push(`难度：${jsonObj.Difficulty}不合要求，应为0到1的数值`)
+  }*/
+  if(lackJsonObj.titleArr.length > 0 || lackJsonObj.examPointsArr.length > 0 || lackJsonObj.scoreItemArr.length > 0){
     lackJsonObj.fileName = jsonObj.fileName
   }
   if(lackJsonObj.fileName){
@@ -550,8 +561,8 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
           continue
         }
         //处理题的类型
-        if (/^\s*#\d+#$/.test(primaryStr)) {
-          itemTypeNum = getItemType(primaryStr, itemTypeNum)
+        if (/^#\d+#$/.test(primaryStr.trim())) {
+          itemTypeNum = getItemType(primaryStr.trim(), itemTypeNum)
           continue
         }
         if ($(document.body).children()[i].tagName.toLowerCase() == 'p' || $(document.body).children()[i].tagName.toLowerCase() == 'table') {

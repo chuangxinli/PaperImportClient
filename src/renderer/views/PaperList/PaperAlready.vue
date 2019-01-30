@@ -87,8 +87,7 @@
 							</div>
 							<div v-show="question.subQuestionList && question.subQuestionList.length > 0" class="sub">
 								<div v-for="subQuestion,subIndex in question.subQuestionList">
-									<div class="subText" v-html="(subQuestion.serial_num
- ? subQuestion.serial_num : '(' + (subIndex + 1) + ')')  + ' ' + (subQuestion.score ? '（' + subQuestion.score + '分）' : '') + global.formatFirstPToSpan(subQuestion.text)">
+									<div class="subText" v-html="global.formatFirstPToSpan(subQuestion.text)">
 									</div>
 									<div v-if="subQuestion.qType == 1 || subQuestion.qType == 2 | subQuestion.qType == 5" class="subQuestion">
 										<div class="options" v-for="option in subQuestion.answerList">
@@ -143,7 +142,7 @@
 								<div v-show="question.subQuestionList && question.subQuestionList.length > 0" class="sub">
 									<div v-for="subQuestion,subIndex in question.subQuestionList">
 										<div class="subText"
-												 v-html="(subQuestion.serial_num ? subQuestion.serial_num : '(' + (subIndex + 1) + ')') + ' ' + (subQuestion.score ? '（' + subQuestion.score + '分）' : '') + global.formatFirstPToSpan(subQuestion.text)">
+												 v-html="global.formatFirstPToSpan(subQuestion.text)">
 										</div>
 										<div v-if="subQuestion.qType == 1 || subQuestion.qType == 2 || subQuestion.qType == 5" class="subQuestion">
 											<div class="options" v-for="option in subQuestion.answerList">

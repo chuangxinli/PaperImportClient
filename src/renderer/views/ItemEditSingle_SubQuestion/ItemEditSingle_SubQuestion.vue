@@ -66,7 +66,7 @@
 						  </div>
 						  
 						  <div class="itemSelect">
-								<div class="inline_block w_50">答题时间</div>
+								<div class="inline_block w_50">答题时间(分钟)</div>
 							  <el-input class="w_100 input-search-self"
 									placeholder="答题时间"
 								  prefix-icon="el-icon-edit"
@@ -124,7 +124,7 @@
 					<img class="ipadFram" src="../../assets/images/ipad.png"/>
 					<div class="itemContentBox">
 						<!-- 题干信息 -->
-						<p class="contentTitle">{{itemData.Serial_num}}、
+						<p class="contentTitle">({{itemData.Combination_index}})、
 							<span v-html="itemData.Text"></span>
 							<!-- 单选题和多选题(非题组题) -->
 							<ul v-if="itemData.Type == 1 || itemData.Type == 2 || itemData.Type == 5">
@@ -374,6 +374,7 @@
 			this.initSubItemList();																			// 初始化小题列表
 			
 			this.initStaticData(this.paperData.SubjectId, this.paperData.MaterialId, this.paperData.SubjectCode);
+			console.log(this.itemData)
 		},
 		methods: {
 			// 初始化 题目数据

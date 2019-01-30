@@ -73,7 +73,7 @@
 						  </div>
 						  
 						  <div class="itemSelect">
-								<div class="inline_block w_50">答题时间</div>
+								<div class="inline_block w_50">答题时间(分钟)</div>
 							  <el-input class="w_100 input-search-self"
 									placeholder="答题时间"
 								  prefix-icon="el-icon-edit"
@@ -382,6 +382,7 @@
 			this.paperData = JSON.parse(this.getLocal('paperData'));
 			this.initItemList();
 			this.initStaticData(this.paperData.SubjectId, this.paperData.MaterialId, this.paperData.SubjectCode);
+      console.log(this.itemData)
 		},
 		methods: {
 			// 初始化 题目数据

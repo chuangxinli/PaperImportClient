@@ -84,12 +84,14 @@
 				//alert(this.version)
         /*writeFile.sync(path.join(__dirname, '../../api/uploads/subjectAboutInfo.json'), JSON.stringify(this.subjectAboutInfo))
         writeFile.sync(path.join(__dirname, '../../api/uploads/unitAndSubUnit.json'), JSON.stringify(this.unitAndSubUnit))*/
-        setTimeout(() => {
-          ipcRenderer.send('startServe', '111', this.oldSessionUser)
-				}, 4000)
-        this.$router.push({
-          path: '/Main'
-        })
+        if(!this.serving){
+          setTimeout(() => {
+            ipcRenderer.send('startServe', '111', this.oldSessionUser)
+          }, 4000)
+          this.$router.push({
+            path: '/Main'
+          })
+				}
       }
 		},
 		props: {
@@ -112,10 +114,12 @@
 				newVersion: '',
 				tempVersion: '',
 				jsonData: '',
-				oldSessionUser: ''
+				oldSessionUser: '',
+				serving: true
       };
     },
     mounted() {
+      this.getHello()
 	    console.log(this.getCookie())
 	    this.oldSessionUser = this.getSession('account')
 	    console.log(this.unitAndSubUnit)
@@ -167,6 +171,22 @@
 	      	console.log(data);
 	        this.$message.error(data.errmsg);
 	      }
+			},
+			getHello(){
+    	  let url = 'http://localhost:13004/hello'
+				axios.get(
+					url,
+					{
+					  timeout: 2000
+					}
+				).then((response) => {
+    	    console.log(response)
+					if(!response){
+    	      this.serving = false
+					}
+				}).catch((err) => {
+    	    console.log(err)
+				})
 			},
       getSubjectAboutInfo() {
         let url = '/paper/baseData/getSubjectAboutInfo'
@@ -242,7 +262,9 @@
 							console.log(err)
             })
 					}else{
-					  ipcRenderer.send('startServe', '222', this.oldSessionUser)
+					  if(!this.serving){
+              ipcRenderer.send('startServe', '222', this.oldSessionUser)
+						}
             this.$router.push({
               path: '/Main'
             })

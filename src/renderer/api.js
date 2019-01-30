@@ -80,62 +80,6 @@ function checkCode(res) {
     return ''
   }
 }
-/*export default {
-  post(url, data, obj) {
-    if (obj instanceof Object) {
-      obj_options = obj
-    }
-    if (obj_options instanceof Object && obj_options.baseUrl) {
-      return axios({
-        method: 'post',
-        url,
-        baseURL: obj_options.baseUrl,
-        data: qs.stringify(data),
-        timeout: 30000,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-        }
-      }).then(checkStatus).then(checkCode)
-    } else {
-      return axios({
-        method: 'post',
-        url,
-        data: data,
-        timeout: 30000,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-        }
-      }).then(checkStatus).then(checkCode)
-    }
-  },
-  get(url, params, obj) {
-    if (obj instanceof Object) {
-      obj_options = obj
-    }
-    if (obj_options instanceof Object && obj_options.baseUrl) {
-      return axios({
-        method: 'get',
-        url,
-        baseURL: obj_options.baseUrl,
-        params,
-        timeout: 3000,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-        }
-      }).then(checkStatus).then(checkCode)
-    } else {
-      return axios({
-        method: 'get',
-        url,
-        params,
-        timeout: 3000,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-        }
-      }).then(checkStatus).then(checkCode)
-    }
-  }
-}*/
 export default {
   post(url, data, obj) {
     if (obj instanceof Object) {

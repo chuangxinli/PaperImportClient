@@ -82,28 +82,13 @@ function getItemNum(primaryStr) {
   }
 }
 
-//获取小题的题号
-function getSubItemNum(primaryStr) {
-  let reg = /^\s*(\(|（)\d+((\.|。|．|-|_)\d+)?\s*(\)|）)\s*/
-  if (primaryStr.match(reg) == null) {
-    return ''
-  } else {
-    let matchStr = primaryStr.match(reg)[0]
-    return matchStr
-  }
-}
-
 //获取小题的分数
 function getSubScore(primaryStr) {
-  let reg = /^(\s*(\(|（)\d+((\.|。|．|-|_)\d+)?\s*(\)|）)\s*)(\s*(\(|（)\s*(\d|\d+(\.|。|．)\d+)\s*分\s*(\)|）))/
+  let reg = /(\s*(\(|（)\s*(\d|\d+(\.|。|．)\d+)\s*分\s*(\)|）))/
   let score = ''
   if (reg.test(primaryStr)) {
-    //获取小题的题号 如 (1)
-    let num = getSubItemNum(primaryStr)
     //获取小题的题号和分值  如 (1)(5分)
     let matchStr = primaryStr.match(reg)[0];
-    matchStr = matchStr.split(num)[1]
-    matchStr = matchStr.replace(/\s*/g, '').replace(/(。|．)/g, '.');
     score = matchStr.slice(1, matchStr.length - 2)
   }
   return score
@@ -111,12 +96,12 @@ function getSubScore(primaryStr) {
 
 //获取小题的题干信息
 function getSubItemDes(primaryStr) {
-  let reg = /^(\s*(\(|（)\d+((\.|。|．|-|_)\d+)?\s*(\)|）)\s*)(\s*(\(|（)\s*(\d|\d+(\.|。|．)\d+)\s*分\s*(\)|）))?/
-  if (primaryStr.match(reg)) {
-    return primaryStr.replace(reg, '').trim()
-  } else {
-    return ''
+  let reg = /(\s*(\(|（)\s*(\d|\d+(\.|。|．)\d+)\s*分\s*(\)|）))/
+  let matchStr = primaryStr.match(reg)
+  if(matchStr){
+    primaryStr = primaryStr.replace(reg, '')
   }
+  return primaryStr
 }
 
 //获取题干信息
@@ -232,14 +217,26 @@ function getItemType(primaryStr, itemTypeNum) {
 
 //去掉题干或者选项中的正确答案 (英语专用)
 function filterAnswer(primaryStr) {
-  return primaryStr.replace(/<u>\s*[A-Za-z]\s*<\/u>/g, '<u>&nbsp;&nbsp;&nbsp;&nbsp;</u>')
+  let matchStr = primaryStr.match(/<u>.*?<\/u>/g)
+  if(matchStr){
+    for(let i = 0, len = matchStr.length; i < len; i++){
+      let str = '<u>'
+      if(matchStr[i].includes('<img')){
+        str = str + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+      }else{
+        for(let j = 0, len2 = matchStr[i].length; j < len2; j++){
+          str = str + '&nbsp'
+        }
+        str = str + '</u>'
+      }
+      primaryStr = primaryStr.replace(matchStr[i], str)
+    }
+  }
+  return primaryStr
 }
 
 //对题干断行的处理
-function dealItem(item, jsonObj, primaryStr, removeAnswer) {
-  if(removeAnswer){
-    primaryStr = primaryStr.replace(/<u>[^<]*<\/u>/g, '<u>&nbsp;&nbsp;&nbsp;&nbsp;</u>')
-  }
+function dealItem(item, jsonObj, primaryStr) {
   if (item == 'Item') {
     if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '0') {
       let qLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question.length
@@ -339,7 +336,9 @@ function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit
         jsonObj.AllQuestionArr[i].rangeMax = qIndex + qLength - 1
         qIndex += qLength
         for(let j = 0; j < qLength; j ++){
-
+          if(jsonObj.AllQuestionArr[i].question[j].removeAnswer){
+            jsonObj.AllQuestionArr[i].question[j].Text = filterAnswer(jsonObj.AllQuestionArr[i].question[j].Text)
+          }
           if(!jsonObj.AllQuestionArr[i].question[j].Score){
             jsonObj.lackScoreArr.push(jsonObj.AllQuestionArr[i].question[j].Serial_num)
           }
@@ -358,6 +357,9 @@ function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit
           if(jsonObj.AllQuestionArr[i].question[j].SubQuestionList.length > 0){
             let subQLength = jsonObj.AllQuestionArr[i].question[j].SubQuestionList.length
             for(let k = 0; k < subQLength; k ++){
+              if(jsonObj.AllQuestionArr[i].question[j].SubQuestionList[k].removeAnswer){
+                jsonObj.AllQuestionArr[i].question[j].SubQuestionList[k].Text = filterAnswer(jsonObj.AllQuestionArr[i].question[j].SubQuestionList[k].Text)
+              }
               jsonObj.AllQuestionArr[i].question[j].SubQuestionList[k].Combination_index = k + 1
               jsonObj.AllQuestionArr[i].question[j].SubQuestionList[k].Explain = jsonObj.AllQuestionArr[i].question[j].Explain
               jsonObj.AllQuestionArr[i].question[j].SubQuestionList[k].Analysis = jsonObj.AllQuestionArr[i].question[j].Analysis
@@ -384,6 +386,9 @@ function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit
           jsonObj.AllQuestionArr[i].children[j].rangeMax = qIndex + qLength - 1
           qIndex += qLength
           for(let k = 0; k < qLength; k ++){
+            if(jsonObj.AllQuestionArr[i].children[j].question[k].removeAnswer){
+              jsonObj.AllQuestionArr[i].children[j].question[k].Text = filterAnswer(jsonObj.AllQuestionArr[i].children[j].question[k].Text)
+            }
             if(!jsonObj.AllQuestionArr[i].children[j].question[k].Score){
               jsonObj.lackScoreArr.push(jsonObj.AllQuestionArr[i].children[j].question[k].Serial_num)
             }
@@ -402,6 +407,9 @@ function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit
             if(jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList.length > 0){
               let subQLength = jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList.length
               for(let m = 0; m < subQLength; m ++){
+                if(jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].removeAnswer){
+                  jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].Text = filterAnswer(jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].Text)
+                }
                 jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].Combination_index = m + 1
                 jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].Explain= jsonObj.AllQuestionArr[i].children[j].question[k].Explain
                 jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].Analysis = jsonObj.AllQuestionArr[i].children[j].question[k].Analysis
@@ -501,7 +509,7 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
     let hasSubItem = false  //是否是题组题
     let curItemProperty = '' //分为 choice Examination_points Special_topics Explain Analysis Comments SubItem Item
     let curLabel = 'p'  //当前的标签
-    let removeAnswer = false //是否去除下划线上的文字
+    let removeAnswer = true //是否去除下划线上的文字
     let options = false //处理table中是选择题选项的特殊情况
     let OptionalFlag = false //是否是选做题
     mammoth.convertToHtml({path: docxArr[i]}, {
@@ -521,12 +529,8 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
       let window = document.defaultView;
       let $ = require('jquery')(window);
       for (let i = 0, len = $(document.body).children().length; i < len; i++) {
-        if (jsonObj.Subject.includes('英语')) {
-          primaryStr = filterAnswer($(document.body).children()[i].innerHTML)
-        } else {
-          primaryStr = $(document.body).children()[i].innerHTML
-        }
-        primaryStr = primaryStr.replace(/(菁优网版权所有)|(菁优网：http:\/\/www\.jyeoo\.com)|(菁优网)|(http:\/\/www\.jyeoo\.com)/g, '').replace(/<u>\s*<\/u>/g, '<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>')
+        primaryStr = $(document.body).children()[i].innerHTML
+        primaryStr = primaryStr.replace(/(菁优网版权所有)|(菁优网：http:\/\/www\.jyeoo\.com)|(菁优网)|(http:\/\/www\.jyeoo\.com)/g, '')
         //整行为空时跳过
         if (!primaryStr) {
           continue
@@ -537,11 +541,11 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
           break
         }
         if(/^\s*#underline#$/.test(primaryStr)){
-          removeAnswer = true
+          removeAnswer = false
           continue
         }
         if(/^\s*#\/underline#/.test(primaryStr)){
-          removeAnswer = false
+          removeAnswer = true
           continue
         }
         if(/^\s*#options#/.test(primaryStr)){
@@ -708,9 +712,9 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
                 let value = '<p>' + primaryStr + '</p>'
                 dealProperty(jsonObj, curItemProperty, value, true)
               } else if (curItemProperty == 'Item') {
-                dealItem('Item', jsonObj, primaryStr, removeAnswer)
+                dealItem('Item', jsonObj, primaryStr)
               } else if (curItemProperty == 'SubItem') {
-                dealItem('SubItem', jsonObj, primaryStr, removeAnswer)
+                dealItem('SubItem', jsonObj, primaryStr)
               }
             }
           }
@@ -778,11 +782,12 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
                 Thoughtway: [],
                 Examination_points: '',
                 From: jsonObj.Papersource,
-                IsCombination: 0,
+                IsCombination: '0',
                 SubQuestionList: [],
                 Knowledge_main_points: '',
                 UseTag: '',
-                OptionalFlag
+                OptionalFlag,
+                removeAnswer
               }
               if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '0') {
                 jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question.push(itemObj)
@@ -803,61 +808,51 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
           } else {
             //处理题组题的小题
             curItemProperty = 'SubItem'
-            if (getSubItemNum(primaryStr)) {
-              let subItemObj = {
-                Question_Id: '',
-                Num: '',
-                Serial_num: getSubItemNum(primaryStr),
-                Fid: '',
-                Score: getSubScore(primaryStr),
-                Type: itemTypeNum,
-                Core: jsonObj.Core,
-                Synchronization: jsonObj.Synchronization,
-                Douthree: jsonObj.Douthree,
-                Hide: jsonObj.IsHide,
-                Correct: jsonObj.IsTrue,
-                Checnote: '',
-                Text: getSubItemDes(primaryStr) ? '<p>' + getSubItemDes(primaryStr) + '</p>' : '',
-                Options: [],
-                Knowledge_points: [],
-                Explain: '',
-                Analysis: '',
-                Answer: '',
-                Comments: '',
-                Division: jsonObj.Division,
-                Difficulty: jsonObj.Difficulty,
-                Spenttime: jsonObj.Spenttime,
-                Special_topics: '',
-                Ability: [],
-                Thoughtway: [],
-                Examination_points: '',
-                From: jsonObj.Papersource,
-                IsCombination: 0,
-                SubQuestionList: [],
-                Knowledge_main_points: '',
-                UseTag: '',
-                Combination_index: '',
-                OptionalFlag
-              }
-              if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '0') {
-                let qLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question.length
-                jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question[qLength - 1].SubQuestionList.push(subItemObj)
-              } else if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '1') {
-                let briefLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].children.length
-                let qLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].children[briefLength - 1].question.length
-                jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].children[briefLength - 1].question[qLength - 1].SubQuestionList.push(subItemObj)
-              }
-            } else {
-              if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '0') {
-                let qLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question.length
-                let subQuestionLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question[qLength - 1].SubQuestionList.length
-                jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question[qLength - 1].SubQuestionList[subQuestionLength - 1].Text += '<p>' + primaryStr + '</p>'
-              } else if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '1') {
-                let briefLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].children.length
-                let qLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].children[briefLength - 1].question.length
-                let subQuestionLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].children[briefLength - 1].question[qLength - 1].SubQuestionList.length
-                jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].children[briefLength - 1].question[qLength - 1].SubQuestionList[subQuestionLength - 1].Text += '<p>' + primaryStr + '</p>'
-              }
+            let subItemObj = {
+              Question_Id: '',
+              Num: '',
+              Serial_num: '',
+              Fid: '',
+              Score: getSubScore(primaryStr),
+              Type: itemTypeNum,
+              Core: jsonObj.Core,
+              Synchronization: jsonObj.Synchronization,
+              Douthree: jsonObj.Douthree,
+              Hide: jsonObj.IsHide,
+              Correct: jsonObj.IsTrue,
+              Checnote: '',
+              Text: getSubItemDes(primaryStr),
+              Options: [],
+              Knowledge_points: [],
+              Explain: '',
+              Analysis: '',
+              Answer: '',
+              Comments: '',
+              Division: jsonObj.Division,
+              Difficulty: jsonObj.Difficulty,
+              Spenttime: jsonObj.Spenttime,
+              Special_topics: '',
+              Ability: [],
+              Thoughtway: [],
+              Examination_points: '',
+              From: jsonObj.Papersource,
+              IsCombination: '0',
+              SubQuestionList: [],
+              Knowledge_main_points: '',
+              UseTag: '',
+              Combination_index: '',
+              OptionalFlag,
+              removeAnswer
+            }
+            if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '0') {
+              let qLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question.length
+              subItemObj.Serial_num = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question[qLength - 1].Serial_num + '-' + (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question[qLength - 1].SubQuestionList.length + 1)
+              jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question[qLength - 1].SubQuestionList.push(subItemObj)
+            } else if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '1') {
+              let briefLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].children.length
+              let qLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].children[briefLength - 1].question.length
+              subItemObj.Serial_num = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].children[briefLength - 1].question[qLength - 1].Serial_num + '-' + (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].children[briefLength - 1].question[qLength - 1].SubQuestionList.length + 1)
+              jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].children[briefLength - 1].question[qLength - 1].SubQuestionList.push(subItemObj)
             }
           }
           curLabel = 'h4'
@@ -895,11 +890,12 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
               Examination_points: '',
               From: jsonObj.Papersource,
               //为题组题所添加的属性
-              IsCombination: 1,
+              IsCombination: '1',
               SubQuestionList: [],
               Knowledge_main_points: '',
               UseTag: '',
-              OptionalFlag
+              OptionalFlag,
+              removeAnswer
             }
             if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '0') {
               jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question.push(itemObj)

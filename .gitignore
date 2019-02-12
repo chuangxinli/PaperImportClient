@@ -4,9 +4,9 @@ dist/electron/*
 dist/web/*
 src/renderer/api/fileOfJsonAndHtml/
 src/renderer/api/json/*
-src/renderer/api/static/
 src/renderer/api/errJson/
-src/renderer/api/uploads/
+uploads/*
+public/*
 build/*
 !build/icons
 node_modules/

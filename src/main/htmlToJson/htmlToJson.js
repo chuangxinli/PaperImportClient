@@ -7,11 +7,11 @@ const fs = require('fs');
 //const unitAndSubUnit = require('../json/unitAndSubUnit.json').unitAndSubUnit
 //const subjectAboutInfo = store.state.Version.subjectAboutInfo
 //const unitAndSubUnit = store.state.Version.unitAndSubUnit
-let subjectAboutInfo = {}
-let unitAndSubUnit = {}
 
 
 let choiceList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+
+let properTyList = ['Examination_points', 'Special_topics', 'Explain', 'Analysis', 'Comments']
 
 //处理空格
 function dealSpace(str) {
@@ -232,7 +232,7 @@ function filterAnswer(primaryStr) {
       primaryStr = primaryStr.replace(matchStr[i], str)
     }
   }
-  return primaryStr
+  return primaryStr.replace(/<sub>(&nbsp|\s)*<u>(&nbsp|\s)*<\/u>(&nbsp|\s)*?<\/sub>/gi, '').replace(/<sup>(&nbsp|\s)*<u>(&nbsp|\s)*<\/u>(&nbsp|\s)*?<\/sup>/gi, '')
 }
 
 //对题干断行的处理
@@ -666,7 +666,7 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
             }
           } else {
             if (itemTypeNum == 1 || itemTypeNum == 2 || itemTypeNum == 5) {
-              if (judgeIsOption(primaryStr)) {
+              if (judgeIsOption(primaryStr) && !properTyList.includes(curItemProperty)) {
                 curItemProperty = 'choice'
                 dealOptions(jsonObj, primaryStr, hasSubItem)
                 continue

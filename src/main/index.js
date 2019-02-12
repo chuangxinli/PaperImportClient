@@ -4,7 +4,6 @@ import {
   ipcMain
 } from 'electron'
 
-const path = require('path')
 //const {exec, spawn} = require('child_process')
 
 import store from '../renderer/store'
@@ -39,7 +38,7 @@ function startSever(subjectAboutInfo, unitAndSubUnit) {
   }
   const myEmitter = new MyEmitter()
 
-  let printJson = false
+  let printJson = false  //查看json和html文件自己做测试时可以把printJson改为true,其他情况就为false
 
   let deleteFolder = function(path) {
     let files = [];
@@ -104,12 +103,11 @@ function startSever(subjectAboutInfo, unitAndSubUnit) {
 
   appExpress.use(bodyParser.urlencoded({extended: false}))
 
-  appExpress.post('/word-to-json', function (req, res) {
-    htmlToJson(res, req.body.docxList, myEmitter)
-  })
-
-  appExpress.get('/hello', function (req, res) {
-    res.send('hello！')
+  appExpress.get('/test', function (req, res) {
+    res.send({
+      recode: 1,
+      msg: 'success'
+    })
   })
 
   appExpress.post('/word-to-json-2', multer({
@@ -117,11 +115,11 @@ function startSever(subjectAboutInfo, unitAndSubUnit) {
   }).array('file', 6), function (req, res, next) {
     let time = new Date().getTime()
     try{
-      fs.accessSync('./static',fs.F_OK)
+      fs.accessSync('./public',fs.F_OK)
     }catch (e){
-      fs.mkdirSync('./static')
+      fs.mkdirSync('./public')
     }
-    fs.mkdirSync('./static/' + time)
+    fs.mkdirSync('./public/' + time)
     let files = req.files;
     console.log(files)
     if (files.length === 0) {
@@ -134,14 +132,14 @@ function startSever(subjectAboutInfo, unitAndSubUnit) {
         let fileInfo = {};
 
 
-        fs.renameSync('./uploads/' + file.filename, './static/' + time + '/' + file.originalname);//这里修改文件名。
+        fs.renameSync('./uploads/' + file.filename, './public/' + time + '/' + file.originalname);//这里修改文件名。
         //fs.unlinkSync('./uploads/' + file.filename)
         //获取文件基本信息
         fileInfo.mimetype = file.mimetype;
         fileInfo.originalname = file.originalname;
         fileInfo.size = file.size;
-        fileInfo.path = './static/' + time + '/' + file.originalname;
-        fileInfo.dir = './static/' + time + '/';
+        fileInfo.path = './public/' + time + '/' + file.originalname;
+        fileInfo.dir = './public/' + time + '/';
 
         fileInfos.push(fileInfo);
       }
@@ -156,33 +154,6 @@ function startSever(subjectAboutInfo, unitAndSubUnit) {
 
   appExpress.listen(13004)
   console.log('13004 success')
-}
-
-function killPort() {
-  const cmd = process.platform == 'win32' ? 'netstat -ano' : 'ps aux'
-  const exec = require('child_process').exec
-  const port = '3004';
-
-  exec(cmd, function(err, stdout, stderr) {
-    if(err){
-      return console.log(err)
-    }
-    stdout.split('\n').filter(function(line){
-      let p = line.trim().split(/\s+/)
-      let address = p[1]
-      if(address != undefined){
-        if(address.split(':')[1] == port)
-        {
-          exec('taskkill /F /T /pid ' + p[4], function(err, stdout, stderr){
-            if(err){
-              return console.log('释放指定端口失败！！')
-            }
-            console.log('占用指定端口的程序被成功杀掉！')
-          })
-        }
-      }
-    })
-  })
 }
 
 function createWindow () {
@@ -208,8 +179,6 @@ function createWindow () {
   ipcMain.on('startServe',function (e, arg, user) {
     console.log('arg:',arg)
     console.log('user:',user)
-    //require('../renderer/api/appExpress.js')
-    //killPort()
     if(!user){
       startSever(store.state.Version.subjectAboutInfo, store.state.Version.unitAndSubUnit)
     }

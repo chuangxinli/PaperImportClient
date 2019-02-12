@@ -31,7 +31,7 @@
 				<el-table :data="paperList" stripe class="mTop20 table_self_blue">
           <el-table-column type="index" label="序号" width="50" ></el-table-column>
 					<el-table-column prop="paperId" label="ID" width="80"></el-table-column>
-          <el-table-column prop="paperName" label="试卷名称" width="300"></el-table-column>
+          <el-table-column prop="paperName" label="试卷名称" width=""></el-table-column>
           <el-table-column prop="subjectName" label="学段学科" width="100"></el-table-column>
           <el-table-column prop="materialName" label="教材版本" width="100"></el-table-column>
           <el-table-column prop="score" label="试卷总分" width="50"></el-table-column>

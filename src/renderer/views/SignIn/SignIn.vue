@@ -62,10 +62,8 @@
 
 <script>
 	import axios from 'axios'
-	const {BrowserWindow, ipcRenderer} = require('electron')
+	const {ipcRenderer} = require('electron')
 	import { Message } from 'element-ui'
-	const writeFile = require('write')
-	const path = require('path')
 	export default {
 	  computed: {
 	    version() {
@@ -81,9 +79,6 @@
 		},
 		watch: {
       version: function () {
-				//alert(this.version)
-        /*writeFile.sync(path.join(__dirname, '../../api/uploads/subjectAboutInfo.json'), JSON.stringify(this.subjectAboutInfo))
-        writeFile.sync(path.join(__dirname, '../../api/uploads/unitAndSubUnit.json'), JSON.stringify(this.unitAndSubUnit))*/
         if(!this.serving){
           setTimeout(() => {
             ipcRenderer.send('startServe', '111', this.oldSessionUser)
@@ -119,8 +114,7 @@
       };
     },
     mounted() {
-      this.getHello()
-	    console.log(this.getCookie())
+      this.test()
 	    this.oldSessionUser = this.getSession('account')
 	    console.log(this.unitAndSubUnit)
 			console.log(this.subjectAboutInfo)
@@ -172,12 +166,14 @@
 	        this.$message.error(data.errmsg);
 	      }
 			},
-			getHello(){
-    	  let url = 'http://localhost:13004/hello'
+			test(){
+    	  let url = 'http://localhost:13004/test'
 				axios.get(
 					url,
 					{
-					  timeout: 2000
+					  timeout: 2000,
+            withCredentials: false,
+						headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
 					}
 				).then((response) => {
     	    console.log(response)

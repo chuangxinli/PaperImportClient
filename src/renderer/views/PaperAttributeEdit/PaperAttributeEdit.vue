@@ -557,14 +557,14 @@
 			      for(let j = 0; j < qLength; j++){
 			        this.paperData.AllQuestionArr[i].question[j].Synchronization = this.paperData.Synchronization
               this.paperData.AllQuestionArr[i].question[j].Douthree = this.paperData.Douthree
-              this.paperData.AllQuestionArr[i].question[j].Hide = this.paperData.Hide
+              this.paperData.AllQuestionArr[i].question[j].Hide = this.paperData.IsHide
               this.paperData.AllQuestionArr[i].question[j].Core = this.paperData.Core
 							if(this.paperData.AllQuestionArr[i].question[j].SubQuestionList.length > 0){
 			          let subQLength = this.paperData.AllQuestionArr[i].question[j].SubQuestionList.length
 								for(let k = 0; k < subQLength; k ++){
                   this.paperData.AllQuestionArr[i].question[j].SubQuestionList[k].Synchronization = this.paperData.Synchronization
                   this.paperData.AllQuestionArr[i].question[j].SubQuestionList[k].Douthree = this.paperData.Douthree
-                  this.paperData.AllQuestionArr[i].question[j].SubQuestionList[k].Hide = this.paperData.Hide
+                  this.paperData.AllQuestionArr[i].question[j].SubQuestionList[k].Hide = this.paperData.IsHide
                   this.paperData.AllQuestionArr[i].question[j].SubQuestionList[k].Core = this.paperData.Core
 								}
 							}
@@ -576,14 +576,14 @@
 							for(let k = 0; k < qLength; k++){
                 this.paperData.AllQuestionArr[i].children[j].question[k].Synchronization = this.paperData.Synchronization
                 this.paperData.AllQuestionArr[i].children[j].question[k].Douthree = this.paperData.Douthree
-                this.paperData.AllQuestionArr[i].children[j].question[k].Hide = this.paperData.Hide
+                this.paperData.AllQuestionArr[i].children[j].question[k].Hide = this.paperData.IsHide
                 this.paperData.AllQuestionArr[i].children[j].question[k].Core = this.paperData.Core
 								if(this.paperData.AllQuestionArr[i].children[j].question[k].SubQuestionList.length > 0){
                   let subQLength = this.paperData.AllQuestionArr[i].children[j].question[k].SubQuestionList.length
 									for(let p = 0; p < subQLength; p ++){
                     this.paperData.AllQuestionArr[i].children[j].question[k].SubQuestionList[p].Synchronization = this.paperData.Synchronization
                     this.paperData.AllQuestionArr[i].children[j].question[k].SubQuestionList[p].Douthree = this.paperData.Douthree
-                    this.paperData.AllQuestionArr[i].children[j].question[k].SubQuestionList[p].Hide = this.paperData.Hide
+                    this.paperData.AllQuestionArr[i].children[j].question[k].SubQuestionList[p].Hide = this.paperData.IsHide
                     this.paperData.AllQuestionArr[i].children[j].question[k].SubQuestionList[p].Core = this.paperData.Core
 									}
 								}

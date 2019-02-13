@@ -3,8 +3,13 @@ import {
   BrowserWindow,
   ipcMain
 } from 'electron'
+import global from '../renderer/global.js'
+import axios from 'axios'
+axios.defaults.withCredentials = true
+axios.defaults.headers =  {
+  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+}
 
-//const {exec, spawn} = require('child_process')
 
 import store from '../renderer/store'
 
@@ -147,8 +152,7 @@ function startSever(subjectAboutInfo, unitAndSubUnit) {
       // 设置响应类型及编码
       /*res.set({
        'content-type': 'application/json; charset=utf-8'
-       });
-       res.end("success!");*/
+       });*/
     }
   })
 
@@ -190,11 +194,22 @@ function createWindow () {
 
 app.on('ready', createWindow)
 
+function logout() {
+  axios.get(
+    global.api_url + '/paper/system/logout'
+  ).then( res => {
+    if(res.data.recode == 0){
+      console.log('logout success!')
+      if (process.platform !== 'darwin') {
+        app.quit()
+      }
+    }
+  }).catch( err => {
+    console.log(err)
+  })
+}
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-
-  }
+  logout()
 })
 
 app.on('activate', () => {

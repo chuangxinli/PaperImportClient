@@ -63,7 +63,14 @@
 <script>
 	import axios from 'axios'
 	const {ipcRenderer} = require('electron')
-	import { Message } from 'element-ui'
+	import { Message, Loading } from 'element-ui'
+  let loadOptions = {
+    lock: true,
+    text: '数据更新中，请稍等！',
+    spinner: 'el-icon-loading',
+    background: 'rgba(0, 0, 0, 0.5)'
+  }
+  let loadingInstance
 	export default {
 	  computed: {
 	    version() {
@@ -236,7 +243,9 @@
 					this.jsonData = data.data
 					if(data.data.version != this.version){
     	      this.newVersion = data.data.version
+						loadingInstance = Loading.service(loadOptions)
     	      axios.all([this.getSubjectAboutInfo(), this.getUnitAndSubUnit(), this.getUseMarkList()]).then(axios.spread( (SubjectAboutInfo, UnitAndSubUnit, UserMarkList) => {
+              loadingInstance.close()
     	        if(SubjectAboutInfo.data.recode == 0 && UnitAndSubUnit.data.recode == 0){
                 this.$store.dispatch('CHANGE_VERSION', {version: this.newVersion})
                 this.$store.dispatch('UNIT_AND_SUBUINT', {unitAndSubUnit: UnitAndSubUnit.data.data})
@@ -250,6 +259,7 @@
                 });
 							}
             })).catch((err) => {
+              loadingInstance.close()
               Message({
                 showClose: true,
                 message: '数据请求异常！',

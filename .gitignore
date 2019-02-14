@@ -2,9 +2,6 @@
 /.idea
 dist/electron/*
 dist/web/*
-src/renderer/api/fileOfJsonAndHtml/
-src/renderer/api/json/*
-src/renderer/api/errJson/
 uploads/*
 public/*
 build/*

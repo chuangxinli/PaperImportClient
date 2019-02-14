@@ -752,7 +752,8 @@
           }
           return (start + (end - start) / (count - 1) * currentNum).toFixed(3)
         }
-        let Num = 0, paperDiffSum = 0 , allScore = 0
+        //OptionalFlag
+        let Num = 0, paperDiffSum = 0, allScore = 0, OptionalScoreArr = []
         let singleNum = 0, multipleNum = 0, blankNum = 0, resolveNum = 0, judgeNum = 0
         let partLength = row.AllQuestionArr.length
         for(let i = 0; i < partLength; i ++){
@@ -864,6 +865,9 @@
               }else if(row.AllQuestionArr[i].question[j].Type == 5){
                 row.AllQuestionArr[i].question[j].Difficulty = getDifficulty('judge', row.AllQuestionArr[i].question[j].judgeNum, judgeNum)
               }
+              if(row.AllQuestionArr[i].question[j].OptionalFlag){
+                OptionalScoreArr.push(row.AllQuestionArr[i].question[j].Score)
+              }
               if(row.AllQuestionArr[i].question[j].SubQuestionList.length > 0){
                 let subLength = row.AllQuestionArr[i].question[j].SubQuestionList.length
                 let diffSum = 0
@@ -901,6 +905,9 @@
                 }else if(row.AllQuestionArr[i].children[j].question[m].Type == 5){
                   row.AllQuestionArr[i].children[j].question[m].Difficulty = getDifficulty('judge', row.AllQuestionArr[i].children[j].question[m].judgeNum, judgeNum)
                 }
+                if(row.AllQuestionArr[i].children[j].question[m].OptionalFlag){
+                  OptionalScoreArr.push(row.AllQuestionArr[i].children[j].question[m].Score)
+                }
                 if(row.AllQuestionArr[i].children[j].question[m].SubQuestionList.length > 0){
                   let subLength = row.AllQuestionArr[i].children[j].question[m].SubQuestionList.length
                   let diffSum = 0
@@ -926,7 +933,16 @@
           }
         }
         row.Difficulty = (paperDiffSum / allScore).toFixed(3)
-        row.Score = allScore
+        let tempSplitScore = 0
+        console.log(OptionalScoreArr)
+        if(OptionalScoreArr.length > 1){
+          for(let i = 1; i < OptionalScoreArr.length; i++){
+            tempSplitScore += Number(OptionalScoreArr[i])
+          }
+          row.Score = allScore - tempSplitScore
+        } else {
+          row.Score = allScore
+        }
         row.IsSchoolUser = this.getSession('isSchoolUser')
         return row
       },

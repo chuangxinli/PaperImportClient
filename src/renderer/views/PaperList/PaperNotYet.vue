@@ -65,9 +65,11 @@
 
         <!-- 设置 "考察范围" 弹窗 -->
         <el-dialog title="设置试卷考察范围" :visible.sync="setScopeDialog" width="40%" id="setScopeDialog">
-
+          <el-button type="primary" @click="SetAllScope()" class="btn_style">全 选</el-button>
+          <el-button type="primary" @click="SetSpaceScope()" class="btn_style">取消全选</el-button>
           <!-- 树状结构 -->
           <el-tree
+            class="mTop20"
             :data="scopeTree"
             show-checkbox
             node-key="unitId"
@@ -537,7 +539,8 @@
           },
         ],
         //上传json
-        lackScoreArr: []
+        lackScoreArr: [],
+        unitIdList: []
       }
     },
     computed: {
@@ -699,6 +702,7 @@
                       for (let m = 0; m < this.scopeTree[k].subUnitList.length; m++) {
                         this.scopeTree[k].subUnitList[m].unitId_parent = unitId_parent;
                       }
+                      this.unitIdList.push(this.scopeTree[k].unitId)
                     }
                   }
                   this.setScopeDialog = true;
@@ -716,6 +720,12 @@
             }
           }
         }
+      },
+      SetAllScope(){
+        this.$refs.rangeTree.setCheckedKeys(this.unitIdList);
+      },
+      SetSpaceScope(){
+        this.$refs.rangeTree.setCheckedKeys([]);
       },
       // 确定设置 "试卷考察范围"
       confirmSetScope(){
@@ -1135,5 +1145,10 @@
     font-size: 20px;
     height: 40px;
     line-height: 40px;
+  }
+
+  .btn_style{
+    padding: 9px 15px;
+    font-size: 12px;
   }
 </style>

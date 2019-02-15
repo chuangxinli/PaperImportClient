@@ -894,6 +894,7 @@
                     row.AllQuestionArr[i].question[j].SubQuestionList[m].Difficulty = getDifficulty('judge', row.AllQuestionArr[i].question[j].SubQuestionList[m].judgeNum, judgeNum)
                   }
                   diffSum = Number(row.AllQuestionArr[i].question[j].SubQuestionList[m].Difficulty) + diffSum
+                  console.log(diffSum)
                 }
                 row.AllQuestionArr[i].question[j].Difficulty = (diffSum / subLength).toFixed(3)
               }
@@ -934,6 +935,7 @@
                       row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Difficulty = getDifficulty('judge', row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].judgeNum, judgeNum)
                     }
                     diffSum = Number(row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Difficulty) + diffSum
+                    console.log(diffSum)
                   }
                   row.AllQuestionArr[i].children[j].question[m].Difficulty = (diffSum / subLength).toFixed(3)
                 }
@@ -942,6 +944,8 @@
             }
           }
         }
+        console.log(paperDiffSum)
+        console.log(allScore)
         row.Difficulty = (paperDiffSum / allScore).toFixed(3)
         let tempSplitScore = 0
         console.log(OptionalScoreArr)

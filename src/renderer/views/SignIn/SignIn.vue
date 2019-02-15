@@ -61,6 +61,8 @@
 </template>
 
 <script>
+	const writeFile = require('write')
+	const path = require('path')
 	import axios from 'axios'
 	const {ipcRenderer} = require('electron')
 	import { Message, Loading } from 'element-ui'
@@ -250,6 +252,14 @@
                 this.$store.dispatch('CHANGE_VERSION', {version: this.newVersion})
                 this.$store.dispatch('UNIT_AND_SUBUINT', {unitAndSubUnit: UnitAndSubUnit.data.data})
                 this.$store.dispatch('SUBJECT_ABOUT_INFO', {subjectAboutInfo: SubjectAboutInfo.data.data})
+                /*writeFile(path.join(__dirname, '../../../main/json/subjectAboutInfo.json'), JSON.stringify(SubjectAboutInfo.data.data), err => {
+                  console.log(err)
+                  return
+                })
+                writeFile(path.join(__dirname, '../../../main/json/unitAndSubUnit.json'), JSON.stringify(UnitAndSubUnit.data.data), err => {
+                  console.log(err)
+                  return
+                })*/
                 this.$store.dispatch('USE_TAG_CHANGE', {userMarkList: UserMarkList.data.data})
 							}else{
                 Message({

@@ -2,11 +2,6 @@ const mammoth = require('mammoth');
 const jsdom = require('jsdom');
 const {JSDOM} = jsdom;
 const path = require('path');
-const fs = require('fs');
-//const subjectAboutInfo = require('../json/subjectAboutInfo.json').subjectAboutInfo
-//const unitAndSubUnit = require('../json/unitAndSubUnit.json').unitAndSubUnit
-//const subjectAboutInfo = store.state.Version.subjectAboutInfo
-//const unitAndSubUnit = store.state.Version.unitAndSubUnit
 
 
 let choiceList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
@@ -465,13 +460,8 @@ function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit
 }
 
 //处理htmlToJson函数
-function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit) {
-  //console.log(subjectAboutInfo)
-  //console.log(unitAndSubUnit)
-  subjectAboutInfo = subjectAboutInfo
-  unitAndSubUnit = unitAndSubUnit
+function htmlToJson(originArr, myEmitter, subjectAboutInfo, unitAndSubUnit) {
   let docxArr = []
-  let dir = originArr[0].dir
   for (let i = 0, len = originArr.length; i < len; i++) {
     docxArr.push(originArr[i].path)
   }
@@ -922,12 +912,11 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
       dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit)
       myEmitter.emit('jsonObjSuccess', {jsonObj, temp})
       if ((jsonArr.length + errArr.length + lackArr.length) === docxArr.length) {
-        myEmitter.emit('success', {dir})
-        res.send({
-          jsonArr,
-          errArr,
-          lackArr,
-          recode: 0
+        myEmitter.emit('success', {
+            jsonArr,
+            errArr,
+            lackArr,
+            recode: 0
         })
       }
     })
@@ -936,12 +925,11 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
         myEmitter.emit('error', {jsonObj})
         errArr.push({index: i, path: docxArr[i], fileName: path.basename(docxArr[i], '.docx')})
         if ((jsonArr.length + errArr.length + lackArr.length) === docxArr.length) {
-          myEmitter.emit('success', {dir})
-          res.send({
-            jsonArr,
-            errArr,
-            lackArr,
-            recode: 0
+          myEmitter.emit('success', {
+              jsonArr,
+              errArr,
+              lackArr,
+              recode: 0
           })
         }
       })

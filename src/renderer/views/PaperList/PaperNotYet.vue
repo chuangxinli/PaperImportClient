@@ -178,7 +178,7 @@
                 <div v-html="global.formatFirstPToSpan(part.text)" class="partText"></div>
                 <div v-for="question,qIndex in part.question">
                   <div
-                    v-html="(question.Serial_num ? question.Serial_num : qIndex + 1) + '.' + (question.Score ? '（' + question.Score + '分）' : '') + global.formatFirstPToSpan(question.Text)"
+                    v-html="(question.Serial_num ? question.Serial_num : qIndex + 1) + '、' + (question.Score ? '（' + question.Score + '分）' : '') + global.formatFirstPToSpan(question.Text)"
                     class="text"></div>
                   <div v-if="question.Type == 1 || question.Type == 2 || question.Type == 5" class="question">
                     <div class="options" v-for="option in question.Options">
@@ -224,7 +224,7 @@
                   <div v-html="global.formatFirstPToSpan(brief.text)" class="briefText"></div>
                   <div v-for="question,qIndex in brief.question">
                     <div
-                      v-html="(question.Serial_num ? question.Serial_num : qIndex + 1) + '.' + (question.Score ? '（' + question.Score + '分）' : '') + global.formatFirstPToSpan(question.Text)"
+                      v-html="(question.Serial_num ? question.Serial_num : qIndex + 1) + '、' + (question.Score ? '（' + question.Score + '分）' : '') + global.formatFirstPToSpan(question.Text)"
                       class="text"></div>
                     <div v-if="question.Type == 1 || question.Type == 2 || question.Type == 5" class="question">
                       <div class="options" v-for="option in question.Options">
@@ -547,7 +547,6 @@
       showVuexData(){
         // 接收 Vuex 中未上传试卷列表数据
         this.tableData = JSON.parse(JSON.stringify(this.$store.state.Paper.jsonArr));
-        console.log(this.tableData);
         // 接收 Vuex 学段学科教材版本数据					=> 只做 学段学科 教材版本 学科能力 思想方法 级联
         let subjectAboutInfo = JSON.parse(JSON.stringify(this.$store.state.Version.subjectAboutInfo));
         this.SubjectArr = this.SubjectArr.concat(subjectAboutInfo);		// 学段学科 加上全部 ''
@@ -580,7 +579,6 @@
         })
       },
       TestClick(row){
-        console.log(row)
         this.previewDialog = true
         this.items = row
       },
@@ -602,7 +600,6 @@
       },
       // 试题编辑
       ItemEditMain(row){
-        console.log(row)
         this.setLocal('paperData', JSON.stringify(row));
         this.changeRouterByName('ItemEditMain');
       },
@@ -754,11 +751,14 @@
         let difficultyList = this.difficultyList
         let defaultSection = this.defaultSection
         function getDifficulty(itemType, currentNum, count) {
-          let curDiff = difficultyList[row.DiffcultyType]
+          let curDiff = difficultyList[row.DiffcultyType - 1]
           let {start, end} = defaultSection
           if(curDiff[itemType]){
             start = curDiff[itemType].start
             end = curDiff[itemType].end
+          }
+          if(count == 1){
+            return start
           }
           return (start + (end - start) / (count - 1) * currentNum).toFixed(3)
         }
@@ -894,7 +894,6 @@
                     row.AllQuestionArr[i].question[j].SubQuestionList[m].Difficulty = getDifficulty('judge', row.AllQuestionArr[i].question[j].SubQuestionList[m].judgeNum, judgeNum)
                   }
                   diffSum = Number(row.AllQuestionArr[i].question[j].SubQuestionList[m].Difficulty) + diffSum
-                  console.log(diffSum)
                 }
                 row.AllQuestionArr[i].question[j].Difficulty = (diffSum / subLength).toFixed(3)
               }
@@ -935,7 +934,6 @@
                       row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Difficulty = getDifficulty('judge', row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].judgeNum, judgeNum)
                     }
                     diffSum = Number(row.AllQuestionArr[i].children[j].question[m].SubQuestionList[n].Difficulty) + diffSum
-                    console.log(diffSum)
                   }
                   row.AllQuestionArr[i].children[j].question[m].Difficulty = (diffSum / subLength).toFixed(3)
                 }
@@ -944,11 +942,8 @@
             }
           }
         }
-        console.log(paperDiffSum)
-        console.log(allScore)
         row.Difficulty = (paperDiffSum / allScore).toFixed(3)
         let tempSplitScore = 0
-        console.log(OptionalScoreArr)
         if(OptionalScoreArr.length > 1){
           for(let i = 1; i < OptionalScoreArr.length; i++){
             tempSplitScore += Number(OptionalScoreArr[i])
@@ -1107,8 +1102,8 @@
 
   .partText {
     font-size: 18px;
-    min-height: 28px;
-    line-height: 28px;
+    min-height: 50px;
+    line-height: 50px;
   }
 
   .text {
@@ -1154,5 +1149,10 @@
   .btn_style{
     padding: 9px 15px;
     font-size: 12px;
+  }
+  .text{
+    border-top: 1px solid #cdcdcd;
+    margin-top: 20px;
+    padding-top: 20px;
   }
 </style>

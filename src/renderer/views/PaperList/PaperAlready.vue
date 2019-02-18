@@ -77,7 +77,7 @@
 						<div v-html="global.formatFirstPToSpan(part.text)" class="partText"></div>
 						<div v-for="question,qIndex in part.questionList">
 							<div
-								v-html="(question.serial_num ? question.serial_num : question.num) + '.' + (question.score ? '（' + question.score + '分）' : '') + global.formatFirstPToSpan(question.text)"
+								v-html="(question.serial_num ? question.serial_num : question.num) + '、' + (question.score ? '（' + question.score + '分）' : '') + global.formatFirstPToSpan(question.text)"
 								class="text"></div>
 							<div v-if="question.qType == 1 || question.qType == 2 || question.qType == 5" class="question">
 								<div class="options" v-for="option in question.answerList">
@@ -131,7 +131,7 @@
 							<div v-html="global.formatFirstPToSpan(brief.text)" class="briefText"></div>
 							<div v-for="question,qIndex in brief.questionList">
 								<div
-									v-html="(question.serial_num ? question.serial_num : question.num) + '.' + (question.score ? '（' + question.score + '分）' : '') + global.formatFirstPToSpan(question.text)"
+									v-html="(question.serial_num ? question.serial_num : question.num) + '、' + (question.score ? '（' + question.score + '分）' : '') + global.formatFirstPToSpan(question.text)"
 									class="text"></div>
 								<div v-if="question.qType == 1 || question.qType == 2 || question.qType == 5" class="question">
 									<div class="options" v-for="option in question.answerList">
@@ -409,12 +409,20 @@
 	.text {
 		min-height: 24px;
 		line-height: 24px;
+		margin-top: 20px;
+		padding-top: 20px;
+		border-top: 1px solid #cdcdcd;
 	}
 
 	.options {
 		padding-left: 20px;
 	}
 
+	.partText {
+		font-size: 18px;
+		min-height: 50px;
+		line-height: 50px;
+	}
 	.option {
 		min-height: 24px;
 		line-height: 24px;

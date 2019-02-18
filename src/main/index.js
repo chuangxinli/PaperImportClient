@@ -27,6 +27,18 @@ const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
 
+const isSecondInstance = app.makeSingleInstance(() => {
+  // Someone tried to run a second instance, we should focus our window.
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore()
+    mainWindow.focus()
+  }
+})
+
+if (isSecondInstance) {
+  app.quit()
+}
+
 function startSever(subjectAboutInfo, unitAndSubUnit) {
   const express = require('express')
   const appExpress = express()
@@ -180,12 +192,8 @@ function createWindow () {
   mainWindow.loadURL(winURL)
   /*let appPath =  path.join(__dirname, '../renderer/api/appExpress.js')
   spawn('node', [appPath])*/
-  ipcMain.on('startServe',function (e, arg, user) {
-    console.log('arg:',arg)
-    console.log('user:',user)
-    if(!user){
-      startSever(store.state.Version.subjectAboutInfo, store.state.Version.unitAndSubUnit)
-    }
+  ipcMain.on('startServe',function (e) {
+    startSever(store.state.Version.subjectAboutInfo, store.state.Version.unitAndSubUnit)
   })
   mainWindow.on('closed', () => {
     mainWindow = null

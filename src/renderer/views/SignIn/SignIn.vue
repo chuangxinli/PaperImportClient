@@ -88,14 +88,12 @@
 		},
 		watch: {
       version: function () {
-        if(!this.serving){
-          setTimeout(() => {
-            ipcRenderer.send('startServe', '111', this.oldSessionUser)
-          }, 4000)
-          this.$router.push({
-            path: '/Main'
-          })
-				}
+				setTimeout(() => {
+					ipcRenderer.send('startServe')
+				}, 4000)
+				this.$router.push({
+					path: '/Main'
+				})
       }
 		},
 		props: {
@@ -118,13 +116,9 @@
 				newVersion: '',
 				tempVersion: '',
 				jsonData: '',
-				oldSessionUser: '',
-				serving: true
       };
     },
     mounted() {
-      this.test()
-	    this.oldSessionUser = this.getSession('account')
 	    console.log(this.unitAndSubUnit)
 			console.log(this.subjectAboutInfo)
 	    if(this.getLocal('isSetCookie') == 'true'){
@@ -175,24 +169,6 @@
 	        this.$message.error(data.errmsg);
 	      }
 			},
-			test(){
-    	  let url = 'http://localhost:13004/test'
-				axios.get(
-					url,
-					{
-					  timeout: 2000,
-            withCredentials: false,
-						headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
-					}
-				).then((response) => {
-    	    console.log(response)
-					if(!response){
-    	      this.serving = false
-					}
-				}).catch((err) => {
-    	    console.log(err)
-				})
-			},
       getSubjectAboutInfo() {
         let url = '/paper/baseData/getSubjectAboutInfo'
     	  return axios.get(this.global.api_url + url)
@@ -227,7 +203,7 @@
 					password: this.formLabelAlign.userPwd,
           isLogin: 1 //测试用
 				}
-				let data = await this.api.get(url, params)
+				let data = await this.api.get(url, params, {loading: true})
 				if(data){
           this.setSession('account', this.formLabelAlign.account)
     	    if(!this.formLabelAlign.isSetCookie){
@@ -278,9 +254,7 @@
 							console.log(err)
             })
 					}else{
-					  if(!this.serving){
-              ipcRenderer.send('startServe', '222', this.oldSessionUser)
-						}
+					  ipcRenderer.send('startServe')
             this.$router.push({
               path: '/Main'
             })

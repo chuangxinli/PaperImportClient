@@ -220,6 +220,9 @@ function filterAnswer(primaryStr) {
   let matchStr = primaryStr.match(/<u>.*?<\/u>/g)
   if(matchStr){
     for(let i = 0, len = matchStr.length; i < len; i++){
+      if(matchStr[i].includes('<u><s>')){
+        continue
+      }
       let str = '<u>'
       if(matchStr[i].includes('<img')){
         str = str + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -315,7 +318,6 @@ function dealExaminationPoints(primaryStr, jsonObj, subjectAboutInfo) {
     ExaminationPointsName
   }
 }
-
 
 //对解析无误的jsonObj处理  (1，给小题添加Explain，Analysis，Comments，Special_topics，Examination_points   2，添加相应的rangeMin，rangeMax  3，对考点的处理  4，对必选字段的验证 5，分数的判断)
 function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit) {

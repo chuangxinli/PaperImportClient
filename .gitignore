@@ -5,6 +5,9 @@ dist/web/*
 uploads/*
 public/*
 build/*
+src/main/errJson/*
+src/main/fileOfJsonAndHtml/*
+src/main/json/*
 !build/icons
 node_modules/
 npm-debug.log

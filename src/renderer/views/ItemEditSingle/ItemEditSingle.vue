@@ -136,7 +136,7 @@
 							<!-- 单选题和多选题(非题组题) -->
 							<ul v-if="itemData.Type == 1 || itemData.Type == 2 || itemData.Type == 5">
 								<li v-for="(option, optionIndex) in itemData.Options" :key="optionIndex" :class="option.IsRight?'redFont':''">
-									<p class="choice_one" v-html="'<span>'+optionList[optionIndex]+'：'+'</span>'+ option.Text"></p>
+									<p class="choice_one" v-html="'<span>'+optionList[optionIndex]+'、'+'</span>'+ option.Text"></p>
 								</li>
 							</ul>
 						</p>
@@ -166,7 +166,9 @@
 						<el-select class="w_100 ml-10 mr-10" v-model="itemData.Type" @change="changeInputValue">
 		          <el-option v-for="item in itemTypeList" :key="item.type" :label="item.typeName" :value="item.type"></el-option>
 		        </el-select>
-		        <i class="cursor_pointer blueFont el-icon-plus" v-show="itemData.Type == 1 || itemData.Type == 2 || itemData.Type == 5" @click="EditHtml('添加选项', '<p>选项内容</p>', 'Options', 9999)"> 添加选项</i>
+		        <i class="cursor_pointer blueFont el-icon-plus mr-10" v-show="itemData.Type == 1 || itemData.Type == 2 || itemData.Type == 5" @click="EditHtml('添加选项', '<p>选项内容</p>', 'Options', 9999)"> 添加选项</i>
+						<el-tag type="info" v-show="itemData.OptionalFlag" size="small">选做题</el-tag>
+						<el-tag type="info" v-show="!itemData.OptionalFlag" size="small">非选做题</el-tag>
 						<div class="inline_block notice"></div>
 					</div>
 					

@@ -134,21 +134,21 @@ function judgeIsOption(primaryStr) {
 }
 
 //选择题的进一步处理
-function dealOptions(jsonObj, primaryStr, hasSubItem, add) {
+function dealOptions(jsonObj, primaryStr, hasSubItem, add, span) {
   if (jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].hasChild == '0') {
     let qLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question.length
     if (hasSubItem) {
       let subItemLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question[qLength - 1].SubQuestionList.length
       if (add) {
         let optionsLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question[qLength - 1].SubQuestionList[subItemLength - 1].Options.length
-        jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question[qLength - 1].SubQuestionList[subItemLength - 1].Options[optionsLength - 1].Text += '<p>' + primaryStr + '</p>'
+        jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question[qLength - 1].SubQuestionList[subItemLength - 1].Options[optionsLength - 1].Text += span ? '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>' + primaryStr + '</span>' : '<p>' + primaryStr + '</p>'
       } else {
         jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question[qLength - 1].SubQuestionList[subItemLength - 1].Options.push(dealChoice(primaryStr))
       }
     } else {
       if (add) {
         let optionsLength = jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question[qLength - 1].Options.length
-        jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question[qLength - 1].Options[optionsLength - 1].Text += '<p>' + primaryStr + '</p>'
+        jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question[qLength - 1].Options[optionsLength - 1].Text += span ? '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>' + primaryStr + '</span>' : '<p>' + primaryStr + '</p>'
       } else {
         jsonObj.AllQuestionArr[jsonObj.AllQuestionArr.length - 1].question[qLength - 1].Options.push(dealChoice(primaryStr))
       }
@@ -207,22 +207,49 @@ function dealChoice(primaryStr) {
 
 //获取题的类型   返回的是 Number
 function getItemType(primaryStr, itemTypeNum) {
-  if (primaryStr.match(/^#\d+#$/) == null) {
+  if (primaryStr.match(/#\d+#/) == null) {
     return itemTypeNum
   } else {
-    let match = primaryStr.match(/^#\d+#$/)[0]
+    let match = primaryStr.match(/#\d+#/)[0]
     return match.slice(1, match.length - 1)
   }
+}  
+
+//处理波浪线
+function dealWavy(primaryStr) {
+  let reg = /<u><s>.*?<\/s><\/u>/g
+  let matchArr = primaryStr.match(reg)
+  if(matchArr){
+    for(let i = 0; i < matchArr.length; i++){
+      let temp = matchArr[i].replace(/<u><s>/, '<span class="wavy">').replace(/<\/s><\/u>/, '</span>')
+      primaryStr = primaryStr.replace(matchArr[i], temp)
+    }
+  }
+  return primaryStr
 }
 
-//去掉题干或者选项中的正确答案 (英语专用)
+//处理着重号
+function dealDot(primaryStr) {
+  let reg = /<em><s>.*?<\/s><\/em>/g
+  let matchArr = primaryStr.match(reg)
+  if(matchArr){
+    for(let i = 0; i < matchArr.length; i++){
+      let temp = ''
+      let str = matchArr[i].replace('<em><s>', '').replace('</s></em>', '')
+      for(let j = 0; j < str.length; j++){
+        temp = temp + '<span class="singleDot">' + str[j] + '</span>'
+      }
+      primaryStr = primaryStr.replace(matchArr[i], temp)
+    }
+  }
+  return primaryStr
+}
+
+//去掉题干或者选项中的正确答案
 function filterAnswer(primaryStr) {
   let matchStr = primaryStr.match(/<u>.*?<\/u>/g)
   if(matchStr){
     for(let i = 0, len = matchStr.length; i < len; i++){
-      if(matchStr[i].includes('<u><s>')){
-        continue
-      }
       let str = '<u>'
       if(matchStr[i].includes('<img')){
         str = str + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -243,9 +270,9 @@ function getItemYear(primaryStr) {
   let reg = /(\(|（).*•/
   let matchArr = primaryStr.match(reg)
   if(matchArr){
-    return parseInt(matchArr[0].slice(1))
+    return matchArr[0].match(/\d{4}/) ? matchArr[0].match(/\d{4}/)[0] : new Date().getFullYear()
   }
-  return new Date().getFullYear()
+  return String(new Date().getFullYear())
 }
 
 //对题干断行的处理
@@ -373,6 +400,10 @@ function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit
           if(jsonObj.AllQuestionArr[i].question[j].SubQuestionList.length > 0){
             let subQLength = jsonObj.AllQuestionArr[i].question[j].SubQuestionList.length
             for(let k = 0; k < subQLength; k ++){
+              jsonObj.AllQuestionArr[i].question[j].SubQuestionList[k].Year = jsonObj.AllQuestionArr[i].question[j].Year
+              if(jsonObj.AllQuestionArr[i].question[j].SubQuestionList[k].Text.includes('<u><i>')){
+                jsonObj.AllQuestionArr[i].question[j].SubQuestionList[k].Text = dealWavy(jsonObj.AllQuestionArr[i].question[j].SubQuestionList[k].Text)
+              }
               if(jsonObj.AllQuestionArr[i].question[j].SubQuestionList[k].removeAnswer){
                 jsonObj.AllQuestionArr[i].question[j].SubQuestionList[k].Text = filterAnswer(jsonObj.AllQuestionArr[i].question[j].SubQuestionList[k].Text)
               }
@@ -424,6 +455,7 @@ function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit
             if(jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList.length > 0){
               let subQLength = jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList.length
               for(let m = 0; m < subQLength; m ++){
+                jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].Year = jsonObj.AllQuestionArr[i].children[j].question[k].Year
                 if(jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].removeAnswer){
                   jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].Text = filterAnswer(jsonObj.AllQuestionArr[i].children[j].question[k].SubQuestionList[m].Text)
                 }
@@ -536,6 +568,12 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
       ]
     }).then(result => {
       let temp = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Title</title><style>table.defaultTableStyle { border-collapse: collapse; text-align: center; margin: 2px; }table.defaultTableStyle th, table.defaultTableStyle td { line-height: 30px; padding: 5px; white-space: normal; word-break: break-all; border: 1px solid #000; vertical-align: middle; }</style></head><body>${result.value}</body></html>`;
+      if(temp.includes('<u><s>')){
+        temp = dealWavy(temp)
+      }
+      if(temp.includes('<em><s>')){
+        temp = dealDot(temp)
+      }
       let {document} = new JSDOM(temp).window;
       let global = {};
       global.document = document;
@@ -549,36 +587,36 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
           continue
         }
         //匹配到##end时结束匹配
-        if (dealSpace('end').test(primaryStr)) {
+        if (/##end/.test(primaryStr)) {
           console.log('break 执行了！！！！')
           break
         }
-        if(/^\s*#underline#$/.test(primaryStr)){
+        if(/#underline#/.test(primaryStr)){
           removeAnswer = false
           continue
         }
-        if(/^\s*#\/underline#/.test(primaryStr)){
+        if(/#\/underline#/.test(primaryStr)){
           removeAnswer = true
           continue
         }
-        if(/^\s*#options#/.test(primaryStr)){
+        if(/#options#/.test(primaryStr)){
           options = true
           continue
         }
-        if(/^\s*#\/options#/.test(primaryStr)){
+        if(/#\/options#/.test(primaryStr)){
           options = false
           continue
         }
-        if(/^\s*#noselect#/.test(primaryStr)){
+        if(/#noselect#/.test(primaryStr)){
           OptionalFlag = false
           continue
         }
-        if(/^\s*#select#/.test(primaryStr)){
+        if(/#select#/.test(primaryStr)){
           OptionalFlag = true
           continue
         }
         //处理题的类型
-        if (/^#\d+#$/.test(primaryStr.trim())) {
+        if (/#\d+#/.test(primaryStr.trim())) {
           itemTypeNum = getItemType(primaryStr.trim(), itemTypeNum)
           continue
         }
@@ -587,15 +625,13 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
           if ($(document.body).children()[i].tagName.toLowerCase() == 'table') {
             curLabel = 'table'
             if(options){
-
               let tdTextList = $(document.body).children()[i].getElementsByTagName('p')
               for(let i = 0, len = tdTextList.length; i < len; i++){
-                
                 let str = $(tdTextList[i]).html()
                 if(judgeIsOption(str)){
                   dealOptions(jsonObj, str, hasSubItem)
                 }else{
-                  dealOptions(jsonObj, str, hasSubItem, true)
+                  dealOptions(jsonObj, str, hasSubItem, true, true)
                 }
               }
               continue

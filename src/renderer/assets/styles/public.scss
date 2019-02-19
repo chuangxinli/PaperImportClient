@@ -942,3 +942,12 @@ table.defaultTableStyle th, table.defaultTableStyle td {
   text-align: center;
 }
 
+.wavy{
+  text-decoration: underline wavy;
+}
+
+.singleDot{
+  background: url(../images/point.png) no-repeat center bottom;
+  padding-bottom: 4px;
+}
+

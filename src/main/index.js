@@ -55,7 +55,7 @@ function startSever(subjectAboutInfo, unitAndSubUnit) {
   }
   const myEmitter = new MyEmitter()
 
-  let printJson = true  //查看json和html文件自己做测试时可以把printJson改为true,其他情况就为false
+  let printJson = false  //查看json和html文件自己做测试时可以把printJson改为true,其他情况就为false
 
   let deleteFolder = function(path) {
     let files = [];

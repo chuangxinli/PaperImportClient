@@ -235,6 +235,16 @@ function filterAnswer(primaryStr) {
   return primaryStr.replace(/<sub>(&nbsp|\s)*<u>(&nbsp|\s)*<\/u>(&nbsp|\s)*?<\/sub>/gi, '').replace(/<sup>(&nbsp|\s)*<u>(&nbsp|\s)*<\/u>(&nbsp|\s)*?<\/sup>/gi, '')
 }
 
+//获取试题的年份
+function getItemYear(primaryStr) {
+  let reg = /(\(|（).*•/
+  let matchArr = primaryStr.match(reg)
+  if(matchArr){
+    return parseInt(matchArr[0].slice(1))
+  }
+  return new Date().getFullYear()
+}
+
 //对题干断行的处理
 function dealItem(item, jsonObj, primaryStr) {
   if (item == 'Item') {
@@ -261,10 +271,13 @@ function dealItem(item, jsonObj, primaryStr) {
 
 //处理考点
 function dealExaminationPoints(primaryStr, jsonObj, subjectAboutInfo) {
-  let tempArr = primaryStr.replace(dealBracket('考点'), '').replace(/\s*/g, '').replace(/(．\S*|\.\S*|。\S*)/, '').replace(/:/g, '：').replace(/;/g, '；').split('；'), ExaminationPoints = []
+  console.log(primaryStr)
+  //如果遇到& 就会解析成 &amp;
+  let tempArr = primaryStr.replace(dealBracket('考点'), '').replace(/&amp;/g, '').replace(/\s*/g, '').replace(/(．\S*|\.\S*|。\S*)/, '').replace(/:/g, '：').replace(/;/g, '；').split('；'), ExaminationPoints = []
   for (let i = 0, len = tempArr.length; i < len; i++) {
     ExaminationPoints.push(tempArr[i].split('：')[1])
   }
+  console.log(ExaminationPoints)
   let knowledgePointList = []
   //考点对应的中文名称数组
   let ExaminationPointsName = []
@@ -336,6 +349,7 @@ function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit
         jsonObj.AllQuestionArr[i].rangeMax = qIndex + qLength - 1
         qIndex += qLength
         for(let j = 0; j < qLength; j ++){
+          jsonObj.AllQuestionArr[i].question[j].Year = getItemYear(jsonObj.AllQuestionArr[i].question[j].Text)
           if(jsonObj.AllQuestionArr[i].question[j].removeAnswer){
             jsonObj.AllQuestionArr[i].question[j].Text = filterAnswer(jsonObj.AllQuestionArr[i].question[j].Text)
           }
@@ -386,6 +400,7 @@ function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit
           jsonObj.AllQuestionArr[i].children[j].rangeMax = qIndex + qLength - 1
           qIndex += qLength
           for(let k = 0; k < qLength; k ++){
+            jsonObj.AllQuestionArr[i].children[j].question[k].Year = getItemYear(jsonObj.AllQuestionArr[i].children[j].question[k].Text)
             if(jsonObj.AllQuestionArr[i].children[j].question[k].removeAnswer){
               jsonObj.AllQuestionArr[i].children[j].question[k].Text = filterAnswer(jsonObj.AllQuestionArr[i].children[j].question[k].Text)
             }
@@ -466,10 +481,6 @@ function dealJsonObj(jsonObj, jsonArr, lackArr, subjectAboutInfo, unitAndSubUnit
 
 //处理htmlToJson函数
 function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit) {
-  //console.log(subjectAboutInfo)
-  //console.log(unitAndSubUnit)
-  subjectAboutInfo = subjectAboutInfo
-  unitAndSubUnit = unitAndSubUnit
   let docxArr = []
   let dir = originArr[0].dir
   for (let i = 0, len = originArr.length; i < len; i++) {

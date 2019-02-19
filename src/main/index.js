@@ -55,7 +55,7 @@ function startSever(subjectAboutInfo, unitAndSubUnit) {
   }
   const myEmitter = new MyEmitter()
 
-  let printJson = false  //查看json和html文件自己做测试时可以把printJson改为true,其他情况就为false
+  let printJson = true  //查看json和html文件自己做测试时可以把printJson改为true,其他情况就为false
 
   let deleteFolder = function(path) {
     let files = [];
@@ -192,8 +192,10 @@ function createWindow () {
   mainWindow.loadURL(winURL)
   /*let appPath =  path.join(__dirname, '../renderer/api/appExpress.js')
   spawn('node', [appPath])*/
-  ipcMain.on('startServe',function (e) {
-    startSever(store.state.Version.subjectAboutInfo, store.state.Version.unitAndSubUnit)
+  ipcMain.on('startServe',function (e, user) {
+    if(!user){
+      startSever(store.state.Version.subjectAboutInfo, store.state.Version.unitAndSubUnit)
+    }
   })
   mainWindow.on('closed', () => {
     mainWindow = null

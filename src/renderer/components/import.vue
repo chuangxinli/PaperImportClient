@@ -20,9 +20,10 @@
       <span slot="footer" class="dialog-footer">
     <el-button @click="selectFile()">
       <span>选择文件</span>
-      <input type="file" class="file" multiple="multiple" accept=".docx" style="display: none" @change="tirggerFile($event)">
+      <input type="file" class="file" multiple="multiple" accept=".docx" style="display: none"
+             @change="tirggerFile($event)">
     </el-button>
-    <el-button type="primary" @click="confirmImport">点击上传</el-button>
+    <el-button type="primary" @click="confirmImport" v-show="!isUpload">点击上传</el-button><el-button type="primary" v-show="isUpload">正在上传中。。。</el-button>
   </span>
     </el-dialog>
 
@@ -78,12 +79,14 @@
         docxList: [],
         errArr: [],
         lackArr: [],
-        successArr: []
+        successArr: [],
+        isUpload: false
       }
     },
     methods: {
 
       async postPaper(params){
+        this.isUpload = true
         let serve1 = 'http://39.96.186.199:3004', serve2 = 'http://localhost:13004'
         let url = serve2 + '/word-to-json-2'
         let config = {
@@ -127,7 +130,7 @@
           });
           return
         }
-        if(this.docxList.length > 6){
+        if (this.docxList.length > 6) {
           this.$message({
             showClose: true,
             message: '一次上传不能超过6张试卷！',
@@ -136,6 +139,7 @@
           return
         }
         this.addPaperDialog = false
+        this.isUpload = false
         let fd = new FormData()
         for (let i = 0, len = this.docxList.length; i < len; i++) {
           fd.append('file', this.docxList[i])
@@ -147,6 +151,7 @@
         $('.file:eq(0)').val('')
       },
       importPaper() {
+        this.isUpload = false
         this.docxList = []
         this.addPaperDialog = true
       },
@@ -169,18 +174,21 @@
 </script>
 
 <style scoped>
-  .paperTip > p{
+  .paperTip > p {
     min-height: 20px;
     line-height: 30px;
   }
-  .rowHeight{
+
+  .rowHeight {
     min-height: 20px;
     line-height: 30px;
   }
-  .mLeft{
+
+  .mLeft {
     margin-left: 20px;
   }
-  .el-dialog .el-dialog__body{
+
+  .el-dialog .el-dialog__body {
     max-height: 600px !important;
     overflow-y: scroll !important;
   }

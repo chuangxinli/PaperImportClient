@@ -89,7 +89,7 @@
 		watch: {
       version: function () {
 				setTimeout(() => {
-					ipcRenderer.send('startServe')
+					ipcRenderer.send('startServe', this.oldSessionUser)
 				}, 4000)
 				this.$router.push({
 					path: '/Main'
@@ -116,9 +116,11 @@
 				newVersion: '',
 				tempVersion: '',
 				jsonData: '',
+				oldSessionUser: '',
       };
     },
     mounted() {
+	    this.oldSessionUser = this.getSession('account')
 	    console.log(this.unitAndSubUnit)
 			console.log(this.subjectAboutInfo)
 	    if(this.getLocal('isSetCookie') == 'true'){
@@ -254,7 +256,7 @@
 							console.log(err)
             })
 					}else{
-					  ipcRenderer.send('startServe')
+					  ipcRenderer.send('startServe', this.oldSessionUser)
             this.$router.push({
               path: '/Main'
             })

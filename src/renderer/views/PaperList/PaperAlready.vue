@@ -122,6 +122,18 @@
 									<span class="bold">思想方法：</span>
 									<span v-html="getPropertyName(question.thoughWayList)"></span>
 								</div>
+								<div>
+									<span class="bold">题目时间：</span>
+									<span>{{question.year}}</span>
+								</div>
+								<div>
+									<span class="bold">创建时间：</span>
+									<span>{{question.timeCreated | formatTime('YMD')}}</span>
+								</div>
+								<div>
+									<span class="bold">修改时间：</span>
+									<span>{{question.timeModified | formatTime('YMD')}}</span>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -176,6 +188,18 @@
 									<div>
 										<span class="bold">思想方法：</span>
 										<span v-html="getPropertyName(question.thoughWayList)"></span>
+									</div>
+									<div>
+										<span class="bold">题目时间：</span>
+										<span>{{question.year}}</span>
+									</div>
+									<div>
+										<span class="bold">创建时间：</span>
+										<span>{{question.timeCreated | formatTime('YMD')}}</span>
+									</div>
+									<div>
+										<span class="bold">修改时间：</span>
+										<span>{{question.timeModified | formatTime('YMD')}}</span>
 									</div>
 								</div>
 							</div>

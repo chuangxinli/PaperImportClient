@@ -40,6 +40,11 @@
           <span>({{index + 1}})&nbsp;&nbsp;</span>
           <span>{{errItem.fileName}}</span>
           <span>.docx，请仔细检查规则是否正确！</span>
+          <br>
+          <span>以下错误信息提示仅供参考（</span>
+          <span>大概解析到的位置：</span>
+          <span>'{{errItem.curPosition}}'</span>
+          <spam>大概解析到第{{errItem.curItemNum}}题）</spam>
         </div>
         <p v-show="lackArr.length > 0">解析成功但是不和要求的试卷为：</p>
         <div v-for="lackItem,index in lackArr" class="mLeft rowHeight">

@@ -78,7 +78,8 @@ function getItemNum(primaryStr) {
     return ''
   } else {
     let matchStr = primaryStr.match(reg)[0];
-    return matchStr.substring(0, matchStr.length - 1)
+    curItemNum = matchStr.substring(0, matchStr.length - 1)
+    return curItemNum
   }
 }
 
@@ -301,13 +302,11 @@ function dealItem(item, jsonObj, primaryStr) {
 
 //处理考点
 function dealExaminationPoints(primaryStr, jsonObj, subjectAboutInfo) {
-  console.log(primaryStr)
   //如果遇到& 就会解析成 &amp;
   let tempArr = primaryStr.replace(dealBracket('考点'), '').replace(/&amp;/g, '').replace(/\s*/g, '').replace(/(．\S*|\.\S*|。\S*)/, '').replace(/:/g, '：').replace(/;/g, '；').split('；'), ExaminationPoints = []
   for (let i = 0, len = tempArr.length; i < len; i++) {
     ExaminationPoints.push(tempArr[i].split('：')[1])
   }
-  console.log(ExaminationPoints)
   let knowledgePointList = []
   //考点对应的中文名称数组
   let ExaminationPointsName = []
@@ -522,7 +521,7 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
   }
   let jsonArr = [], errArr = [], lackArr = []  //成功解析和失败解析以及成功解析但是缺少必要属性的列表
   for (let i = 0, len = docxArr.length; i < len; i++) {
-    let itemNum = 0, allScore = 0
+    let itemNum = 0, allScore = 0, curItemNum = 0
     let jsonObj = {
       Title: '',
       Attribute: '',
@@ -727,18 +726,22 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
               let value = getItemProperty('考点', primaryStr)
               dealProperty(jsonObj, curItemProperty, value)
             } else if (dealBracket('专题').test(primaryStr)) {
+              hasSubItem = false
               curItemProperty = 'Special_topics'
               let value = getItemProperty('专题', primaryStr)
               dealProperty(jsonObj, curItemProperty, value)
             } else if (dealBracket('解答').test(primaryStr)) {
+              hasSubItem = false
               curItemProperty = 'Explain'
               let value = '<p>' + getItemProperty('解答', primaryStr) + '</p>'
               dealProperty(jsonObj, curItemProperty, value)
             } else if (dealBracket('分析').test(primaryStr)) {
+              hasSubItem = false
               curItemProperty = 'Analysis'
               let value = '<p>' + getItemProperty('分析', primaryStr) + '</p>'
               dealProperty(jsonObj, curItemProperty, value)
             } else if (dealBracket('点评').test(primaryStr)) {
+              hasSubItem = false
               curItemProperty = 'Comments'
               let value = '<p>' + getItemProperty('点评', primaryStr) + '</p>'
               dealProperty(jsonObj, curItemProperty, value)
@@ -983,7 +986,7 @@ function htmlToJson(res, originArr, myEmitter, subjectAboutInfo, unitAndSubUnit)
       .catch(err => {
         console.log(err)
         myEmitter.emit('error', {jsonObj})
-        errArr.push({index: i, path: docxArr[i], fileName: path.basename(docxArr[i], '.docx')})
+        errArr.push({index: i, path: docxArr[i], fileName: path.basename(docxArr[i], '.docx'), curPosition: primaryStr, curItemNum})
         if ((jsonArr.length + errArr.length + lackArr.length) === docxArr.length) {
           myEmitter.emit('success', {dir})
           res.send({

@@ -215,6 +215,18 @@
                       <span class="bold">解答：</span>
                       <span v-html="global.formatFirstPToSpan(question.Explain)"></span>
                     </div>
+                    <div>
+                      <span class="bold">学科能力：</span>
+                      <span>{{question.AbilityName}}</span>
+                    </div>
+                    <div>
+                      <span class="bold">思想方法：</span>
+                      <span>{{question.ThoughtwayName}}</span>
+                    </div>
+                    <div>
+                      <span class="bold">题目时间：</span>
+                      <span>{{question.Year}}年</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -261,6 +273,18 @@
                       <div>
                         <span class="bold">解答：</span>
                         <span v-html="global.formatFirstPToSpan(question.Explain)"></span>
+                      </div>
+                      <div>
+                        <span class="bold">学科能力：</span>
+                        <span>{{question.AbilityName}}</span>
+                      </div>
+                      <div>
+                        <span class="bold">思想方法：</span>
+                        <span>{{question.ThoughtwayName}}</span>
+                      </div>
+                      <div>
+                        <span class="bold">题目时间：</span>
+                        <span>{{question.year}}</span>
                       </div>
                     </div>
                   </div>
